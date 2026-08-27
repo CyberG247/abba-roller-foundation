@@ -16,6 +16,7 @@ import { Route as CampaignsSlugRouteImport } from './routes/campaigns.$slug'
 import { Route as ProgramsIndexRouteImport } from './routes/programs.index'
 import { Route as ProgramsSlugRouteImport } from './routes/programs.$slug'
 import { Route as StoriesIndexRouteImport } from './routes/stories.index'
+import { Route as StoriesSlugRouteImport } from './routes/stories.$slug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -52,12 +53,18 @@ const StoriesIndexRoute = StoriesIndexRouteImport.update({
   path: '/stories/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StoriesSlugRoute = StoriesSlugRouteImport.update({
+  id: '/stories/$slug',
+  path: '/stories/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/campaigns/$slug': typeof CampaignsSlugRoute
   '/programs/$slug': typeof ProgramsSlugRoute
+  '/stories/$slug': typeof StoriesSlugRoute
   '/campaigns/': typeof CampaignsIndexRoute
   '/programs/': typeof ProgramsIndexRoute
   '/stories/': typeof StoriesIndexRoute
@@ -67,6 +74,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/campaigns/$slug': typeof CampaignsSlugRoute
   '/programs/$slug': typeof ProgramsSlugRoute
+  '/stories/$slug': typeof StoriesSlugRoute
   '/campaigns': typeof CampaignsIndexRoute
   '/programs': typeof ProgramsIndexRoute
   '/stories': typeof StoriesIndexRoute
@@ -77,6 +85,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/campaigns/$slug': typeof CampaignsSlugRoute
   '/programs/$slug': typeof ProgramsSlugRoute
+  '/stories/$slug': typeof StoriesSlugRoute
   '/campaigns/': typeof CampaignsIndexRoute
   '/programs/': typeof ProgramsIndexRoute
   '/stories/': typeof StoriesIndexRoute
@@ -88,6 +97,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/campaigns/$slug'
     | '/programs/$slug'
+    | '/stories/$slug'
     | '/campaigns/'
     | '/programs/'
     | '/stories/'
@@ -97,6 +107,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/campaigns/$slug'
     | '/programs/$slug'
+    | '/stories/$slug'
     | '/campaigns'
     | '/programs'
     | '/stories'
@@ -106,6 +117,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/campaigns/$slug'
     | '/programs/$slug'
+    | '/stories/$slug'
     | '/campaigns/'
     | '/programs/'
     | '/stories/'
@@ -116,6 +128,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   CampaignsSlugRoute: typeof CampaignsSlugRoute
   ProgramsSlugRoute: typeof ProgramsSlugRoute
+  StoriesSlugRoute: typeof StoriesSlugRoute
   CampaignsIndexRoute: typeof CampaignsIndexRoute
   ProgramsIndexRoute: typeof ProgramsIndexRoute
   StoriesIndexRoute: typeof StoriesIndexRoute
@@ -172,6 +185,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StoriesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/stories/$slug': {
+      id: '/stories/$slug'
+      path: '/stories/$slug'
+      fullPath: '/stories/$slug'
+      preLoaderRoute: typeof StoriesSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -180,6 +200,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   CampaignsSlugRoute: CampaignsSlugRoute,
   ProgramsSlugRoute: ProgramsSlugRoute,
+  StoriesSlugRoute: StoriesSlugRoute,
   CampaignsIndexRoute: CampaignsIndexRoute,
   ProgramsIndexRoute: ProgramsIndexRoute,
   StoriesIndexRoute: StoriesIndexRoute,
