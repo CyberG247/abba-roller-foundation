@@ -14,8 +14,10 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as AccessibilityRouteImport } from './routes/accessibility'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as DonateRouteImport } from './routes/donate'
+import { Route as FounderRouteImport } from './routes/founder'
 import { Route as GetInvolvedRouteImport } from './routes/get-involved'
 import { Route as ImpactRouteImport } from './routes/impact'
+import { Route as MediaRouteImport } from './routes/media'
 import { Route as PartnersRouteImport } from './routes/partners'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as TermsRouteImport } from './routes/terms'
@@ -52,6 +54,11 @@ const DonateRoute = DonateRouteImport.update({
   path: '/donate',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FounderRoute = FounderRouteImport.update({
+  id: '/founder',
+  path: '/founder',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GetInvolvedRoute = GetInvolvedRouteImport.update({
   id: '/get-involved',
   path: '/get-involved',
@@ -60,6 +67,11 @@ const GetInvolvedRoute = GetInvolvedRouteImport.update({
 const ImpactRoute = ImpactRouteImport.update({
   id: '/impact',
   path: '/impact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MediaRoute = MediaRouteImport.update({
+  id: '/media',
+  path: '/media',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PartnersRoute = PartnersRouteImport.update({
@@ -119,8 +131,10 @@ export interface FileRoutesByFullPath {
   '/accessibility': typeof AccessibilityRoute
   '/contact': typeof ContactRoute
   '/donate': typeof DonateRoute
+  '/founder': typeof FounderRoute
   '/get-involved': typeof GetInvolvedRoute
   '/impact': typeof ImpactRoute
+  '/media': typeof MediaRoute
   '/partners': typeof PartnersRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
@@ -138,8 +152,10 @@ export interface FileRoutesByTo {
   '/accessibility': typeof AccessibilityRoute
   '/contact': typeof ContactRoute
   '/donate': typeof DonateRoute
+  '/founder': typeof FounderRoute
   '/get-involved': typeof GetInvolvedRoute
   '/impact': typeof ImpactRoute
+  '/media': typeof MediaRoute
   '/partners': typeof PartnersRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
@@ -158,8 +174,10 @@ export interface FileRoutesById {
   '/accessibility': typeof AccessibilityRoute
   '/contact': typeof ContactRoute
   '/donate': typeof DonateRoute
+  '/founder': typeof FounderRoute
   '/get-involved': typeof GetInvolvedRoute
   '/impact': typeof ImpactRoute
+  '/media': typeof MediaRoute
   '/partners': typeof PartnersRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
@@ -179,8 +197,10 @@ export interface FileRouteTypes {
     | '/accessibility'
     | '/contact'
     | '/donate'
+    | '/founder'
     | '/get-involved'
     | '/impact'
+    | '/media'
     | '/partners'
     | '/privacy'
     | '/terms'
@@ -198,8 +218,10 @@ export interface FileRouteTypes {
     | '/accessibility'
     | '/contact'
     | '/donate'
+    | '/founder'
     | '/get-involved'
     | '/impact'
+    | '/media'
     | '/partners'
     | '/privacy'
     | '/terms'
@@ -217,8 +239,10 @@ export interface FileRouteTypes {
     | '/accessibility'
     | '/contact'
     | '/donate'
+    | '/founder'
     | '/get-involved'
     | '/impact'
+    | '/media'
     | '/partners'
     | '/privacy'
     | '/terms'
@@ -237,8 +261,10 @@ export interface RootRouteChildren {
   AccessibilityRoute: typeof AccessibilityRoute
   ContactRoute: typeof ContactRoute
   DonateRoute: typeof DonateRoute
+  FounderRoute: typeof FounderRoute
   GetInvolvedRoute: typeof GetInvolvedRoute
   ImpactRoute: typeof ImpactRoute
+  MediaRoute: typeof MediaRoute
   PartnersRoute: typeof PartnersRoute
   PrivacyRoute: typeof PrivacyRoute
   TermsRoute: typeof TermsRoute
@@ -288,6 +314,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DonateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/founder': {
+      id: '/founder'
+      path: '/founder'
+      fullPath: '/founder'
+      preLoaderRoute: typeof FounderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/get-involved': {
       id: '/get-involved'
       path: '/get-involved'
@@ -300,6 +333,13 @@ declare module '@tanstack/react-router' {
       path: '/impact'
       fullPath: '/impact'
       preLoaderRoute: typeof ImpactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/media': {
+      id: '/media'
+      path: '/media'
+      fullPath: '/media'
+      preLoaderRoute: typeof MediaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/partners': {
@@ -381,8 +421,10 @@ const rootRouteChildren: RootRouteChildren = {
   AccessibilityRoute: AccessibilityRoute,
   ContactRoute: ContactRoute,
   DonateRoute: DonateRoute,
+  FounderRoute: FounderRoute,
   GetInvolvedRoute: GetInvolvedRoute,
   ImpactRoute: ImpactRoute,
+  MediaRoute: MediaRoute,
   PartnersRoute: PartnersRoute,
   PrivacyRoute: PrivacyRoute,
   TermsRoute: TermsRoute,

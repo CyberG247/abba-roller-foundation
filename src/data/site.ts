@@ -301,3 +301,203 @@ export const involvementOptions = [
     to: "/stories",
   },
 ] as const;
+
+/* ------------------------------------------------------------ media & updates */
+
+export type UpdateCategory =
+  | "Food Distribution"
+  | "Financial Support"
+  | "Empowerment"
+  | "Pad Disbursement"
+  | "Education & Skills"
+  | "Humanitarian Support"
+  | "Community Advocacy";
+
+export type Update = {
+  id: string;
+  title: string;
+  category: UpdateCategory;
+  /** ISO date, or CMS_PLACEHOLDER where the Foundation has not confirmed a date. */
+  date: string;
+  location: string;
+  summary: string;
+  image: string;
+  imageAlt: string;
+  /** Confirmed detail only — never an invented figure. */
+  highlights: string[];
+};
+
+export const updateCategories: UpdateCategory[] = [
+  "Food Distribution",
+  "Financial Support",
+  "Empowerment",
+  "Pad Disbursement",
+  "Education & Skills",
+  "Humanitarian Support",
+  "Community Advocacy",
+];
+
+export const updates: Update[] = [
+  {
+    id: "pad-disbursement-gumel",
+    title: "Pad disbursement and menstrual health sensitisation in Gumel",
+    category: "Pad Disbursement",
+    date: "2026-06-18",
+    location: "Gumel LGA, Jigawa State",
+    summary:
+      "Under the Pad Up Nigerian Girls initiative, ARF held a menstrual health sensitisation session for young girls and disbursed sanitary pads to participants.",
+    image: campaignPadUp,
+    imageAlt: "A health educator speaking with schoolgirls during a menstrual health session",
+    highlights: [
+      "Over 1,000 sanitary pads distributed",
+      "Age-appropriate menstrual health education",
+      "Open conversation on menstrual stigma",
+    ],
+  },
+  {
+    id: "food-distribution-households",
+    title: "Food distribution to vulnerable households",
+    category: "Food Distribution",
+    date: CMS_PLACEHOLDER,
+    location: "Community distribution — location to be confirmed",
+    summary:
+      "Food staples distributed to households identified with community leaders, prioritising elderly residents, widows and families carrying the heaviest need.",
+    image: programFood,
+    imageAlt: "A volunteer handing food staples to an elderly woman at a community distribution",
+    highlights: [
+      "Beneficiary list drawn up with community leaders",
+      "Distribution handled to protect the dignity of every recipient",
+      "Households connected onward to empowerment programmes",
+    ],
+  },
+  {
+    id: "financial-support-petty-trade",
+    title: "Financial support for women in petty trade",
+    category: "Financial Support",
+    date: CMS_PLACEHOLDER,
+    location: "Location to be confirmed",
+    summary:
+      "Direct financial support provided to women running small trades, so that working capital is restored and daily income can be sustained.",
+    image: programAdvocacy,
+    imageAlt: "A woman addressing a gathering of women at a community meeting in Nigeria",
+    highlights: [
+      "Support directed at existing, active trades",
+      "Follow-up engagement after disbursement",
+      "Amounts and beneficiary numbers published once verified",
+    ],
+  },
+  {
+    id: "women-empowerment-outreach",
+    title: "Women's empowerment outreach and sensitisation",
+    category: "Empowerment",
+    date: CMS_PLACEHOLDER,
+    location: "Location to be confirmed",
+    summary:
+      "A community gathering focused on women's participation, wellbeing and access to opportunity, delivered with local women's leaders.",
+    image: programAdvocacy,
+    imageAlt: "Women gathered at a community empowerment session in Nigeria",
+    highlights: [
+      "Led together with community women's leaders",
+      "Pathways into skills training explained",
+      "Ongoing engagement rather than a one-off event",
+    ],
+  },
+  {
+    id: "youth-mentorship-session",
+    title: "Youth mentorship and guidance session",
+    category: "Empowerment",
+    date: CMS_PLACEHOLDER,
+    location: "Location to be confirmed",
+    summary:
+      "Young people met with mentors for guidance on education, career pathways and civic participation, with participants invited to return as volunteers.",
+    image: programYouth,
+    imageAlt: "Young Nigerian people seated in a circle during an outdoor mentorship session",
+    highlights: [
+      "Mentorship on next-step decisions",
+      "Volunteer pathway opened to participants",
+      "Designed with young people, not for them",
+    ],
+  },
+  {
+    id: "skills-training-cohort",
+    title: "Vocational skills training cohort",
+    category: "Education & Skills",
+    date: CMS_PLACEHOLDER,
+    location: "Location to be confirmed",
+    summary:
+      "A practical training cohort covering skills participants can apply immediately in their own communities, with follow-up after training concludes.",
+    image: programSkills,
+    imageAlt: "A young woman working at a sewing machine in a vocational training workshop",
+    highlights: [
+      "Small cohort, clear outcomes",
+      "Locally available tools and materials",
+      "Post-training follow-up support",
+    ],
+  },
+  {
+    id: "humanitarian-relief-response",
+    title: "Humanitarian relief for families in immediate need",
+    category: "Humanitarian Support",
+    date: CMS_PLACEHOLDER,
+    location: "Location to be confirmed",
+    summary:
+      "Emergency household support delivered where need was most acute, coordinated with community structures for accountability.",
+    image: programFood,
+    imageAlt: "Volunteers preparing relief items for distribution",
+    highlights: [
+      "Coordinated with community leadership",
+      "Reaches households most often overlooked",
+      "Relief treated as the start of a relationship",
+    ],
+  },
+  {
+    id: "health-advocacy-sensitisation",
+    title: "Community health and social advocacy sensitisation",
+    category: "Community Advocacy",
+    date: CMS_PLACEHOLDER,
+    location: "Location to be confirmed",
+    summary:
+      "Awareness sessions addressing the information and stigma gaps that keep women and girls from accessing what they are entitled to.",
+    image: campaignPadUp,
+    imageAlt: "A health educator speaking to a community group during an advocacy session",
+    highlights: [
+      "Focus on stigma and information gaps",
+      "Delivered in schools and community settings",
+      "Feeds directly into programme design",
+    ],
+  },
+];
+
+/* ----------------------------------------------------------- founder's desk */
+
+export const founder = {
+  name: "Hon. Usman Aminu Usman",
+  alias: "Abba Roller",
+  role: "Founder & Chairman, Abba Roller Foundation",
+  initials: "UAU",
+  location: "Nigeria",
+  portraitAlt: "Portrait of Hon. Usman Aminu Usman (Abba Roller), Founder of ARF",
+  lede: "The Foundation began with a conviction rather than a structure: that no one should be left behind simply because nobody came looking for them.",
+  message: [
+    "Abba Roller Foundation was established out of a personal commitment to the young people and women of our communities — people full of capability who have too often been overlooked when resources are shared.",
+    "Our approach is deliberately close to the ground. We sit with community leaders, we listen before we plan, and we deliver support in a way that protects the dignity of every person who receives it. Whether it is food reaching a household, financial support restoring a woman's small trade, a young person finding direction through mentorship, or a girl receiving sanitary pads and honest health education — the intention is the same: to restore dignity and open a door.",
+    "We also hold ourselves to honesty in what we report. We publish what has been verified and we say plainly when a figure is still being confirmed. Trust is built slowly, and we would rather earn it than claim it.",
+    "To everyone who has volunteered, partnered or given — thank you. The work ahead is larger than any one of us, and there is room for you in it.",
+  ],
+  focusAreas: [
+    "Youth and women empowerment",
+    "Humanitarian and food support",
+    "Education and skills development",
+    "Health advocacy and period poverty",
+  ],
+  /** Biography details awaiting confirmation from the Foundation — never invented. */
+  profile: [
+    { label: "Full name", value: "Hon. Usman Aminu Usman" },
+    { label: "Popularly known as", value: "Abba Roller" },
+    { label: "Position", value: "Founder & Chairman, Abba Roller Foundation" },
+    { label: "State of origin", value: CMS_PLACEHOLDER },
+    { label: "Education", value: CMS_PLACEHOLDER },
+    { label: "Public service", value: CMS_PLACEHOLDER },
+    { label: "Professional background", value: CMS_PLACEHOLDER },
+  ],
+};

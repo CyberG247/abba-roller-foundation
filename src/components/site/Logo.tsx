@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 
-import logo from "@/assets/arf-logo.png.asset.json";
+import logo from "@/assets/arf-logo-official.png.asset.json";
 import { cn } from "@/lib/utils";
 import { org } from "@/data/site";
 
