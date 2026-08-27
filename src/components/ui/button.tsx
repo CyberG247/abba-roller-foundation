@@ -15,8 +15,8 @@ const buttonVariants = cva(
         secondary: "bg-secondary text-secondary-foreground hover:bg-green-wash/70",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        /** Primary conversion action — used for Donate / Support Our Work. */
-        give: "bg-brand-red text-on-dark hover:bg-brand-red-bright active:translate-y-px",
+        /** Primary conversion action — used for Donate / Support Our Work. Ultra-stylish crimson gradient with gloss shine. */
+        give: "btn-shine bg-gradient-to-r from-brand-red via-brand-red to-brand-red-bright text-white font-bold tracking-wide shadow-md shadow-brand-red/25 ring-1 ring-white/25 hover:shadow-lg hover:shadow-brand-red/40 hover:brightness-105 active:scale-[0.98] transition-all duration-300",
         /** Sits on photography or deep-green sections. */
         onDark: "bg-on-dark text-green-deep hover:bg-green-wash active:translate-y-px",
         /** Quiet outline for use on photography or deep-green sections. */

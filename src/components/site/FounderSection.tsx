@@ -102,8 +102,11 @@ export function FounderSection({ id = "founder" }: { id?: string }) {
             </div>
 
             <div className="pt-6 flex flex-wrap gap-3">
-              <Button asChild variant="give" size="lg">
-                <a href="#donate">Support the mission</a>
+              <Button asChild variant="give" size="lg" className="gap-2">
+                <a href="#donate">
+                  <Heart className="size-4 fill-white animate-pulse" />
+                  <span>Support the mission</span>
+                </a>
               </Button>
               <Button asChild variant="outline" size="lg">
                 <a href="#media">Explore recent updates</a>

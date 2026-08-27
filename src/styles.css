@@ -353,6 +353,33 @@
   animation: pulse-glow 3s ease-in-out infinite;
 }
 
+/* Stylish Button Shimmer & Gloss Effect */
+.btn-shine {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-shine::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.28) 50%,
+    transparent 100%
+  );
+  transform: translateX(-150%) skewX(-20deg);
+  transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-shine:hover::after {
+  transform: translateX(350%) skewX(-20deg);
+}
+
 /* Custom Sleek Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;

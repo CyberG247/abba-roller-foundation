@@ -1,5 +1,13 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, GraduationCap, HeartHandshake, Megaphone, Sprout, Users } from "lucide-react";
+import {
+  ArrowRight,
+  GraduationCap,
+  Heart,
+  HeartHandshake,
+  Megaphone,
+  Sprout,
+  Users,
+} from "lucide-react";
 import type { ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -208,8 +216,11 @@ export function DonateBand({
           <p className="lede mt-6 max-w-xl text-on-dark-muted">{body}</p>
         </Reveal>
         <Reveal delay={120} className="flex flex-wrap gap-3 lg:justify-end">
-          <Button asChild variant="give" size="lg">
-            <Link to="/donate">Donate now</Link>
+          <Button asChild variant="give" size="lg" className="shadow-lift font-bold gap-2">
+            <Link to="/donate">
+              <Heart className="size-4 fill-white animate-pulse" />
+              <span>Donate now</span>
+            </Link>
           </Button>
           <Button asChild variant="onDarkOutline" size="lg">
             <Link to="/get-involved">Other ways to help</Link>

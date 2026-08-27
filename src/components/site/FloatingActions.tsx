@@ -46,11 +46,11 @@ export function FloatingActions() {
         type="button"
         onClick={scrollToDonate}
         aria-label="Quick donate"
-        className="group flex items-center gap-2 rounded-full bg-brand-red px-4 py-2.5 text-xs font-bold text-white shadow-lift transition-all hover:bg-brand-red-bright hover:scale-105 active:scale-95"
+        className="btn-shine group flex items-center gap-2 rounded-full bg-gradient-to-r from-brand-red via-brand-red to-brand-red-bright px-4.5 py-2.5 text-xs font-extrabold text-white shadow-lift shadow-brand-red/30 ring-1 ring-white/30 transition-all hover:shadow-lg hover:shadow-brand-red/45 hover:scale-105 active:scale-95 cursor-pointer"
       >
-        <Heart className="size-3.5 fill-white transition-transform group-hover:scale-115" />
+        <Heart className="size-3.5 fill-white transition-transform group-hover:scale-120 animate-pulse" />
         <span className="hidden sm:inline">Support ARF</span>
-        <span className="sm:hidden">Give</span>
+        <span className="sm:hidden">Donate</span>
       </button>
 
       {/* Back to top with Circular Scroll Progress */}

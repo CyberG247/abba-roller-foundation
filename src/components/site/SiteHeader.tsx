@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Menu, X } from "lucide-react";
+import { Heart, Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Logo } from "./Logo";
@@ -141,14 +141,14 @@ export function SiteHeader() {
               </ul>
             </nav>
 
-            <Button asChild variant="give" size="sm" className="hidden sm:inline-flex shadow-xs">
-              <a
-                href={isHome ? "#donate" : "/donate"}
-                onClick={(e) => scrollToSection("donate", e)}
-              >
-                Donate
-              </a>
-            </Button>
+            <a
+              href={isHome ? "#donate" : "/donate"}
+              onClick={(e) => scrollToSection("donate", e)}
+              className="btn-shine hidden sm:inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-brand-red via-brand-red to-brand-red-bright px-5 py-2 text-xs font-bold text-white shadow-md shadow-brand-red/25 ring-1 ring-white/30 transition-all duration-300 hover:shadow-lg hover:shadow-brand-red/40 hover:scale-105 active:scale-95 cursor-pointer"
+            >
+              <Heart className="size-3.5 fill-white animate-pulse" />
+              <span>Donate</span>
+            </a>
 
             <button
               type="button"
@@ -212,16 +212,14 @@ export function SiteHeader() {
               </a>
             </li>
           </ul>
-          <Button
-            asChild
-            variant="give"
-            size="lg"
-            className="mt-8 w-full shadow-lift text-base py-6 font-bold"
+          <a
+            href={isHome ? "#donate" : "/donate"}
+            onClick={(e) => scrollToSection("donate", e)}
+            className="btn-shine mt-8 flex w-full items-center justify-center gap-2.5 rounded-sm bg-gradient-to-r from-brand-red via-brand-red to-brand-red-bright py-4 text-base font-extrabold text-white shadow-lift ring-1 ring-white/30 transition-all active:scale-[0.99] cursor-pointer"
           >
-            <a href={isHome ? "#donate" : "/donate"} onClick={(e) => scrollToSection("donate", e)}>
-              Donate Now
-            </a>
-          </Button>
+            <Heart className="size-4.5 fill-white animate-pulse" />
+            <span>Donate Now</span>
+          </a>
         </nav>
       </div>
     </>

@@ -65,8 +65,11 @@ function Home() {
             <p className="lede mt-6 max-w-2xl text-on-dark-muted">{org.description}</p>
 
             <div className="mt-9 flex flex-wrap items-center gap-3">
-              <Button asChild variant="give" size="lg" className="shadow-lift font-bold">
-                <a href="#donate">Donate now</a>
+              <Button asChild variant="give" size="lg" className="shadow-lift font-bold gap-2">
+                <a href="#donate">
+                  <Heart className="size-4.5 fill-white animate-pulse" />
+                  <span>Donate now</span>
+                </a>
               </Button>
               <Button asChild variant="onDarkOutline" size="lg" className="font-semibold">
                 <a href="#about">Explore our mission</a>
