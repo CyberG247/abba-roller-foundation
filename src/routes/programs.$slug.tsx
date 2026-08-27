@@ -55,7 +55,7 @@ function ProgramDetail() {
               />
             </Reveal>
             <div className="mt-10 max-w-2xl space-y-6 text-base leading-relaxed text-muted-foreground">
-              {program.body.map((paragraph) => (
+              {program.body.map((paragraph: string) => (
                 <Reveal key={paragraph} as="p">
                   {paragraph}
                 </Reveal>
@@ -68,7 +68,7 @@ function ProgramDetail() {
               Focus areas
             </h2>
             <ul className="mt-5 space-y-3 text-sm text-ink-soft">
-              {program.focus.map((item) => (
+              {program.focus.map((item: string) => (
                 <li key={item} className="border-b border-hairline pb-3 last:border-0">
                   {item}
                 </li>

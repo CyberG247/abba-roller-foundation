@@ -63,7 +63,7 @@ function StoryDetail() {
             />
           </Reveal>
           <div className="mt-10 space-y-6 text-base leading-relaxed text-muted-foreground">
-            {story.body.map((block) =>
+            {story.body.map((block: string) =>
               block.startsWith("## ") ? (
                 <Reveal key={block} as="h2" className="pt-4 font-display text-2xl font-bold text-ink">
                   {block.replace("## ", "")}

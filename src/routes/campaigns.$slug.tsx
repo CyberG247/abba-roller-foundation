@@ -58,7 +58,7 @@ function CampaignDetail() {
               />
             </Reveal>
             <div className="mt-10 max-w-2xl space-y-6 text-base leading-relaxed text-muted-foreground">
-              {campaign.body.map((paragraph) => (
+              {campaign.body.map((paragraph: string) => (
                 <Reveal key={paragraph} as="p">
                   {paragraph}
                 </Reveal>
@@ -68,7 +68,7 @@ function CampaignDetail() {
           <Reveal delay={120} className="h-fit bg-surface p-8">
             <h2 className="eyebrow text-green-mid">Campaign activities</h2>
             <ul className="mt-5 space-y-3 text-sm text-ink-soft">
-              {campaign.activities.map((item) => (
+              {campaign.activities.map((item: string) => (
                 <li key={item} className="border-b border-hairline pb-3 last:border-0">
                   {item}
                 </li>
