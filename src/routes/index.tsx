@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 
 import heroGirls from "@/assets/hero-girls.jpg";
 import { Button } from "@/components/ui/button";
-import { PageHeader } from "@/components/site/PageHeader";
 import { Reveal } from "@/components/site/Reveal";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import {
@@ -145,6 +144,3 @@ function Home() {
     </>
   );
 }
-
-/** Unused placeholder retained to satisfy shared header import parity. */
-export const _pageHeader = PageHeader;
