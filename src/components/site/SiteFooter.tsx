@@ -8,7 +8,9 @@ const columns = [
     heading: "Organisation",
     links: [
       { label: "About", to: "/about" },
+      { label: "Founder's Desk", to: "/founder" },
       { label: "Programs", to: "/programs" },
+      { label: "Media & Updates", to: "/media" },
       { label: "Impact", to: "/impact" },
       { label: "Stories", to: "/stories" },
       { label: "Contact", to: "/contact" },
