@@ -7,6 +7,9 @@
  */
 
 import campaignPadUp from "@/assets/campaign-padup.jpg";
+import correctionalCentreOutreach from "@/assets/correctional-centre-outreach.jpg";
+import founderPortrait from "@/assets/founder-portrait.jpg";
+import gumelHospitalOutreach from "@/assets/gumel-hospital-outreach.jpg";
 import programAdvocacy from "@/assets/program-advocacy.jpg";
 import programFood from "@/assets/program-food.jpg";
 import programSkills from "@/assets/program-skills.jpg";
@@ -59,8 +62,7 @@ export const programs: Program[] = [
     slug: "youth-empowerment",
     title: "Youth Empowerment",
     icon: "youth",
-    summary:
-      "Education, skills development, mentorship and opportunity pathways for young people.",
+    summary: "Education, skills development, mentorship and opportunity pathways for young people.",
     image: programYouth,
     imageAlt: "Young Nigerian people seated in a circle during an outdoor mentorship session",
     focus: ["Mentorship", "Career pathways", "Civic participation"],
@@ -87,8 +89,7 @@ export const programs: Program[] = [
     slug: "humanitarian-and-food-support",
     title: "Humanitarian & Food Support",
     icon: "food",
-    summary:
-      "Support for vulnerable individuals and communities through humanitarian assistance.",
+    summary: "Support for vulnerable individuals and communities through humanitarian assistance.",
     image: programFood,
     imageAlt: "A volunteer handing food staples to an elderly woman at a community distribution",
     focus: ["Food aid", "Emergency response", "Household support"],
@@ -165,10 +166,55 @@ export type Story = {
   excerpt: string;
   image: string;
   imageAlt: string;
+  imagePosition?: string;
   body: string[];
 };
 
 export const stories: Story[] = [
+  {
+    slug: "custodial-centre-humanitarian-food-support",
+    title: "Extending dignity: Food relief outreach to inmates at the Custodial Centre",
+    category: "Community Story",
+    date: "2026-08-15",
+    author: "ARF Humanitarian Desk",
+    readingTime: "3 min read",
+    excerpt:
+      "Hon. Usman Aminu Usman (Abba Roller) and the Foundation delegation delivered essential food provisions and nutritional staples to support inmates at the Nigerian Correctional Service Custodial Centre.",
+    image: correctionalCentreOutreach,
+    imageAlt:
+      "Hon. Usman Aminu Usman (Abba Roller) and Foundation delegates presenting food provisions to Nigerian Correctional Service officials",
+    imagePosition: "object-[center_15%]",
+    body: [
+      "In accordance with the Abba Roller Foundation’s foundational principle that no human being should be forgotten or left behind, Founder & Chairman Hon. Usman Aminu Usman led a humanitarian outreach to the Nigerian Correctional Service (NCoS) Custodial Centre in Jigawa State.",
+      "The Foundation delegation provided substantial supplies of staple foodstuffs — including cartons of nutritious pasta and food parcels — specifically coordinated with custodial facility command to supplement inmate sustenance.",
+      "## Restoring Dignity Across All Spheres of Society",
+      "Individuals in correctional facilities represent one of the most overlooked demographics in social welfare initiatives. The Foundation believes that compassionate support, adequate nutrition, and human dignity are unconditional values that must reach every person.",
+      "## Accountable Institutional Collaboration",
+      "Working in close collaboration with custodial officers and facility administrators, the Foundation ensured a structured, transparent, and direct handover of provisions. ARF remains committed to continuous community-wide humanitarian interventions that uplift the vulnerable throughout Nigeria.",
+    ],
+  },
+  {
+    slug: "gumel-hospital-medical-relief-and-sanitation-outreach",
+    title: "Hospital outreach and sanitation intervention at Gumel General Hospital",
+    category: "Campaign Update",
+    date: "2026-08-20",
+    author: "ARF Communications",
+    readingTime: "3 min read",
+    excerpt:
+      "Hon. Usman Aminu Usman (Abba Roller) and the Foundation delegation visited Gumel General Hospital to defray medical bills for indigent patients and donate vital sanitation supplies.",
+    image: gumelHospitalOutreach,
+    imageAlt:
+      "Hon. Usman Aminu Usman and Foundation team presenting cleaning supplies and patient support outside Gumel General Hospital",
+    body: [
+      "Hon. Usman Aminu Usman (Abba Roller) led an official humanitarian delegation to Gumel General Hospital in Jigawa State, extending direct financial relief to vulnerable patients unable to defray their medical bills.",
+      "Beyond providing immediate financial assistance to ensure indigent patients could access necessary care without distress, the Foundation presented essential sanitation supplies and conducted an on-site assessment of hospital hygiene facilities.",
+      "## Relieving the Burden of Healthcare Costs",
+      "No patient should face deepened distress simply because they cannot afford clinical treatment. By settling overdue medical liabilities and hospital fees directly, the Foundation restored hope and dignity to affected families in Gumel.",
+      "## Strengthening Clinical Hygiene and Patient Safety",
+      "Cleanliness in healthcare environments is a frontline requirement for infection prevention. The Foundation supplied brooms, buckets, disinfectants, and specialized cleaning detergents to support hospital staff, while evaluating ongoing sanitary needs to help safeguard patients from preventable hospital-acquired complications.",
+      "Abba Roller Foundation remains committed to hands-on, accountable interventions that directly enhance community wellbeing across Nigeria.",
+    ],
+  },
   {
     slug: "pad-up-nigerian-girls-reaches-gumel",
     title: "Pad Up Nigerian Girls reaches schoolgirls in Gumel, Jigawa State",
@@ -323,6 +369,7 @@ export type Update = {
   summary: string;
   image: string;
   imageAlt: string;
+  imagePosition?: string;
   /** Confirmed detail only — never an invented figure. */
   highlights: string[];
 };
@@ -338,6 +385,42 @@ export const updateCategories: UpdateCategory[] = [
 ];
 
 export const updates: Update[] = [
+  {
+    id: "correctional-centre-food-distribution",
+    title: "Humanitarian food relief & nutritional support at Custodial Centre",
+    category: "Food Distribution",
+    date: "2026-08-15",
+    location: "Nigerian Correctional Service (NCoS) Custodial Centre, Jigawa State",
+    summary:
+      "Hon. Usman Aminu Usman (Abba Roller) and the Foundation delegation conducted a humanitarian outreach to the Nigerian Correctional Service Custodial Centre, presenting cartons of pasta and vital food provisions to support inmate nutrition and reinforce our commitment to universal human dignity.",
+    image: correctionalCentreOutreach,
+    imageAlt:
+      "Hon. Usman Aminu Usman and Foundation delegates presenting food provisions to Nigerian Correctional Service officials",
+    imagePosition: "object-[center_15%]",
+    highlights: [
+      "Distribution of bulk food items and pasta cartons for inmates",
+      "Official coordination with Nigerian Correctional Service (NCoS) leadership",
+      "Upholding compassionate care, basic nutrition, and universal dignity",
+    ],
+  },
+  {
+    id: "gumel-hospital-medical-relief-hygiene",
+    title: "Medical bill relief & clinical hygiene intervention at Gumel General Hospital",
+    category: "Humanitarian Support",
+    date: "2026-08-20",
+    location: "Gumel General Hospital, Jigawa State",
+    summary:
+      "Hon. Usman Aminu Usman (Abba Roller) led a humanitarian outreach to Gumel General Hospital, providing financial assistance to settle outstanding medical bills for vulnerable patients and donating vital sanitation provisions to elevate hospital hygiene and infection control standards.",
+    image: gumelHospitalOutreach,
+    imageAlt:
+      "Hon. Usman Aminu Usman and Foundation team presenting cleaning supplies and patient support outside Gumel General Hospital",
+    imagePosition: "object-[center_20%]",
+    highlights: [
+      "Direct settlement of hospital and medical bills for indigent patients",
+      "Donation of essential cleaning utilities, disinfectants, and sanitation materials",
+      "Facility assessment to identify critical hygiene requirements and protect patient safety",
+    ],
+  },
   {
     id: "pad-disbursement-gumel",
     title: "Pad disbursement and menstrual health sensitisation in Gumel",
@@ -475,6 +558,7 @@ export const founder = {
   alias: "Abba Roller",
   role: "Founder & Chairman, Abba Roller Foundation",
   initials: "UAU",
+  image: founderPortrait,
   location: "Nigeria",
   portraitAlt: "Portrait of Hon. Usman Aminu Usman (Abba Roller), Founder of ARF",
   lede: "The Foundation began with a conviction rather than a structure: that no one should be left behind simply because nobody came looking for them.",

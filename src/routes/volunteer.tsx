@@ -55,9 +55,9 @@ function Volunteer() {
           <Reveal delay={120} className="bg-surface p-8">
             <h2 className="font-display text-xl font-bold text-ink">How to apply</h2>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              Send us a short message with your name, location, availability and the area you
-              would like to support. Our team reviews applications on a rolling basis and will
-              respond with next steps.
+              Send us a short message with your name, location, availability and the area you would
+              like to support. Our team reviews applications on a rolling basis and will respond
+              with next steps.
             </p>
             <p className="mt-6 text-sm">
               <a
@@ -68,8 +68,8 @@ function Volunteer() {
               </a>
             </p>
             <p className="mt-6 text-xs text-muted-foreground">
-              An online volunteer application form will be added here once the Foundation
-              confirms its intake process.
+              An online volunteer application form will be added here once the Foundation confirms
+              its intake process.
             </p>
           </Reveal>
         </div>

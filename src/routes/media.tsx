@@ -71,7 +71,10 @@ function Media() {
                   loading="lazy"
                   width={1200}
                   height={800}
-                  className="aspect-[16/10] w-full object-cover"
+                  className={cn(
+                    "aspect-[16/10] w-full object-cover",
+                    update.imagePosition || "object-center",
+                  )}
                 />
               </div>
               <div className="flex flex-1 flex-col pt-5">

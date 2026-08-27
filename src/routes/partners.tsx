@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/site/PageHeader";
 import { Reveal } from "@/components/site/Reveal";
 import { DonateBand, Section } from "@/components/site/blocks";
+import { PartnersMarquee } from "@/components/site/PartnersMarquee";
 import { org } from "@/data/site";
 
 const title = "Partner With Us — Abba Roller Foundation";
@@ -50,7 +51,10 @@ function Partners() {
         crumbs={[{ label: "Get Involved", to: "/get-involved" }, { label: "Partner With Us" }]}
       />
 
-      <Section>
+      {/* Horizontal Sliding Partners Marquee */}
+      <PartnersMarquee showHeading={false} tone="white" />
+
+      <Section tone="muted">
         <div className="grid gap-10 md:grid-cols-2">
           {models.map((model, index) => (
             <Reveal
@@ -67,9 +71,8 @@ function Partners() {
         <Reveal delay={200} className="mt-14 bg-surface p-8">
           <h2 className="font-display text-xl font-bold text-ink">Start a conversation</h2>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-            Tell us about your organisation, the communities you work in and the outcome you
-            want to achieve. We will respond with a proposed scope and the documentation we can
-            share.
+            Tell us about your organisation, the communities you work in and the outcome you want to
+            achieve. We will respond with a proposed scope and the documentation we can share.
           </p>
           <p className="mt-6 text-sm">
             <a

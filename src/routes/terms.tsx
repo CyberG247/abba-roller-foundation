@@ -35,16 +35,15 @@ function Terms() {
           <section>
             <h2 className="font-display text-xl font-bold text-ink">Use of this site</h2>
             <p className="mt-3">
-              This website is provided for information about the work of {org.name}. You may not
-              use it in any way that is unlawful or that interferes with its operation or
-              security.
+              This website is provided for information about the work of {org.name}. You may not use
+              it in any way that is unlawful or that interferes with its operation or security.
             </p>
           </section>
           <section>
             <h2 className="font-display text-xl font-bold text-ink">Content and accuracy</h2>
             <p className="mt-3">
-              We publish programme information in good faith. Figures shown as awaiting
-              confirmation are not final and should not be cited as verified results.
+              We publish programme information in good faith. Figures shown as awaiting confirmation
+              are not final and should not be cited as verified results.
             </p>
           </section>
           <section>

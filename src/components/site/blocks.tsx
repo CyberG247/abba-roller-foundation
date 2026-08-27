@@ -1,17 +1,12 @@
 import { Link } from "@tanstack/react-router";
-import {
-  ArrowRight,
-  GraduationCap,
-  HeartHandshake,
-  Megaphone,
-  Sprout,
-  Users,
-} from "lucide-react";
+import { ArrowRight, GraduationCap, HeartHandshake, Megaphone, Sprout, Users } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { CMS_PLACEHOLDER, type ImpactMetric, type Program, type Story } from "@/data/site";
+import { AnimatedCounter } from "./AnimatedCounter";
+import { LazyImage } from "./LazyImage";
 import { Reveal } from "./Reveal";
 
 /* ------------------------------------------------------------------ icons */
@@ -24,13 +19,7 @@ const programIcons = {
   advocacy: Megaphone,
 } as const;
 
-export function ProgramIcon({
-  icon,
-  className,
-}: {
-  icon: Program["icon"];
-  className?: string;
-}) {
+export function ProgramIcon({ icon, className }: { icon: Program["icon"]; className?: string }) {
   const Icon = programIcons[icon];
   return <Icon aria-hidden className={cn("size-5", className)} />;
 }
@@ -71,7 +60,7 @@ export function StatList({
                     : "text-green-deep",
               )}
             >
-              {pending ? "Awaiting verified figure" : metric.value}
+              {pending ? "Awaiting verified figure" : <AnimatedCounter value={metric.value} />}
             </dd>
             {metric.note && (
               <p
@@ -100,13 +89,13 @@ export function ProgramCard({ program, index = 0 }: { program: Program; index?: 
         params={{ slug: program.slug }}
         className="block overflow-hidden bg-muted"
       >
-        <img
+        <LazyImage
           src={program.image}
           alt={program.imageAlt}
-          loading="lazy"
+          aspectRatio="aspect-[4/3]"
+          zoomOnHover
           width={1200}
           height={912}
-          className="aspect-[4/3] w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
         />
       </Link>
       <div className="flex flex-1 flex-col pt-6">
@@ -156,16 +145,14 @@ export function StoryCard({
         params={{ slug: story.slug }}
         className="block overflow-hidden bg-muted"
       >
-        <img
+        <LazyImage
           src={story.image}
           alt={story.imageAlt}
-          loading="lazy"
+          aspectRatio={compact ? "aspect-[16/10]" : "aspect-[3/2]"}
+          imagePosition={story.imagePosition || "object-center"}
+          zoomOnHover
           width={1200}
           height={800}
-          className={cn(
-            "w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]",
-            compact ? "aspect-[16/10]" : "aspect-[3/2]",
-          )}
         />
       </Link>
       <div className="flex flex-1 flex-col pt-5">
@@ -176,12 +163,7 @@ export function StoryCard({
           <span aria-hidden>·</span>
           <span>{story.readingTime}</span>
         </div>
-        <h3
-          className={cn(
-            "mt-3 font-display font-bold text-ink",
-            compact ? "text-lg" : "text-xl",
-          )}
-        >
+        <h3 className={cn("mt-3 font-display font-bold text-ink", compact ? "text-lg" : "text-xl")}>
           <Link to="/stories/$slug" params={{ slug: story.slug }}>
             {story.title}
           </Link>
@@ -252,14 +234,7 @@ export function Section({
   id?: string;
 }) {
   return (
-    <section
-      id={id}
-      className={cn(
-        "py-20 md:py-28",
-        tone === "muted" && "bg-muted",
-        className,
-      )}
-    >
+    <section id={id} className={cn("py-20 md:py-28", tone === "muted" && "bg-muted", className)}>
       <div className="shell">{children}</div>
     </section>
   );

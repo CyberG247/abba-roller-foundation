@@ -11,16 +11,14 @@ const buttonVariants = cva(
       variant: {
         default: "bg-primary text-primary-foreground hover:bg-green-mid",
         destructive: "bg-destructive text-destructive-foreground hover:bg-brand-red-bright",
-        outline:
-          "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+        outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
         secondary: "bg-secondary text-secondary-foreground hover:bg-green-wash/70",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
         /** Primary conversion action — used for Donate / Support Our Work. */
         give: "bg-brand-red text-on-dark hover:bg-brand-red-bright active:translate-y-px",
         /** Sits on photography or deep-green sections. */
-        onDark:
-          "bg-on-dark text-green-deep hover:bg-green-wash active:translate-y-px",
+        onDark: "bg-on-dark text-green-deep hover:bg-green-wash active:translate-y-px",
         /** Quiet outline for use on photography or deep-green sections. */
         onDarkOutline:
           "border border-on-dark/35 text-on-dark hover:border-on-dark hover:bg-on-dark/10",
@@ -38,7 +36,6 @@ const buttonVariants = cva(
     },
   },
 );
-
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {

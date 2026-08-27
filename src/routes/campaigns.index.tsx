@@ -40,7 +40,11 @@ function Campaigns() {
               as="article"
               className="grid gap-8 lg:grid-cols-2 lg:items-center"
             >
-              <Link to="/campaigns/$slug" params={{ slug: campaign.slug }} className="block overflow-hidden bg-muted">
+              <Link
+                to="/campaigns/$slug"
+                params={{ slug: campaign.slug }}
+                className="block overflow-hidden bg-muted"
+              >
                 <img
                   src={campaign.image}
                   alt={campaign.imageAlt}

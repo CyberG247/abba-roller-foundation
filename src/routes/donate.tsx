@@ -55,9 +55,7 @@ function Donate() {
               {allocations.map((item) => (
                 <article key={item.title} className="py-5">
                   <h3 className="font-display text-lg font-bold text-ink">{item.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                    {item.body}
-                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.body}</p>
                 </article>
               ))}
             </div>
@@ -66,16 +64,19 @@ function Donate() {
           <Reveal delay={120} className="h-fit bg-green-deep p-8 text-on-dark-muted">
             <h2 className="font-display text-xl font-bold text-on-dark">Give to ARF</h2>
             <p className="mt-3 text-sm leading-relaxed">
-              Secure online giving is being set up with the Foundation's payment provider. In
-              the meantime, please contact us directly and our team will share verified giving
-              details for your contribution.
+              Secure online giving is being set up with the Foundation's payment provider. In the
+              meantime, please contact us directly and our team will share verified giving details
+              for your contribution.
             </p>
             <Button asChild variant="give" size="lg" className="mt-8 w-full">
               <a href={`mailto:${org.email}?subject=Donation%20enquiry`}>Contact us to give</a>
             </Button>
             <p className="mt-6 text-xs">
               Prefer another way to help?{" "}
-              <Link to="/get-involved" className="font-semibold text-on-dark underline decoration-brand-red decoration-2 underline-offset-4">
+              <Link
+                to="/get-involved"
+                className="font-semibold text-on-dark underline decoration-brand-red decoration-2 underline-offset-4"
+              >
                 Volunteer or partner with us
               </Link>
               .

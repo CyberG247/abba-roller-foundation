@@ -1,7 +1,20 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 
 import { Logo } from "./Logo";
 import { CMS_PLACEHOLDER, org } from "@/data/site";
+
+const sectionMap: Record<string, string> = {
+  "/about": "about",
+  "/founder": "founder",
+  "/programs": "programs",
+  "/media": "media",
+  "/impact": "impact",
+  "/stories": "stories",
+  "/contact": "contact",
+  "/donate": "donate",
+  "/partners": "partners",
+  "/get-involved": "get-involved",
+};
 
 const columns = [
   {
@@ -37,6 +50,21 @@ const columns = [
 ] as const;
 
 export function SiteFooter() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isHome = pathname === "/";
+
+  const handleLinkClick = (to: string, e: React.MouseEvent) => {
+    if (isHome && sectionMap[to]) {
+      e.preventDefault();
+      const targetId = sectionMap[to];
+      const element = document.getElementById(targetId);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+        window.history.replaceState(null, "", `#${targetId}`);
+      }
+    }
+  };
+
   return (
     <footer className="relative overflow-hidden bg-ink text-on-dark-muted">
       <div aria-hidden className="h-1 w-full bg-brand-red" />
@@ -47,7 +75,7 @@ export function SiteFooter() {
           <p className="mt-6 text-sm">
             <a
               href={`mailto:${org.email}`}
-              className="font-semibold text-on-dark underline decoration-brand-red decoration-2 underline-offset-4"
+              className="font-semibold text-on-dark underline decoration-brand-red decoration-2 underline-offset-4 hover:text-brand-red-wash"
             >
               {org.email}
             </a>
@@ -81,9 +109,19 @@ export function SiteFooter() {
               <ul className="mt-5 space-y-3 text-sm">
                 {column.links.map((link) => (
                   <li key={link.to}>
-                    <Link to={link.to} className="transition-colors hover:text-on-dark">
-                      {link.label}
-                    </Link>
+                    {isHome && sectionMap[link.to] ? (
+                      <a
+                        href={`#${sectionMap[link.to]}`}
+                        onClick={(e) => handleLinkClick(link.to, e)}
+                        className="transition-colors hover:text-on-dark cursor-pointer"
+                      >
+                        {link.label}
+                      </a>
+                    ) : (
+                      <Link to={link.to} className="transition-colors hover:text-on-dark">
+                        {link.label}
+                      </Link>
+                    )}
                   </li>
                 ))}
               </ul>

@@ -35,23 +35,22 @@ function Accessibility() {
           <section>
             <h2 className="font-display text-xl font-bold text-ink">Our approach</h2>
             <p className="mt-3">
-              We aim to meet the WCAG 2.1 AA guidelines. That means semantic headings, visible
-              focus states, a skip-to-content link, descriptive alternative text for images and
-              colour contrast that remains legible.
+              We aim to meet the WCAG 2.1 AA guidelines. That means semantic headings, visible focus
+              states, a skip-to-content link, descriptive alternative text for images and colour
+              contrast that remains legible.
             </p>
           </section>
           <section>
             <h2 className="font-display text-xl font-bold text-ink">Motion and animation</h2>
             <p className="mt-3">
-              Animation is kept minimal and respects the operating system reduced-motion
-              preference.
+              Animation is kept minimal and respects the operating system reduced-motion preference.
             </p>
           </section>
           <section>
             <h2 className="font-display text-xl font-bold text-ink">Known limitations</h2>
             <p className="mt-3">
-              Some content is still being confirmed by the Foundation and appears as a
-              placeholder. We will continue reviewing pages as content is added.
+              Some content is still being confirmed by the Foundation and appears as a placeholder.
+              We will continue reviewing pages as content is added.
             </p>
           </section>
           <section>

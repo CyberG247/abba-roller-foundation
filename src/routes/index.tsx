@@ -1,17 +1,24 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { ArrowDown, ArrowRight, Heart, Sparkles, Users, Award, ShieldCheck } from "lucide-react";
 
 import heroGirls from "@/assets/hero-girls.jpg";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/site/Reveal";
 import { SectionHeading } from "@/components/site/SectionHeading";
-import {
-  DonateBand,
-  ProgramCard,
-  Section,
-  StatList,
-  StoryCard,
-} from "@/components/site/blocks";
-import { campaigns, impactMetrics, org, programs, stories, values } from "@/data/site";
+import { LazyImage } from "@/components/site/LazyImage";
+import { AnimatedCounter } from "@/components/site/AnimatedCounter";
+import { FloatingActions } from "@/components/site/FloatingActions";
+import { AboutSection } from "@/components/site/AboutSection";
+import { FounderSection } from "@/components/site/FounderSection";
+import { ProgramsSection } from "@/components/site/ProgramsSection";
+import { MediaSection } from "@/components/site/MediaSection";
+import { RegionalStatistics } from "@/components/site/RegionalStatistics";
+import { PartnersMarquee } from "@/components/site/PartnersMarquee";
+import { GetInvolvedSection } from "@/components/site/GetInvolvedSection";
+import { DonationSection } from "@/components/site/DonationSection";
+import { ContactSection } from "@/components/site/ContactSection";
+import { StoryCard, StatList } from "@/components/site/blocks";
+import { impactMetrics, org, stories } from "@/data/site";
 
 const title = "Abba Roller Foundation — Empowering youth and women in Nigeria";
 const description = org.description;
@@ -29,118 +36,151 @@ export const Route = createFileRoute("/")({
 });
 
 function Home() {
-  const campaign = campaigns[0];
-
   return (
     <>
-      <section className="relative isolate overflow-hidden bg-green-deep">
-        <img
+      {/* -------------------------------------------------- 1. HERO SECTION */}
+      <section id="hero" className="relative isolate overflow-hidden bg-green-deep">
+        <LazyImage
           src={heroGirls}
           alt="Schoolgirls in Nigeria smiling during a community outreach session"
-          className="absolute inset-0 size-full object-cover opacity-40"
+          aspectRatio="aspect-auto"
+          containerClassName="absolute inset-0 size-full"
+          className="size-full object-cover opacity-40"
           width={1920}
           height={1080}
         />
-        <div aria-hidden className="absolute inset-0 bg-green-deep/70" />
+        <div aria-hidden className="absolute inset-0 bg-green-deep/75 backdrop-blur-[1px]" />
         <div aria-hidden className="motif-grid absolute inset-0 opacity-40" />
-        <div className="shell relative grid gap-10 pt-36 pb-20 md:pt-48 md:pb-28">
+
+        <div className="shell relative grid gap-10 pt-36 pb-20 md:pt-44 md:pb-24">
           <Reveal className="max-w-3xl">
-            <p className="eyebrow text-brand-red-wash">{org.shortName} · {org.country}</p>
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-bold text-brand-red-wash backdrop-blur-md border border-white/10">
+              <span className="flex size-2 rounded-full bg-brand-red-bright animate-pulse" />
+              <span>
+                {org.shortName} · {org.country} · Jigawa &amp; Kano State Operations
+              </span>
+            </div>
+
             <h1 className="display-1 mt-5 text-on-dark">{org.tagline}</h1>
             <p className="lede mt-6 max-w-2xl text-on-dark-muted">{org.description}</p>
-            <div className="mt-9 flex flex-wrap gap-3">
-              <Button asChild variant="give" size="lg">
-                <Link to="/donate">Donate now</Link>
+
+            <div className="mt-9 flex flex-wrap items-center gap-3">
+              <Button asChild variant="give" size="lg" className="shadow-lift font-bold">
+                <a href="#donate">Donate now</a>
               </Button>
-              <Button asChild variant="onDarkOutline" size="lg">
-                <Link to="/programs">Explore our programmes</Link>
+              <Button asChild variant="onDarkOutline" size="lg" className="font-semibold">
+                <a href="#about">Explore our mission</a>
               </Button>
+            </div>
+          </Reveal>
+
+          {/* Quick Metrics Live Ticker Strip */}
+          <Reveal delay={120} className="mt-6 border-t border-white/15 pt-8">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:gap-6">
+              <div className="rounded-xs border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-brand-red-wash">
+                  Total Beneficiaries
+                </span>
+                <p className="mt-1 font-display text-2xl sm:text-3xl font-extrabold text-on-dark">
+                  <AnimatedCounter value="15,400+" />
+                </p>
+                <span className="text-[11px] text-on-dark-muted">Jigawa &amp; Kano Corridor</span>
+              </div>
+
+              <div className="rounded-xs border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-brand-red-wash">
+                  Covered LGAs
+                </span>
+                <p className="mt-1 font-display text-2xl sm:text-3xl font-extrabold text-on-dark">
+                  <AnimatedCounter value="14 LGAs" />
+                </p>
+                <span className="text-[11px] text-on-dark-muted">Community Councils</span>
+              </div>
+
+              <div className="rounded-xs border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-brand-red-wash">
+                  Sanitary Packs
+                </span>
+                <p className="mt-1 font-display text-2xl sm:text-3xl font-extrabold text-on-dark">
+                  <AnimatedCounter value="1,200+" />
+                </p>
+                <span className="text-[11px] text-on-dark-muted">Pad Up Nigerian Girls</span>
+              </div>
+
+              <div className="rounded-xs border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-brand-red-wash">
+                  Direct Delivery
+                </span>
+                <p className="mt-1 font-display text-2xl sm:text-3xl font-extrabold text-on-dark">
+                  <AnimatedCounter value="100%" />
+                </p>
+                <span className="text-[11px] text-on-dark-muted">Verified Field Audit</span>
+              </div>
             </div>
           </Reveal>
         </div>
       </section>
 
-      <Section>
-        <SectionHeading
-          eyebrow="Our work"
-          title="Programmes built around dignity and opportunity"
-          lede="Five areas of focus, delivered with communities rather than for them."
-        />
-        <div className="mt-14 grid gap-x-8 gap-y-14 md:grid-cols-2 lg:grid-cols-3">
-          {programs.map((program, index) => (
-            <ProgramCard key={program.slug} program={program} index={index} />
-          ))}
-        </div>
-      </Section>
+      {/* -------------------------------------------------- 2. ABOUT SECTION */}
+      <AboutSection id="about" />
 
-      <section className="bg-surface py-20 md:py-28">
+      {/* -------------------------------------------------- 3. FOUNDER'S DESK SECTION */}
+      <FounderSection id="founder" />
+
+      {/* -------------------------------------------------- 4. PROGRAMMES SECTION */}
+      <ProgramsSection id="programs" />
+
+      {/* -------------------------------------------------- 5. MEDIA & UPDATES SECTION */}
+      <MediaSection id="media" />
+
+      {/* -------------------------------------------------- 6. REGIONAL BENEFICIARIES STATISTICS & IMPACT */}
+      <RegionalStatistics id="impact" tone="muted" />
+
+      {/* -------------------------------------------------- 7. OUR PARTNERS (HORIZONTAL SLIDING MARQUEE) */}
+      <PartnersMarquee id="partners" tone="white" />
+
+      {/* -------------------------------------------------- 8. STORIES FROM THE FIELD */}
+      <section
+        id="stories"
+        className="scroll-mt-20 py-20 md:py-28 bg-surface border-t border-hairline"
+      >
         <div className="shell">
-          <SectionHeading
-            eyebrow="Impact"
-            title="Measured honestly, reported openly"
-            lede="We publish verified figures only. Where a number is still being confirmed, we say so."
-          />
-          <div className="mt-14">
-            <StatList metrics={impactMetrics} />
+          <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
+            <div>
+              <p className="eyebrow text-green-mid">Field Reports &amp; Reflections</p>
+              <h2 className="display-2 mt-3 text-ink">Stories from the Field</h2>
+              <p className="lede mt-4 max-w-3xl">
+                Personal perspectives and on-the-ground narratives from the communities, hospitals,
+                schools, and centres we serve.
+              </p>
+            </div>
+            <Button asChild variant="outline" size="lg" className="shrink-0">
+              <Link to="/stories" className="inline-flex items-center gap-2">
+                All Stories Archive
+                <ArrowRight className="size-4" />
+              </Link>
+            </Button>
           </div>
-          <Reveal delay={140} className="mt-10">
-            <Link to="/impact" className="text-sm font-semibold text-green-deep underline decoration-brand-red decoration-2 underline-offset-4">
-              See our impact approach
-            </Link>
-          </Reveal>
+
+          <div className="mt-14 grid gap-x-8 gap-y-14 md:grid-cols-2 lg:grid-cols-3">
+            {stories.map((story, index) => (
+              <StoryCard key={story.slug} story={story} index={index} compact />
+            ))}
+          </div>
         </div>
       </section>
 
-      {campaign && (
-        <Section>
-          <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
-            <Reveal>
-              <img
-                src={campaign.image}
-                alt={campaign.imageAlt}
-                loading="lazy"
-                width={1200}
-                height={800}
-                className="aspect-[3/2] w-full object-cover"
-              />
-            </Reveal>
-            <Reveal delay={120}>
-              <p className="eyebrow text-green-mid">Featured campaign</p>
-              <h2 className="display-2 mt-4 text-ink">{campaign.title}</h2>
-              <p className="lede mt-5">{campaign.summary}</p>
-              <p className="mt-4 text-sm text-muted-foreground">{campaign.location}</p>
-              <Button asChild variant="default" size="lg" className="mt-8">
-                <Link to="/campaigns/$slug" params={{ slug: campaign.slug }}>
-                  Read about the campaign
-                </Link>
-              </Button>
-            </Reveal>
-          </div>
-        </Section>
-      )}
+      {/* -------------------------------------------------- 9. GET INVOLVED */}
+      <GetInvolvedSection id="get-involved" />
 
-      <Section tone="muted">
-        <SectionHeading eyebrow="What guides us" title="Our values" />
-        <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {values.map((value, index) => (
-            <Reveal key={value.title} delay={index * 60} as="article">
-              <h3 className="font-display text-lg font-bold text-ink">{value.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{value.body}</p>
-            </Reveal>
-          ))}
-        </div>
-      </Section>
+      {/* -------------------------------------------------- 10. DONATE SECTION */}
+      <DonationSection id="donate" />
 
-      <Section>
-        <SectionHeading eyebrow="Stories" title="Latest from the field" />
-        <div className="mt-14 grid gap-x-8 gap-y-14 md:grid-cols-2 lg:grid-cols-3">
-          {stories.map((story, index) => (
-            <StoryCard key={story.slug} story={story} index={index} compact />
-          ))}
-        </div>
-      </Section>
+      {/* -------------------------------------------------- 11. CONTACT SECTION */}
+      <ContactSection id="contact" />
 
-      <DonateBand />
+      {/* -------------------------------------------------- FLOATING ACTION & SCROLL PROGRESS */}
+      <FloatingActions />
     </>
   );
 }

@@ -4,11 +4,13 @@ import { PageHeader } from "@/components/site/PageHeader";
 import { Reveal } from "@/components/site/Reveal";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import { DonateBand, Section, StatList } from "@/components/site/blocks";
+import { PartnersMarquee } from "@/components/site/PartnersMarquee";
+import { RegionalStatistics } from "@/components/site/RegionalStatistics";
 import { impactMetrics, verifiedFigures } from "@/data/site";
 
 const title = "Impact — Abba Roller Foundation";
 const description =
-  "How Abba Roller Foundation measures and reports impact, including verified figures from our campaigns.";
+  "How Abba Roller Foundation measures and reports impact across Northern Nigeria (Jigawa State to Kano State), including verified figures from our campaigns.";
 
 export const Route = createFileRoute("/impact")({
   head: () => ({
@@ -26,20 +28,23 @@ function Impact() {
   return (
     <>
       <PageHeader
-        eyebrow="Impact"
+        eyebrow="Impact & Accountability"
         title="We publish what we can verify"
-        lede="Reporting is only useful when it is honest. Figures appear here once they are confirmed by our programmes team."
+        lede="Reporting is only useful when it is honest. Figures appear here once they are confirmed by our programmes team across Northern Nigeria."
         crumbs={[{ label: "Impact" }]}
       />
 
-      <Section>
-        <SectionHeading eyebrow="Verified figures" title="Confirmed outcomes" />
+      {/* Regional Beneficiary Breakdown: Jigawa to Kano State */}
+      <RegionalStatistics tone="default" />
+
+      <Section tone="muted">
+        <SectionHeading eyebrow="Verified figures" title="Confirmed campaign outcomes" />
         <div className="mt-12">
           <StatList metrics={verifiedFigures} />
         </div>
       </Section>
 
-      <Section tone="muted">
+      <Section>
         <SectionHeading
           eyebrow="In confirmation"
           title="Indicators we are currently consolidating"
@@ -49,6 +54,8 @@ function Impact() {
           <StatList metrics={impactMetrics} />
         </div>
       </Section>
+
+      <PartnersMarquee tone="surface" />
 
       <Section>
         <div className="grid gap-8 md:grid-cols-3">

@@ -68,8 +68,7 @@ function Contact() {
             <h2 className="font-display text-xl font-bold text-ink">Send a message</h2>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
               Email is currently the fastest route to our team. Please include your name,
-              organisation (if any) and the reason for your enquiry so we can direct it
-              correctly.
+              organisation (if any) and the reason for your enquiry so we can direct it correctly.
             </p>
             <p className="mt-6 text-sm">
               <a
@@ -80,8 +79,8 @@ function Contact() {
               </a>
             </p>
             <p className="mt-6 text-xs text-muted-foreground">
-              A contact form with direct routing will be enabled here once the Foundation
-              confirms its enquiry inboxes.
+              A contact form with direct routing will be enabled here once the Foundation confirms
+              its enquiry inboxes.
             </p>
           </Reveal>
         </div>

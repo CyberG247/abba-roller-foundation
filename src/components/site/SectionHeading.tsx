@@ -21,27 +21,16 @@ export function SectionHeading({
   className,
 }: SectionHeadingProps) {
   return (
-    <Reveal
-      className={cn(
-        "max-w-3xl",
-        align === "center" && "mx-auto text-center",
-        className,
-      )}
-    >
+    <Reveal className={cn("max-w-3xl", align === "center" && "mx-auto text-center", className)}>
       {eyebrow && (
         <p
-          className={cn(
-            "eyebrow mb-4",
-            tone === "light" ? "text-on-dark-muted" : "text-green-mid",
-          )}
+          className={cn("eyebrow mb-4", tone === "light" ? "text-on-dark-muted" : "text-green-mid")}
         >
           {eyebrow}
         </p>
       )}
       <h2 className={cn("display-2", tone === "light" ? "text-on-dark" : "text-ink")}>{title}</h2>
-      {lede && (
-        <p className={cn("lede mt-5", tone === "light" && "text-on-dark-muted")}>{lede}</p>
-      )}
+      {lede && <p className={cn("lede mt-5", tone === "light" && "text-on-dark-muted")}>{lede}</p>}
     </Reveal>
   );
 }

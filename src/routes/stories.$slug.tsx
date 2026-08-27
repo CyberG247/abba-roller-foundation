@@ -3,6 +3,7 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { PageHeader } from "@/components/site/PageHeader";
 import { Reveal } from "@/components/site/Reveal";
 import { DonateBand, Section, formatDate } from "@/components/site/blocks";
+import { cn } from "@/lib/utils";
 import { stories } from "@/data/site";
 
 export const Route = createFileRoute("/stories/$slug")({
@@ -59,13 +60,20 @@ function StoryDetail() {
               alt={story.imageAlt}
               width={1200}
               height={800}
-              className="aspect-[3/2] w-full object-cover"
+              className={cn(
+                "aspect-[3/2] w-full object-cover",
+                story.imagePosition || "object-center",
+              )}
             />
           </Reveal>
           <div className="mt-10 space-y-6 text-base leading-relaxed text-muted-foreground">
             {story.body.map((block: string) =>
               block.startsWith("## ") ? (
-                <Reveal key={block} as="h2" className="pt-4 font-display text-2xl font-bold text-ink">
+                <Reveal
+                  key={block}
+                  as="h2"
+                  className="pt-4 font-display text-2xl font-bold text-ink"
+                >
                   {block.replace("## ", "")}
                 </Reveal>
               ) : (

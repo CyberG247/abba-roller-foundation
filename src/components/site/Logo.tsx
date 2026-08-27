@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 
-import logo from "@/assets/arf-logo-official.png.asset.json";
+import arfLogo from "@/assets/arf-logo-official.png";
 import { cn } from "@/lib/utils";
 import { org } from "@/data/site";
 
@@ -24,11 +24,11 @@ export function Logo({ tone = "dark", className, markOnly = false }: LogoProps) 
       className={cn("group inline-flex items-center gap-3", className)}
     >
       <img
-        src={logo.url}
+        src={arfLogo}
         alt={`${org.name} logo`}
         width={56}
         height={56}
-        className="h-11 w-11 shrink-0 object-contain sm:h-12 sm:w-12"
+        className="h-11 w-11 shrink-0 rounded-full object-contain sm:h-12 sm:w-12 shadow-xs"
       />
       {!markOnly && (
         <span className="min-w-0 leading-tight">

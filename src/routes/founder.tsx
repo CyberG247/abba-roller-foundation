@@ -18,6 +18,7 @@ export const Route = createFileRoute("/founder")({
       { name: "description", content: description },
       { property: "og:title", content: title },
       { property: "og:description", content: description },
+      { property: "og:image", content: founder.image },
     ],
   }),
   component: Founder,
@@ -36,16 +37,18 @@ function Founder() {
       <Section>
         <div className="grid gap-12 lg:grid-cols-[0.8fr_1.4fr] lg:gap-16">
           <Reveal>
-            <div
-              aria-hidden
-              className="flex aspect-[4/5] w-full items-center justify-center bg-green-deep"
-            >
-              <span className="font-display text-6xl font-extrabold tracking-tight text-on-dark">
-                {founder.initials}
-              </span>
+            <div className="overflow-hidden border border-hairline bg-surface shadow-lift">
+              <img
+                src={founder.image}
+                alt={founder.portraitAlt}
+                className="aspect-[4/5] w-full object-cover object-top"
+                width={768}
+                height={1024}
+                loading="eager"
+              />
             </div>
-            <p className="mt-4 text-xs text-muted-foreground">
-              An official portrait will be published here once supplied by the Foundation.
+            <p className="mt-4 text-xs font-medium text-muted-foreground">
+              {founder.name} ({founder.alias}) — {founder.role}
             </p>
 
             <dl className="mt-8 divide-y divide-hairline border-y border-hairline">

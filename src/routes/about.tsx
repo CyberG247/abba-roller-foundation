@@ -36,15 +36,15 @@ function About() {
         <div className="grid gap-12 lg:grid-cols-[1.2fr_1fr]">
           <Reveal className="max-w-2xl space-y-6 text-base leading-relaxed text-muted-foreground">
             <p>
-              Abba Roller Foundation was established to close the distance between potential
-              and opportunity for young people and women in Nigeria. We work in education and
-              skills development, humanitarian support, and health and social advocacy.
+              Abba Roller Foundation was established to close the distance between potential and
+              opportunity for young people and women in Nigeria. We work in education and skills
+              development, humanitarian support, and health and social advocacy.
             </p>
             <p>
-              Our approach is deliberately unglamorous: we work with community leaders,
-              schools and volunteers, we stay after the programme ends, and we report what we
-              can verify. Where a figure or detail is still being confirmed, we say so rather
-              than fill the space with an estimate.
+              Our approach is deliberately unglamorous: we work with community leaders, schools and
+              volunteers, we stay after the programme ends, and we report what we can verify. Where
+              a figure or detail is still being confirmed, we say so rather than fill the space with
+              an estimate.
             </p>
             <p>
               The Foundation is registered and operating in {org.country}, and is structured to
@@ -55,13 +55,13 @@ function About() {
           <Reveal delay={120} className="border-l-4 border-brand-red pl-6">
             <h2 className="eyebrow text-green-mid">Mission</h2>
             <p className="mt-3 font-display text-xl leading-snug font-bold text-ink">
-              To empower youth and women through education, skills training and humanitarian
-              support — strengthening the communities they belong to.
+              To empower youth and women through education, skills training and humanitarian support
+              — strengthening the communities they belong to.
             </p>
             <h2 className="eyebrow mt-10 text-green-mid">Vision</h2>
             <p className="mt-3 font-display text-xl leading-snug font-bold text-ink">
-              Communities in which no person is left behind because of where they were born or
-              what they lack.
+              Communities in which no person is left behind because of where they were born or what
+              they lack.
             </p>
           </Reveal>
         </div>

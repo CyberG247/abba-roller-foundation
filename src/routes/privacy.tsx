@@ -51,8 +51,8 @@ function Privacy() {
             <h2 className="font-display text-xl font-bold text-ink">Photography and consent</h2>
             <p className="mt-3">
               Where we publish images from our programmes, we seek consent from participants or
-              their guardians. If you would like an image involving you removed, contact us and
-              we will act on the request.
+              their guardians. If you would like an image involving you removed, contact us and we
+              will act on the request.
             </p>
           </section>
           <section>
@@ -65,8 +65,8 @@ function Privacy() {
           <section>
             <h2 className="font-display text-xl font-bold text-ink">Your rights</h2>
             <p className="mt-3">
-              You may request access to, correction of, or deletion of the personal information
-              we hold about you by writing to{" "}
+              You may request access to, correction of, or deletion of the personal information we
+              hold about you by writing to{" "}
               <a
                 href={`mailto:${org.email}`}
                 className="font-semibold text-green-deep underline decoration-brand-red decoration-2 underline-offset-4"

@@ -14,7 +14,10 @@ export const Route = createFileRoute("/programs/$slug")({
   head: ({ loaderData }) => {
     if (!loaderData) {
       return {
-        meta: [{ title: "Programme not found — Abba Roller Foundation" }, { name: "robots", content: "noindex" }],
+        meta: [
+          { title: "Programme not found — Abba Roller Foundation" },
+          { name: "robots", content: "noindex" },
+        ],
       };
     }
     const title = `${loaderData.program.title} — Abba Roller Foundation`;
