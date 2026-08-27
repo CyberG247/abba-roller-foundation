@@ -19,7 +19,7 @@ export const Route = createFileRoute("/get-involved")({
       { property: "og:description", content: description },
     ],
   }),
-  component: GetInvolved;
+  component: GetInvolved,
 });
 
 function GetInvolved() {
