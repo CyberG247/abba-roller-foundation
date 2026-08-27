@@ -11,11 +11,14 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as AccessibilityRouteImport } from './routes/accessibility'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as DonateRouteImport } from './routes/donate'
 import { Route as GetInvolvedRouteImport } from './routes/get-involved'
 import { Route as ImpactRouteImport } from './routes/impact'
 import { Route as PartnersRouteImport } from './routes/partners'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as VolunteerRouteImport } from './routes/volunteer'
 import { Route as CampaignsIndexRouteImport } from './routes/campaigns.index'
 import { Route as CampaignsSlugRouteImport } from './routes/campaigns.$slug'
@@ -32,6 +35,11 @@ const IndexRoute = IndexRouteImport.update({
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccessibilityRoute = AccessibilityRouteImport.update({
+  id: '/accessibility',
+  path: '/accessibility',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -57,6 +65,16 @@ const ImpactRoute = ImpactRouteImport.update({
 const PartnersRoute = PartnersRouteImport.update({
   id: '/partners',
   path: '/partners',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const VolunteerRoute = VolunteerRouteImport.update({
@@ -98,11 +116,14 @@ const StoriesSlugRoute = StoriesSlugRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/accessibility': typeof AccessibilityRoute
   '/contact': typeof ContactRoute
   '/donate': typeof DonateRoute
   '/get-involved': typeof GetInvolvedRoute
   '/impact': typeof ImpactRoute
   '/partners': typeof PartnersRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
   '/volunteer': typeof VolunteerRoute
   '/campaigns/$slug': typeof CampaignsSlugRoute
   '/programs/$slug': typeof ProgramsSlugRoute
@@ -114,11 +135,14 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/accessibility': typeof AccessibilityRoute
   '/contact': typeof ContactRoute
   '/donate': typeof DonateRoute
   '/get-involved': typeof GetInvolvedRoute
   '/impact': typeof ImpactRoute
   '/partners': typeof PartnersRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
   '/volunteer': typeof VolunteerRoute
   '/campaigns/$slug': typeof CampaignsSlugRoute
   '/programs/$slug': typeof ProgramsSlugRoute
@@ -131,11 +155,14 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/accessibility': typeof AccessibilityRoute
   '/contact': typeof ContactRoute
   '/donate': typeof DonateRoute
   '/get-involved': typeof GetInvolvedRoute
   '/impact': typeof ImpactRoute
   '/partners': typeof PartnersRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
   '/volunteer': typeof VolunteerRoute
   '/campaigns/$slug': typeof CampaignsSlugRoute
   '/programs/$slug': typeof ProgramsSlugRoute
@@ -149,11 +176,14 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/accessibility'
     | '/contact'
     | '/donate'
     | '/get-involved'
     | '/impact'
     | '/partners'
+    | '/privacy'
+    | '/terms'
     | '/volunteer'
     | '/campaigns/$slug'
     | '/programs/$slug'
@@ -165,11 +195,14 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/accessibility'
     | '/contact'
     | '/donate'
     | '/get-involved'
     | '/impact'
     | '/partners'
+    | '/privacy'
+    | '/terms'
     | '/volunteer'
     | '/campaigns/$slug'
     | '/programs/$slug'
@@ -181,11 +214,14 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/about'
+    | '/accessibility'
     | '/contact'
     | '/donate'
     | '/get-involved'
     | '/impact'
     | '/partners'
+    | '/privacy'
+    | '/terms'
     | '/volunteer'
     | '/campaigns/$slug'
     | '/programs/$slug'
@@ -198,11 +234,14 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  AccessibilityRoute: typeof AccessibilityRoute
   ContactRoute: typeof ContactRoute
   DonateRoute: typeof DonateRoute
   GetInvolvedRoute: typeof GetInvolvedRoute
   ImpactRoute: typeof ImpactRoute
   PartnersRoute: typeof PartnersRoute
+  PrivacyRoute: typeof PrivacyRoute
+  TermsRoute: typeof TermsRoute
   VolunteerRoute: typeof VolunteerRoute
   CampaignsSlugRoute: typeof CampaignsSlugRoute
   ProgramsSlugRoute: typeof ProgramsSlugRoute
@@ -226,6 +265,13 @@ declare module '@tanstack/react-router' {
       path: '/about'
       fullPath: '/about'
       preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/accessibility': {
+      id: '/accessibility'
+      path: '/accessibility'
+      fullPath: '/accessibility'
+      preLoaderRoute: typeof AccessibilityRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -261,6 +307,20 @@ declare module '@tanstack/react-router' {
       path: '/partners'
       fullPath: '/partners'
       preLoaderRoute: typeof PartnersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/volunteer': {
@@ -318,11 +378,14 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  AccessibilityRoute: AccessibilityRoute,
   ContactRoute: ContactRoute,
   DonateRoute: DonateRoute,
   GetInvolvedRoute: GetInvolvedRoute,
   ImpactRoute: ImpactRoute,
   PartnersRoute: PartnersRoute,
+  PrivacyRoute: PrivacyRoute,
+  TermsRoute: TermsRoute,
   VolunteerRoute: VolunteerRoute,
   CampaignsSlugRoute: CampaignsSlugRoute,
   ProgramsSlugRoute: ProgramsSlugRoute,
