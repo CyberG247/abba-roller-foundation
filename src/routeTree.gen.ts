@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as CampaignsIndexRouteImport } from './routes/campaigns.index'
+import { Route as CampaignsSlugRouteImport } from './routes/campaigns.$slug'
 import { Route as ProgramsIndexRouteImport } from './routes/programs.index'
 import { Route as ProgramsSlugRouteImport } from './routes/programs.$slug'
 
@@ -30,6 +31,11 @@ const CampaignsIndexRoute = CampaignsIndexRouteImport.update({
   path: '/campaigns/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CampaignsSlugRoute = CampaignsSlugRouteImport.update({
+  id: '/campaigns/$slug',
+  path: '/campaigns/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProgramsIndexRoute = ProgramsIndexRouteImport.update({
   id: '/programs/',
   path: '/programs/',
@@ -44,6 +50,7 @@ const ProgramsSlugRoute = ProgramsSlugRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/campaigns/$slug': typeof CampaignsSlugRoute
   '/programs/$slug': typeof ProgramsSlugRoute
   '/campaigns/': typeof CampaignsIndexRoute
   '/programs/': typeof ProgramsIndexRoute
@@ -51,6 +58,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/campaigns/$slug': typeof CampaignsSlugRoute
   '/programs/$slug': typeof ProgramsSlugRoute
   '/campaigns': typeof CampaignsIndexRoute
   '/programs': typeof ProgramsIndexRoute
@@ -59,19 +67,33 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/campaigns/$slug': typeof CampaignsSlugRoute
   '/programs/$slug': typeof ProgramsSlugRoute
   '/campaigns/': typeof CampaignsIndexRoute
   '/programs/': typeof ProgramsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/programs/$slug' | '/campaigns/' | '/programs/'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/campaigns/$slug'
+    | '/programs/$slug'
+    | '/campaigns/'
+    | '/programs/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/programs/$slug' | '/campaigns' | '/programs'
+  to:
+    | '/'
+    | '/about'
+    | '/campaigns/$slug'
+    | '/programs/$slug'
+    | '/campaigns'
+    | '/programs'
   id:
     | '__root__'
     | '/'
     | '/about'
+    | '/campaigns/$slug'
     | '/programs/$slug'
     | '/campaigns/'
     | '/programs/'
@@ -80,6 +102,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  CampaignsSlugRoute: typeof CampaignsSlugRoute
   ProgramsSlugRoute: typeof ProgramsSlugRoute
   CampaignsIndexRoute: typeof CampaignsIndexRoute
   ProgramsIndexRoute: typeof ProgramsIndexRoute
@@ -108,6 +131,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CampaignsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/campaigns/$slug': {
+      id: '/campaigns/$slug'
+      path: '/campaigns/$slug'
+      fullPath: '/campaigns/$slug'
+      preLoaderRoute: typeof CampaignsSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/programs/': {
       id: '/programs/'
       path: '/programs'
@@ -128,6 +158,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  CampaignsSlugRoute: CampaignsSlugRoute,
   ProgramsSlugRoute: ProgramsSlugRoute,
   CampaignsIndexRoute: CampaignsIndexRoute,
   ProgramsIndexRoute: ProgramsIndexRoute,
