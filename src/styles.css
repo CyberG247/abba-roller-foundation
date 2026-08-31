@@ -395,3 +395,62 @@
 ::-webkit-scrollbar-thumb:hover {
   background: var(--green-mid);
 }
+
+/* Glassmorphism & Elevation */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.glass-panel-dark {
+  background: rgba(11, 61, 46, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.glow-emerald {
+  box-shadow: 0 0 40px -10px rgba(20, 90, 67, 0.45);
+}
+
+.glow-gold {
+  box-shadow: 0 0 35px -8px rgba(245, 158, 11, 0.4);
+}
+
+.glow-crimson {
+  box-shadow: 0 0 35px -8px rgba(229, 57, 53, 0.35);
+}
+
+.card-interactive {
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-interactive:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.12);
+}
+
+.shimmer-badge {
+  background: linear-gradient(
+    110deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.2) 25%,
+    rgba(255, 255, 255, 0.05) 50%
+  );
+  background-size: 200% 100%;
+  animation: badge-shimmer 4s infinite linear;
+}
+
+@keyframes badge-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+

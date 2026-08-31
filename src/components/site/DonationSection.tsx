@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
+import confetti from "canvas-confetti";
 import {
   ArrowLeft,
   ArrowRight,
@@ -58,9 +59,9 @@ const tiers = [
 ];
 
 const BANK_DETAILS = {
-  bankName: "First Bank of Nigeria",
-  accountName: "Abba Roller Foundation",
-  accountNumber: "1024889201",
+  bankName: "POLARIS BANK",
+  accountName: "ABBA ROLLER FOUNDATION",
+  accountNumber: "4092448499",
   accountType: "Corporate / Nonprofit Account",
 };
 
@@ -75,9 +76,23 @@ export function DonationSection({ id = "donate" }: { id?: string }) {
   const activeTier = tiers.find((t) => t.numeric === selectedTier) || tiers[1];
   const refCode = `ARF-${activeAmount.toString().slice(0, 4)}-${Math.floor(1000 + Math.random() * 9000)}`;
 
+  const triggerCelebration = () => {
+    try {
+      confetti({
+        particleCount: 50,
+        spread: 65,
+        origin: { y: 0.65 },
+        colors: ["#145A43", "#1B6B50", "#E53935", "#F59E0B", "#ffffff"],
+      });
+    } catch {
+      // ignore if confetti fails
+    }
+  };
+
   const handleCopyAccount = () => {
     navigator.clipboard.writeText(BANK_DETAILS.accountNumber);
     setCopiedAccount(true);
+    triggerCelebration();
     setTimeout(() => setCopiedAccount(false), 2500);
   };
 
@@ -85,6 +100,11 @@ export function DonationSection({ id = "donate" }: { id?: string }) {
     navigator.clipboard.writeText(text);
     setCopiedRef(true);
     setTimeout(() => setCopiedRef(false), 2500);
+  };
+
+  const handleProceed = () => {
+    setStep("complete");
+    triggerCelebration();
   };
 
   const whatsappMessage = encodeURIComponent(
@@ -272,7 +292,7 @@ export function DonationSection({ id = "donate" }: { id?: string }) {
                   <div className="mt-8 flex flex-col gap-3">
                     <button
                       type="button"
-                      onClick={() => setStep("complete")}
+                      onClick={handleProceed}
                       className="btn-shine group relative w-full overflow-hidden rounded-sm bg-gradient-to-r from-brand-red via-brand-red to-brand-red-bright py-4 px-6 text-center text-base font-extrabold text-white shadow-lg shadow-brand-red/30 ring-1 ring-white/30 transition-all duration-300 hover:shadow-xl hover:shadow-brand-red/45 hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
                     >
                       <span className="relative z-10 inline-flex items-center justify-center gap-2">

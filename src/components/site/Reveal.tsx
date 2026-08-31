@@ -1,53 +1,150 @@
-import { useEffect, useRef, useState, type ElementType, type ReactNode } from "react";
-
+import { motion, type HTMLMotionProps, useReducedMotion } from "framer-motion";
+import { type ElementType, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-type RevealProps = {
+export type RevealVariant = "up" | "down" | "left" | "right" | "scale" | "fade";
+
+export type RevealProps = {
   children: ReactNode;
   className?: string;
-  /** Stagger in milliseconds. */
   delay?: number;
+  direction?: RevealVariant;
+  duration?: number;
   as?: ElementType;
+  once?: boolean;
+  amount?: number | "some" | "all";
 };
 
-/**
- * Single-shot fade-up on scroll. Motion is disabled entirely by the global
- * `prefers-reduced-motion` rule in styles.css, so no JS branch is needed.
- */
-export function Reveal({ children, className, delay = 0, as: Tag = "div" }: RevealProps) {
-  const ref = useRef<HTMLElement | null>(null);
-  const [shown, setShown] = useState(false);
+const getVariants = (direction: RevealVariant) => {
+  switch (direction) {
+    case "up":
+      return {
+        hidden: { opacity: 0, y: 28, scale: 0.985 },
+        visible: { opacity: 1, y: 0, scale: 1 },
+      };
+    case "down":
+      return {
+        hidden: { opacity: 0, y: -28, scale: 0.985 },
+        visible: { opacity: 1, y: 0, scale: 1 },
+      };
+    case "left":
+      return {
+        hidden: { opacity: 0, x: -36 },
+        visible: { opacity: 1, x: 0 },
+      };
+    case "right":
+      return {
+        hidden: { opacity: 0, x: 36 },
+        visible: { opacity: 1, x: 0 },
+      };
+    case "scale":
+      return {
+        hidden: { opacity: 0, scale: 0.92 },
+        visible: { opacity: 1, scale: 1 },
+      };
+    case "fade":
+    default:
+      return {
+        hidden: { opacity: 0 },
+        visible: { opacity: 1 },
+      };
+  }
+};
 
-  useEffect(() => {
-    const node = ref.current;
-    if (!node) return;
-    if (typeof IntersectionObserver === "undefined") {
-      setShown(true);
-      return;
-    }
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            setShown(true);
-            observer.disconnect();
-          }
-        }
-      },
-      { rootMargin: "0px 0px -12% 0px", threshold: 0.05 },
-    );
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, []);
+export function Reveal({
+  children,
+  className,
+  delay = 0,
+  direction = "up",
+  duration = 0.65,
+  as: Tag = "div",
+  once = true,
+  amount = 0.1,
+}: RevealProps) {
+  const shouldReduceMotion = useReducedMotion();
+  const variants = getVariants(direction);
+
+  const MotionTag = motion[Tag as keyof typeof motion] || motion.div;
+
+  if (shouldReduceMotion) {
+    return <div className={className}>{children}</div>;
+  }
 
   return (
-    <Tag
-      ref={ref}
-      data-shown={shown}
-      style={delay ? { transitionDelay: `${delay}ms` } : undefined}
-      className={cn("reveal", className)}
+    <MotionTag
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once, amount }}
+      variants={variants}
+      transition={{
+        duration,
+        delay: delay / 1000,
+        ease: [0.22, 1, 0.36, 1],
+      }}
+      className={cn(className)}
     >
       {children}
-    </Tag>
+    </MotionTag>
+  );
+}
+
+/** Stagger container for animating lists of items in succession */
+export function StaggerContainer({
+  children,
+  className,
+  delay = 0,
+  staggerChildren = 0.1,
+}: {
+  children: ReactNode;
+  className?: string;
+  delay?: number;
+  staggerChildren?: number;
+}) {
+  const shouldReduceMotion = useReducedMotion();
+
+  if (shouldReduceMotion) {
+    return <div className={className}>{children}</div>;
+  }
+
+  return (
+    <motion.div
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.1 }}
+      variants={{
+        hidden: {},
+        visible: {
+          transition: {
+            delayChildren: delay / 1000,
+            staggerChildren,
+          },
+        },
+      }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+/** Child item inside StaggerContainer */
+export function StaggerItem({
+  children,
+  className,
+  direction = "up",
+}: {
+  children: ReactNode;
+  className?: string;
+  direction?: RevealVariant;
+}) {
+  const variants = getVariants(direction);
+  return (
+    <motion.div
+      variants={variants}
+      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+      className={className}
+    >
+      {children}
+    </motion.div>
   );
 }

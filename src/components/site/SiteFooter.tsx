@@ -7,6 +7,8 @@ const sectionMap: Record<string, string> = {
   "/about": "about",
   "/founder": "founder",
   "/programs": "programs",
+  "/campaigns/weekly-community-food-distribution": "food-distribution",
+  "/campaigns/ramadan-food-support-10-states": "ramadan-support",
   "/media": "media",
   "/impact": "impact",
   "/stories": "stories",
@@ -23,6 +25,8 @@ const columns = [
       { label: "About", to: "/about" },
       { label: "Founder's Desk", to: "/founder" },
       { label: "Programs", to: "/programs" },
+      { label: "Weekly Feeding", to: "/campaigns/weekly-community-food-distribution" },
+      { label: "Ramadan Relief", to: "/campaigns/ramadan-food-support-10-states" },
       { label: "Media & Updates", to: "/media" },
       { label: "Impact", to: "/impact" },
       { label: "Stories", to: "/stories" },
@@ -34,6 +38,7 @@ const columns = [
     links: [
       { label: "Donate", to: "/donate" },
       { label: "Volunteer", to: "/volunteer" },
+      { label: "Ramadan Food Support", to: "/campaigns/ramadan-food-support-10-states" },
       { label: "Partner With Us", to: "/partners" },
       { label: "Campaigns", to: "/campaigns" },
       { label: "Get Involved", to: "/get-involved" },
@@ -131,15 +136,24 @@ export function SiteFooter() {
       </div>
 
       <div className="border-t border-on-dark/10">
-        <div className="shell flex flex-col gap-3 py-6 text-xs sm:flex-row sm:items-center sm:justify-between">
-          <p>
-            &copy; {new Date().getFullYear()} {org.name}. All rights reserved.
-          </p>
-          <p>
-            Registered address: {org.address === CMS_PLACEHOLDER ? "To be confirmed" : org.address}
-            {" · "}
-            {org.country}
-          </p>
+        <div className="shell flex flex-col gap-4 py-6 text-xs sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p>
+              &copy; {new Date().getFullYear()} {org.name}. All rights reserved.
+            </p>
+            <p className="mt-1 text-on-dark-muted/70">
+              Registered address: {org.address === CMS_PLACEHOLDER ? "To be confirmed" : org.address}
+              {" · "}
+              {org.country}
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-3 rounded-xs border border-white/10 bg-white/5 px-3.5 py-2">
+            <span className="font-semibold text-on-dark">Official Account:</span>
+            <span className="font-mono font-bold text-white">POLARIS BANK · 4092448499</span>
+            <span className="rounded-full bg-brand-red px-2 py-0.5 text-[10px] font-extrabold text-white">
+              VERIFIED
+            </span>
+          </div>
         </div>
       </div>
     </footer>

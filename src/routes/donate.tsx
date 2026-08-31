@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import confetti from "canvas-confetti";
 import {
   ArrowLeft,
   ArrowRight,
@@ -75,9 +76,9 @@ const tiers = [
 ];
 
 const BANK_DETAILS = {
-  bankName: "First Bank of Nigeria",
-  accountName: "Abba Roller Foundation",
-  accountNumber: "1024889201",
+  bankName: "POLARIS BANK",
+  accountName: "ABBA ROLLER FOUNDATION",
+  accountNumber: "4092448499",
   accountType: "Corporate / Nonprofit Account",
 };
 
@@ -110,9 +111,23 @@ function DonatePage() {
   const activeTier = tiers.find((t) => t.numeric === selectedTier) || tiers[1];
   const refCode = `ARF-${activeAmount.toString().slice(0, 4)}-${Math.floor(1000 + Math.random() * 9000)}`;
 
+  const triggerCelebration = () => {
+    try {
+      confetti({
+        particleCount: 50,
+        spread: 65,
+        origin: { y: 0.65 },
+        colors: ["#145A43", "#1B6B50", "#E53935", "#F59E0B", "#ffffff"],
+      });
+    } catch {
+      // ignore
+    }
+  };
+
   const handleCopyAccount = () => {
     navigator.clipboard.writeText(BANK_DETAILS.accountNumber);
     setCopiedAccount(true);
+    triggerCelebration();
     setTimeout(() => setCopiedAccount(false), 2500);
   };
 

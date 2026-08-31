@@ -3,8 +3,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/site/PageHeader";
 import { Reveal } from "@/components/site/Reveal";
 import { DonateBand, Section } from "@/components/site/blocks";
-import { PartnersMarquee } from "@/components/site/PartnersMarquee";
+import { PartnersMarquee, partners } from "@/components/site/PartnersMarquee";
 import { org } from "@/data/site";
+import { ExternalLink, Handshake, Sparkles } from "lucide-react";
 
 const title = "Partner With Us — Abba Roller Foundation";
 const description =
@@ -54,7 +55,69 @@ function Partners() {
       {/* Horizontal Sliding Partners Marquee */}
       <PartnersMarquee showHeading={false} tone="white" />
 
+      {/* Featured Strategic Partners */}
+      <Section>
+        <div className="max-w-2xl">
+          <p className="eyebrow text-brand-red">Confirmed Collaborators</p>
+          <h2 className="display-2 mt-3 text-ink">Our Strategic Partners</h2>
+          <p className="lede mt-4">
+            We work in trusted synergy with national initiatives, grassroots organizations, and
+            technology providers to maximize the impact of our interventions.
+          </p>
+        </div>
+
+        <div className="mt-12 grid gap-6 md:grid-cols-3">
+          {partners.map((partner, index) => (
+            <Reveal
+              key={partner.name}
+              delay={index * 80}
+              as="article"
+              className="flex flex-col justify-between rounded-sm border border-hairline bg-surface p-6 shadow-2xs transition-all hover:border-green-deep hover:shadow-lift"
+            >
+              <div>
+                <div className="flex h-20 items-center justify-center rounded-xs bg-white p-3 border border-hairline/80 shadow-2xs">
+                  <img
+                    src={partner.logo}
+                    alt={`${partner.name} logo`}
+                    className="max-h-full max-w-full object-contain"
+                    loading="lazy"
+                  />
+                </div>
+                <div className="mt-5">
+                  <span className="inline-block rounded-full bg-green-wash px-2.5 py-0.5 text-[10px] font-bold text-green-deep uppercase tracking-wider">
+                    {partner.badge}
+                  </span>
+                  <h3 className="mt-2 font-display text-lg font-bold text-ink">{partner.name}</h3>
+                  <p className="mt-1 text-xs font-semibold text-brand-red">{partner.category}</p>
+                  <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
+                    {partner.description}
+                  </p>
+                </div>
+              </div>
+
+              {partner.url && (
+                <div className="mt-5 pt-4 border-t border-hairline">
+                  <a
+                    href={partner.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-green-deep hover:underline"
+                  >
+                    <span>Visit website</span>
+                    <ExternalLink className="size-3" />
+                  </a>
+                </div>
+              )}
+            </Reveal>
+          ))}
+        </div>
+      </Section>
+
       <Section tone="muted">
+        <div className="max-w-2xl mb-10">
+          <p className="eyebrow text-green-mid">Collaboration Frameworks</p>
+          <h2 className="display-3 mt-2 text-ink">How We Partner</h2>
+        </div>
         <div className="grid gap-10 md:grid-cols-2">
           {models.map((model, index) => (
             <Reveal

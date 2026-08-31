@@ -11,6 +11,8 @@ import { FloatingActions } from "@/components/site/FloatingActions";
 import { AboutSection } from "@/components/site/AboutSection";
 import { FounderSection } from "@/components/site/FounderSection";
 import { ProgramsSection } from "@/components/site/ProgramsSection";
+import { FoodDistributionSection } from "@/components/site/FoodDistributionSection";
+import { RamadanSupportSection } from "@/components/site/RamadanSupportSection";
 import { MediaSection } from "@/components/site/MediaSection";
 import { RegionalStatistics } from "@/components/site/RegionalStatistics";
 import { PartnersMarquee } from "@/components/site/PartnersMarquee";
@@ -92,6 +94,16 @@ function Home() {
 
               <div className="rounded-xs border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-brand-red-wash">
+                  Weekly Feeding
+                </span>
+                <p className="mt-1 font-display text-2xl sm:text-3xl font-extrabold text-on-dark">
+                  <AnimatedCounter value="250+" />
+                </p>
+                <span className="text-[11px] text-on-dark-muted">Hot Meals Weekly</span>
+              </div>
+
+              <div className="rounded-xs border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-brand-red-wash">
                   Covered LGAs
                 </span>
                 <p className="mt-1 font-display text-2xl sm:text-3xl font-extrabold text-on-dark">
@@ -109,16 +121,6 @@ function Home() {
                 </p>
                 <span className="text-[11px] text-on-dark-muted">Pad Up Nigerian Girls</span>
               </div>
-
-              <div className="rounded-xs border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-brand-red-wash">
-                  Direct Delivery
-                </span>
-                <p className="mt-1 font-display text-2xl sm:text-3xl font-extrabold text-on-dark">
-                  <AnimatedCounter value="100%" />
-                </p>
-                <span className="text-[11px] text-on-dark-muted">Verified Field Audit</span>
-              </div>
             </div>
           </Reveal>
         </div>
@@ -133,7 +135,13 @@ function Home() {
       {/* -------------------------------------------------- 4. PROGRAMMES SECTION */}
       <ProgramsSection id="programs" />
 
-      {/* -------------------------------------------------- 5. MEDIA & UPDATES SECTION */}
+      {/* -------------------------------------------------- 5. WEEKLY FOOD DISTRIBUTION (250 BENEFICIARIES WEEKLY) */}
+      <FoodDistributionSection id="food-distribution" />
+
+      {/* -------------------------------------------------- 6. RAMADAN HUMANITARIAN FOOD RELIEF (1,500 PACKAGES ACROSS 10 STATES) */}
+      <RamadanSupportSection id="ramadan-support" />
+
+      {/* -------------------------------------------------- 7. MEDIA & UPDATES SECTION */}
       <MediaSection id="media" />
 
       {/* -------------------------------------------------- 6. REGIONAL BENEFICIARIES STATISTICS & IMPACT */}

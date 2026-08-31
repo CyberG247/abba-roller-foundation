@@ -11,6 +11,7 @@ const navItems = [
   { label: "About", sectionId: "about", to: "/about" },
   { label: "Founder's Desk", sectionId: "founder", to: "/founder" },
   { label: "Programs", sectionId: "programs", to: "/programs" },
+  { label: "Weekly Feeding", sectionId: "food-distribution", to: "/campaigns/weekly-community-food-distribution" },
   { label: "Media & Updates", sectionId: "media", to: "/media" },
   { label: "Impact", sectionId: "impact", to: "/impact" },
   { label: "Partners", sectionId: "partners", to: "/partners" },

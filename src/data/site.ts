@@ -14,6 +14,9 @@ import programAdvocacy from "@/assets/program-advocacy.jpg";
 import programFood from "@/assets/program-food.jpg";
 import programSkills from "@/assets/program-skills.jpg";
 import programYouth from "@/assets/program-youth.jpg";
+import weeklyFoodMeals from "@/assets/weekly-food-distribution-meals.jpg";
+import weeklyFoodBeneficiaries from "@/assets/weekly-food-distribution-beneficiaries.jpg";
+import ramadanFoodPackages from "@/assets/ramadan-food-packages-10-states.jpg";
 
 export const CMS_PLACEHOLDER = "—" as const;
 
@@ -25,9 +28,16 @@ export const org = {
     "Abba Roller Foundation (ARF) is a nonprofit dedicated to empowering youth & women through education, skills training, food aid, support.",
   country: "Nigeria",
   /** Contact details awaiting confirmation from the organisation. */
-  email: "info@abbarollerfoundation.org",
+  email: "abbarollerfoundation@gmail.com",
   phone: CMS_PLACEHOLDER,
   address: CMS_PLACEHOLDER,
+  /** Official verified banking details */
+  bankDetails: {
+    bankName: "POLARIS BANK",
+    accountName: "ABBA ROLLER FOUNDATION",
+    accountNumber: "4092448499",
+    accountType: "Corporate / Nonprofit Account",
+  },
   /** Only official, confirmed accounts should be listed here. */
   socials: [] as { label: string; href: string }[],
 };
@@ -129,6 +139,57 @@ export type Campaign = {
 
 export const campaigns: Campaign[] = [
   {
+    slug: "ramadan-food-support-10-states",
+    title: "Ramadan Food Support: 1,500 Packages Across 10 States",
+    kicker: "Nationwide Ramadan Humanitarian Relief",
+    location: "10 States Across Nigeria (Jigawa, Kano, Yobe, Borno, Kaduna, Katsina, Bauchi, Sokoto, Gombe, Zamfara)",
+    status: "Active",
+    summary:
+      "A landmark nationwide Ramadan humanitarian campaign distributing 1,500 wholesome food package pieces across 10 Nigerian states to support vulnerable fasting households, orphans, and indigent community members.",
+    image: ramadanFoodPackages,
+    imageAlt:
+      "Packed green bundles and freshly prepared takeaway food containers featuring whole fish, rice, and fresh greens ready for ARF Ramadan distribution across 10 states",
+    activities: [
+      "Distribution of 1,500 food package pieces nationwide",
+      "Multi-state logistics across 10 Nigerian States",
+      "High-protein cooked meals with fish, seasoned rice, and fresh salad",
+      "Dedicated Iftar and Sahur nutritional support for indigent families",
+      "Direct grassroots handover through trusted community leaders",
+      "Accountable field verification and beneficiary documentation",
+    ],
+    body: [
+      "The holy month of Ramadan is a time of spiritual devotion, community solidarity, and profound charity. To ensure that vulnerable households and indigent individuals are supported during their fast, the Abba Roller Foundation mounted a multi-state humanitarian operation distributing 1,500 complete food package pieces across 10 states in Nigeria.",
+      "Each package is prepared with utmost care, featuring hygienically sealed takeaway meal packs with seasoned rice, fresh salad greens, and wholesome whole fish, alongside bundled food parcels organized for safe multi-ward distribution.",
+      "The outreach spanned urban wards, rural councils, and peri-urban settlements in 10 states, bringing essential relief, warmth, and dignity directly to fasting families, street youth, widows, and orphans who needed it most.",
+      "This 10-state intervention underscores the Foundation's expanding capacity to coordinate large-scale, accountable humanitarian relief across regional borders while preserving the personal dignity of every single beneficiary.",
+    ],
+  },
+  {
+    slug: "weekly-community-food-distribution",
+    title: "Weekly Community Food Distribution",
+    kicker: "Grassroots Nutrition & 250+ Weekly Meals",
+    location: "Kano & Jigawa Municipal Wards, Nigeria",
+    status: "Active",
+    summary:
+      "A weekly grassroots nutrition outreach preparing and distributing 250+ hot, balanced, high-protein takeaway meal packs every week to street children, orphans, and vulnerable families.",
+    image: weeklyFoodBeneficiaries,
+    imageAlt:
+      "Young boys, youths and children happily holding fresh takeout meals during ARF weekly food distribution",
+    activities: [
+      "Weekly distribution of 250+ cooked takeaway meal packs",
+      "Balanced protein nutrition with fish, rice and fresh greens",
+      "Direct neighborhood outreach to vulnerable street children and orphans",
+      "Structured community handover preserving beneficiary dignity",
+      "Regular hygiene and nutritional quality checks",
+      "Targeting 1,000+ hot meals disbursed each month",
+    ],
+    body: [
+      "No child or vulnerable individual should face severe hunger or malnutrition. The Abba Roller Foundation Weekly Food Distribution programme operates on a dependable weekly cycle, ensuring that at least 250 freshly cooked, balanced meals are delivered directly to individuals and families carrying the greatest vulnerability.",
+      "Each takeaway meal pack is prepared under rigorous hygienic standards and features nutrient-rich seasoned rice, fresh vegetable greens, and wholesome fish/protein, packaged securely in food containers and distributed directly across high-need wards.",
+      "Beyond providing immediate sustenance, our weekly presence allows Foundation volunteers to build meaningful, caring relationships with neighborhood children, monitor acute community welfare needs, and connect households to long-term skills and empowerment pathways.",
+    ],
+  },
+  {
     slug: "pad-up-nigerian-girls",
     title: "Pad Up Nigerian Girls",
     kicker: "Menstrual health & girl-child empowerment",
@@ -171,6 +232,49 @@ export type Story = {
 };
 
 export const stories: Story[] = [
+  {
+    slug: "ramadan-food-packages-10-states-distribution",
+    title: "Ramadan of compassion: 1,500 food package pieces distributed across 10 Nigerian States",
+    category: "Campaign Update",
+    date: "2026-04-05",
+    author: "ARF Ramadan Outreach Desk",
+    readingTime: "4 min read",
+    excerpt:
+      "Under the leadership of Hon. Usman Aminu Usman (Abba Roller), the Foundation conducted a 10-state Ramadan relief campaign delivering 1,500 food packages to vulnerable fasting households.",
+    image: ramadanFoodPackages,
+    imageAlt:
+      "ARF Ramadan relief packages: stacks of packaged green sacks and open containers with whole fish and seasoned rice",
+    body: [
+      "In observance of the sacred month of Ramadan, the Abba Roller Foundation successfully executed a wide-reaching humanitarian outreach, delivering 1,500 food package pieces to vulnerable populations across 10 states in Nigeria.",
+      "Led by the Foundation's field coordination teams under Founder & Chairman Hon. Usman Aminu Usman (Abba Roller), the intervention targeted households facing severe economic strain, providing vital nutrition for Iftar and Sahur.",
+      "## Comprehensive Nutritional Support Across 10 States",
+      "Each distribution package consisted of freshly prepared, high-protein hot meals — including whole fish, seasoned rice, and nutrient-dense salad greens — hygienically packed in takeaway containers and organized in sturdy delivery sacks.",
+      "The 10-state operation covered key hubs and grassroots communities across Northern Nigeria, including Jigawa, Kano, Yobe, Borno, Kaduna, Katsina, Bauchi, Sokoto, Gombe, and Zamfara.",
+      "## Grassroots Delivery with Uncompromised Dignity",
+      "Working closely with local elders and community focal persons, Foundation teams carried out direct handovers, ensuring that relief reached the most deserving households without administrative bottlenecks or loss of recipient dignity.",
+    ],
+  },
+  {
+    slug: "weekly-community-food-distribution-250-people",
+    title: "Nourishing 250+ lives weekly: Direct grassroots food relief outreach",
+    category: "Community Story",
+    date: "2026-08-28",
+    author: "ARF Food Security Desk",
+    readingTime: "3 min read",
+    excerpt:
+      "Every week, ARF prepares and distributes over 250 hot, balanced, nutritious meal packs to street children, orphans, and indigent families across local communities.",
+    image: weeklyFoodMeals,
+    imageAlt:
+      "Freshly prepared nutritious takeaway meal packs containing fish, seasoned rice, and fresh vegetables ready for ARF weekly distribution",
+    body: [
+      "Every week across high-need municipal wards in Northern Nigeria, the Abba Roller Foundation team mobilizes to prepare and distribute over 250 wholesome, freshly cooked meal packs directly to vulnerable children, orphans, and indigent community members.",
+      "Each meal container is thoughtfully assembled with seasoned rice, fresh salad greens, and whole fish, providing essential protein and vital micronutrients that are often out of reach for struggling households.",
+      "## Direct, Dignified Community Delivery",
+      "Rather than impersonal handouts, ARF's weekly distribution is conducted with warmth, respect, and direct engagement. Team members hand each pack directly to recipients, ensuring transparent delivery without administrative intermediaries.",
+      "## Reaching 1,000+ Meals Every Month",
+      "With 250+ meals disbursed every single week, the Foundation achieves a consistent monthly impact of over 1,000 hot meals. This ongoing commitment ensures that direct nutritional relief remains a reliable lifeline for vulnerable youth across Northern Nigeria.",
+    ],
+  },
   {
     slug: "custodial-centre-humanitarian-food-support",
     title: "Extending dignity: Food relief outreach to inmates at the Custodial Centre",
@@ -288,6 +392,26 @@ export const impactMetrics: ImpactMetric[] = [
 
 export const verifiedFigures: ImpactMetric[] = [
   {
+    label: "Ramadan food packages",
+    value: "1,500+",
+    note: "Distributed across 10 States in Nigeria",
+  },
+  {
+    label: "States reached (Ramadan)",
+    value: "10 States",
+    note: "Multi-state nationwide humanitarian relief corridor",
+  },
+  {
+    label: "Weekly meals distributed",
+    value: "250+",
+    note: "Direct weekly community feeding programme across target wards",
+  },
+  {
+    label: "Monthly meal delivery",
+    value: "1,000+",
+    note: "Sustained hot nutritious meal distribution to children & households",
+  },
+  {
     label: "Sanitary pads distributed",
     value: "1,000+",
     note: "Pad Up Nigerian Girls, Gumel LGA, Jigawa State",
@@ -385,6 +509,40 @@ export const updateCategories: UpdateCategory[] = [
 ];
 
 export const updates: Update[] = [
+  {
+    id: "ramadan-food-packages-10-states",
+    title: "Ramadan relief: 1,500 food package pieces distributed across 10 States in Nigeria",
+    category: "Food Distribution",
+    date: "2026-04-05",
+    location: "10 States across Nigeria (Jigawa, Kano, Yobe, Borno, Kaduna, Katsina, Bauchi, Sokoto, Gombe, Zamfara)",
+    summary:
+      "ARF conducted a major seasonal outreach distributing 1,500 nutritious food package pieces across 10 Nigerian states to provide immediate Iftar and Sahur sustenance to indigent families, orphans, and fasting individuals.",
+    image: ramadanFoodPackages,
+    imageAlt:
+      "Stacks of packaged green food bundles and freshly prepared meal containers with whole fish, rice, and fresh vegetables",
+    highlights: [
+      "1,500 food package pieces disbursed across 10 Nigerian States",
+      "Nutritious cooked meals with whole fish, rice, and fresh vegetables",
+      "Targeted Iftar and Sahur relief for vulnerable fasting households",
+    ],
+  },
+  {
+    id: "weekly-food-distribution-250-beneficiaries",
+    title: "Weekly food distribution: Providing 250+ hot meals to children & families in need",
+    category: "Food Distribution",
+    date: "2026-08-28",
+    location: "Grassroots community wards across Kano & Jigawa State",
+    summary:
+      "ARF conducts ongoing weekly food distributions delivering 250+ balanced, freshly prepared takeaway meals (featuring wholesome whole fish, seasoned rice, and fresh vegetables) directly to street children, orphans, and vulnerable families in our communities.",
+    image: weeklyFoodBeneficiaries,
+    imageAlt:
+      "Children and young beneficiaries holding freshly prepared meal packs during ARF weekly food distribution",
+    highlights: [
+      "250+ freshly prepared hot takeaway meals distributed every week",
+      "Balanced protein nutrition with whole fish, rice, and fresh greens",
+      "Direct grassroots delivery targeting 1,000+ meals disbursed monthly",
+    ],
+  },
   {
     id: "correctional-centre-food-distribution",
     title: "Humanitarian food relief & nutritional support at Custodial Centre",
