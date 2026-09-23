@@ -436,52 +436,61 @@ export function VisuallyImpairedSchoolSection({ id = "dutse-outreach" }: { id?: 
                 <CarouselContent>
                   {dutseSchoolGallery.map((photo, index) => (
                     <CarouselItem key={photo.id}>
-                      <div className="relative overflow-hidden rounded-xs bg-muted group">
-                        <LazyImage
+                      <div className="relative overflow-hidden rounded-xs bg-slate-950 flex items-center justify-center h-[280px] xs:h-[320px] sm:h-[400px] md:h-[460px] w-full group">
+                        {/* Ambient blurred backdrop so letterbox area glows matching the photo */}
+                        <img
+                          src={photo.src}
+                          alt=""
+                          aria-hidden="true"
+                          className="absolute inset-0 size-full object-cover blur-2xl opacity-35 scale-110 pointer-events-none select-none"
+                        />
+
+                        {/* Main picture - 100% fully fitted without cropping or excessive zooming */}
+                        <img
                           src={photo.src}
                           alt={photo.alt}
-                          aspectRatio="aspect-[4/5] sm:aspect-[4/3] lg:aspect-[4/5]"
-                          className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
-                          width={1000}
-                          height={1250}
+                          className="relative z-10 max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-[1.02] pointer-events-none select-none"
+                          loading={index === 0 ? "eager" : "lazy"}
                         />
 
                         {/* Top Badge: Indicates Main Head Image or Category */}
-                        <div className="absolute top-3.5 left-3.5 flex items-center gap-2">
-                          <span
-                            className={cn(
-                              "rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wider shadow-sm",
-                              photo.isMainHeadImage
-                                ? "bg-brand-red text-white"
-                                : "bg-black/75 text-white backdrop-blur-xs"
-                            )}
+                        <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 z-20 pointer-events-none">
+                          <div className="flex items-center gap-1.5">
+                            <span
+                              className={cn(
+                                "rounded-full px-2.5 sm:px-3 py-1 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider shadow-sm",
+                                photo.isMainHeadImage
+                                  ? "bg-brand-red text-white"
+                                  : "bg-black/75 text-white backdrop-blur-xs"
+                              )}
+                            >
+                              {photo.isMainHeadImage ? "Main Head Image" : photo.category}
+                            </span>
+                            <span className="rounded-full bg-black/60 backdrop-blur-xs px-2 sm:px-2.5 py-1 text-[10px] sm:text-[11px] font-medium text-white/90">
+                              {index + 1} / {dutseSchoolGallery.length}
+                            </span>
+                          </div>
+
+                          {/* Quick Expand Button */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setActiveGalleryModalImage(photo);
+                              setDetailsModalOpen(true);
+                            }}
+                            className="pointer-events-auto size-8 sm:size-8.5 rounded-full bg-black/60 backdrop-blur-xs text-white hover:bg-black/90 flex items-center justify-center transition-colors cursor-pointer"
+                            aria-label="Enlarge image & view details"
                           >
-                            {photo.isMainHeadImage ? "Main Head Image" : photo.category}
-                          </span>
-                          <span className="rounded-full bg-black/60 backdrop-blur-xs px-2.5 py-1 text-[11px] font-medium text-white/90">
-                            {index + 1} / {dutseSchoolGallery.length}
-                          </span>
+                            <Maximize2 className="size-3.5 sm:size-4" />
+                          </button>
                         </div>
 
-                        {/* Quick Expand Button */}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setActiveGalleryModalImage(photo);
-                            setDetailsModalOpen(true);
-                          }}
-                          className="absolute top-3.5 right-3.5 size-8.5 rounded-full bg-black/60 backdrop-blur-xs text-white hover:bg-black/90 flex items-center justify-center transition-colors cursor-pointer"
-                          aria-label="Enlarge image & view details"
-                        >
-                          <Maximize2 className="size-4" />
-                        </button>
-
                         {/* Bottom Caption Overlay */}
-                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/55 to-transparent p-5 text-white">
-                          <h4 className="font-display text-sm font-bold text-white leading-tight">
+                        <div className="absolute inset-x-0 bottom-0 z-20 bg-gradient-to-t from-black/95 via-black/70 to-transparent px-3.5 py-2.5 pt-8 sm:px-4 sm:py-3.5 sm:pt-10 text-white">
+                          <h4 className="font-display text-xs sm:text-sm font-bold text-white leading-tight">
                             {photo.title}
                           </h4>
-                          <p className="mt-1 text-xs text-white/90 leading-snug line-clamp-2">
+                          <p className="mt-0.5 text-[11px] sm:text-xs text-white/90 leading-snug line-clamp-1 sm:line-clamp-2">
                             {photo.caption}
                           </p>
                         </div>

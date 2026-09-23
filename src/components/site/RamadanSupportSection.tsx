@@ -330,33 +330,40 @@ export function RamadanSupportSection({ id = "ramadan-support" }: { id?: string 
                 <CarouselContent>
                   {ramadanGallery.map((photo, index) => (
                     <CarouselItem key={photo.id}>
-                      <div className="relative overflow-hidden rounded-xs bg-muted group">
-                        <LazyImage
+                      <div className="relative overflow-hidden rounded-xs bg-slate-950 flex items-center justify-center h-[280px] xs:h-[320px] sm:h-[400px] md:h-[460px] w-full group">
+                        {/* Ambient blurred backdrop so letterbox area glows matching the photo */}
+                        <img
+                          src={photo.src}
+                          alt=""
+                          aria-hidden="true"
+                          className="absolute inset-0 size-full object-cover blur-2xl opacity-35 scale-110 pointer-events-none select-none"
+                        />
+
+                        {/* Main picture - 100% fully fitted without cropping or excessive zooming */}
+                        <img
                           src={photo.src}
                           alt={photo.alt}
-                          aspectRatio="aspect-[4/5] sm:aspect-[4/3] lg:aspect-[4/3]"
-                          className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
-                          width={1000}
-                          height={750}
+                          className="relative z-10 max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-[1.02] pointer-events-none select-none"
+                          loading={index === 0 ? "eager" : "lazy"}
                         />
 
                         {/* Top Badges */}
-                        <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 z-10 pointer-events-none">
-                          <span className="inline-flex items-center gap-1.5 rounded-full bg-black/80 px-3 py-1 text-xs font-bold text-amber-400 backdrop-blur-md border border-amber-400/30">
+                        <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 z-20 pointer-events-none">
+                          <span className="inline-flex items-center gap-1.5 rounded-full bg-black/80 px-2.5 sm:px-3 py-1 text-[10px] sm:text-xs font-bold text-amber-400 backdrop-blur-md border border-amber-400/30">
                             {photo.isMainHeadImage ? (
                               <>
-                                <Moon className="size-3.5 fill-amber-400 text-amber-400" />
+                                <Moon className="size-3 sm:size-3.5 fill-amber-400 text-amber-400" />
                                 <span>Muslim Ummah Relief</span>
                               </>
                             ) : (
                               <>
-                                <Sparkles className="size-3.5" />
+                                <Sparkles className="size-3 sm:size-3.5" />
                                 <span>{photo.category}</span>
                               </>
                             )}
                           </span>
 
-                          <span className="rounded-full bg-black/80 px-2.5 py-1 text-xs font-semibold text-slate-200 backdrop-blur-md border border-white/10">
+                          <span className="rounded-full bg-black/80 px-2 sm:px-2.5 py-1 text-[10px] sm:text-xs font-semibold text-slate-200 backdrop-blur-md border border-white/10">
                             {index + 1} / {ramadanGallery.length}
                           </span>
                         </div>
@@ -365,18 +372,18 @@ export function RamadanSupportSection({ id = "ramadan-support" }: { id?: string 
                         <button
                           type="button"
                           onClick={() => openLightboxForPhoto(photo)}
-                          className="absolute bottom-3 right-3 z-10 flex size-10 items-center justify-center rounded-full bg-black/80 text-white backdrop-blur-md transition-all hover:bg-green-deep hover:text-white hover:scale-110 shadow-lg cursor-pointer"
+                          className="absolute bottom-3 right-3 z-30 flex size-8 sm:size-9 items-center justify-center rounded-full bg-black/80 text-white backdrop-blur-md transition-all hover:bg-green-deep hover:text-white hover:scale-110 shadow-lg cursor-pointer"
                           aria-label={`Enlarge photo: ${photo.title}`}
                         >
-                          <Maximize2 className="size-4" />
+                          <Maximize2 className="size-3.5 sm:size-4" />
                         </button>
 
                         {/* Bottom Gradient with Caption */}
-                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/70 to-transparent p-4 pt-14 text-white">
-                          <p className="font-display text-base font-bold text-white">
+                        <div className="absolute inset-x-0 bottom-0 z-20 bg-gradient-to-t from-black/95 via-black/70 to-transparent px-3.5 py-2.5 pt-8 sm:px-4 sm:py-3.5 sm:pt-12 text-white">
+                          <p className="font-display text-xs sm:text-sm font-bold text-white leading-tight">
                             {photo.title}
                           </p>
-                          <p className="mt-1 line-clamp-2 text-xs text-white/90">
+                          <p className="mt-0.5 text-[11px] sm:text-xs text-white/90 leading-snug line-clamp-1 sm:line-clamp-2">
                             {photo.caption}
                           </p>
                         </div>
