@@ -1,10 +1,13 @@
-import { createFileRoute, notFound } from "@tanstack/react-router";
+import { createFileRoute, notFound, Link } from "@tanstack/react-router";
+import { Trophy, Eye, ExternalLink, Camera } from "lucide-react";
 
 import { PageHeader } from "@/components/site/PageHeader";
 import { Reveal } from "@/components/site/Reveal";
 import { DonateBand, Section, formatDate } from "@/components/site/blocks";
 import { cn } from "@/lib/utils";
 import { stories } from "@/data/site";
+import { tournamentGallery } from "@/components/site/FootballTournamentSection";
+import { dutseSchoolGallery } from "@/components/site/VisuallyImpairedSchoolSection";
 
 export const Route = createFileRoute("/stories/$slug")({
   loader: ({ params }) => {
@@ -38,6 +41,9 @@ export const Route = createFileRoute("/stories/$slug")({
 function StoryDetail() {
   const { story } = Route.useLoaderData();
 
+  const isFootballStory = story.slug === "grassroots-football-championship-peace-cup";
+  const isDutseStory = story.slug === "visually-impaired-school-dutse-outreach";
+
   return (
     <>
       <PageHeader
@@ -61,7 +67,7 @@ function StoryDetail() {
               width={1200}
               height={800}
               className={cn(
-                "aspect-[3/2] w-full object-cover",
+                "aspect-[3/2] w-full object-cover rounded-xs shadow-md",
                 story.imagePosition || "object-center",
               )}
             />
@@ -83,6 +89,104 @@ function StoryDetail() {
               ),
             )}
           </div>
+
+          {/* Dedicated Photo Showcase for Football Championship */}
+          {isFootballStory && (
+            <div className="mt-14 border-t border-hairline pt-10">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-600 mb-1">
+                    <Trophy className="size-3.5" />
+                    <span>Tournament Photo Gallery</span>
+                  </div>
+                  <h3 className="font-display text-2xl font-bold text-ink">
+                    Matchday Moments &amp; Ceremony Records
+                  </h3>
+                </div>
+                <Link
+                  to="/#football-tournament"
+                  className="text-xs font-bold text-brand-red hover:underline inline-flex items-center gap-1"
+                >
+                  <span>Interactive Section</span>
+                  <ExternalLink className="size-3" />
+                </Link>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {tournamentGallery.map((photo) => (
+                  <div
+                    key={photo.id}
+                    className="overflow-hidden rounded-xs border border-hairline bg-surface shadow-2xs group"
+                  >
+                    <div className="aspect-[4/3] overflow-hidden bg-surface-muted">
+                      <img
+                        src={photo.src}
+                        alt={photo.alt}
+                        className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        loading="lazy"
+                      />
+                    </div>
+                    <div className="p-3">
+                      <span className="text-[11px] font-bold text-amber-600 block mb-1">
+                        {photo.category}
+                      </span>
+                      <p className="text-xs font-bold text-ink line-clamp-1">{photo.title}</p>
+                      <p className="text-[11px] text-ink-soft mt-1 line-clamp-2">{photo.caption}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Dedicated Photo Showcase for Visually Impaired School Outreach */}
+          {isDutseStory && (
+            <div className="mt-14 border-t border-hairline pt-10">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-green-deep mb-1">
+                    <Eye className="size-3.5" />
+                    <span>Outreach Documentation</span>
+                  </div>
+                  <h3 className="font-display text-2xl font-bold text-ink">
+                    Field Photography from Dutse School
+                  </h3>
+                </div>
+                <Link
+                  to="/#dutse-outreach"
+                  className="text-xs font-bold text-green-deep hover:underline inline-flex items-center gap-1"
+                >
+                  <span>Interactive Section</span>
+                  <ExternalLink className="size-3" />
+                </Link>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {dutseSchoolGallery.map((photo) => (
+                  <div
+                    key={photo.id}
+                    className="overflow-hidden rounded-xs border border-hairline bg-surface shadow-2xs group"
+                  >
+                    <div className="aspect-[4/3] overflow-hidden bg-surface-muted">
+                      <img
+                        src={photo.src}
+                        alt={photo.alt}
+                        className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        loading="lazy"
+                      />
+                    </div>
+                    <div className="p-3">
+                      <span className="text-[11px] font-bold text-green-deep block mb-1">
+                        {photo.category}
+                      </span>
+                      <p className="text-xs font-bold text-ink line-clamp-1">{photo.title}</p>
+                      <p className="text-[11px] text-ink-soft mt-1 line-clamp-2">{photo.caption}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </article>
       </Section>
 

@@ -27,7 +27,7 @@ const mealHighlights = [
   {
     title: "High-Protein & Balanced Nutrition",
     description:
-      "Every meal pack includes wholesome seasoned rice, crisp fresh salad greens, and nutritious whole fish, providing essential protein and micronutrients.",
+      "Every meal pack includes wholesome seasoned rice, crisp fresh salad greens, nutritious whole fish, and savory fried/jollof rice & chicken, providing essential protein and micronutrients.",
     icon: Soup,
     badge: "Quality Sustenance",
   },
@@ -64,8 +64,8 @@ const galleryImages = [
   },
   {
     src: weeklyFoodMeals,
-    alt: "Freshly prepared nutritious meal containers with whole fish, rice and greens stacked for distribution",
-    caption: "Hygienically packaged balanced meals featuring whole fish, seasoned rice, and salad",
+    alt: "Freshly prepared nutritious meal containers with whole fish, chicken, fried and jollof rice, and salad stacked for distribution",
+    caption: "Hygienically packaged balanced meals featuring fresh salad & whole fish, fried/jollof rice & chicken",
     tag: "Nutritional Preparation",
     aspect: "aspect-[4/5] sm:aspect-[4/3] lg:aspect-[4/5]",
   },
@@ -172,10 +172,12 @@ export function FoodDistributionSection({ id = "food-distribution" }: { id?: str
                 </span>
                 <Utensils className="size-4 text-brand-red" />
               </div>
-              <p className="mt-2 font-display text-3xl sm:text-4xl font-extrabold text-ink">
-                Fish &amp; Rice
+              <p className="mt-2 font-display text-xl sm:text-2xl font-extrabold text-ink leading-tight">
+                Fish, Chicken &amp; Rice
               </p>
-              <span className="text-xs text-ink-soft">Fresh salad &amp; whole fish</span>
+              <span className="mt-1 block text-xs text-ink-soft">
+                Fresh salad &amp; whole fish, fried/jollof rice &amp; chicken
+              </span>
             </div>
           </div>
         </Reveal>
@@ -249,8 +251,8 @@ export function FoodDistributionSection({ id = "food-distribution" }: { id?: str
               <Info className="size-4 text-green-mid shrink-0 mt-0.5" />
               <p>
                 <strong className="text-ink font-semibold">On-the-ground documentation:</strong>{" "}
-                Each package contains seasoned rice, fresh salad greens, and a portion of whole
-                fish, packaged in clean takeaway containers ready for distribution to waiting
+                Each package contains seasoned rice, fresh salad greens, and wholesome portions of
+                fresh salad &amp; whole fish or fried/jollof rice &amp; chicken, packaged in clean takeaway containers ready for distribution to waiting
                 children and youth.
               </p>
             </div>

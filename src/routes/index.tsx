@@ -13,6 +13,8 @@ import { FounderSection } from "@/components/site/FounderSection";
 import { ProgramsSection } from "@/components/site/ProgramsSection";
 import { FoodDistributionSection } from "@/components/site/FoodDistributionSection";
 import { RamadanSupportSection } from "@/components/site/RamadanSupportSection";
+import { VisuallyImpairedSchoolSection } from "@/components/site/VisuallyImpairedSchoolSection";
+import { FootballTournamentSection } from "@/components/site/FootballTournamentSection";
 import { MediaSection } from "@/components/site/MediaSection";
 import { RegionalStatistics } from "@/components/site/RegionalStatistics";
 import { PartnersMarquee } from "@/components/site/PartnersMarquee";
@@ -141,7 +143,13 @@ function Home() {
       {/* -------------------------------------------------- 6. RAMADAN HUMANITARIAN FOOD RELIEF (1,500 PACKAGES ACROSS 10 STATES) */}
       <RamadanSupportSection id="ramadan-support" />
 
-      {/* -------------------------------------------------- 7. MEDIA & UPDATES SECTION */}
+      {/* -------------------------------------------------- 7. VISUALLY IMPAIRED SCHOOL OUTREACH (DUTSE, JIGAWA STATE) */}
+      <VisuallyImpairedSchoolSection id="dutse-outreach" />
+
+      {/* -------------------------------------------------- 8. GRASSROOTS FOOTBALL CHAMPIONSHIP */}
+      <FootballTournamentSection id="football-tournament" />
+
+      {/* -------------------------------------------------- 9. MEDIA & UPDATES SECTION */}
       <MediaSection id="media" />
 
       {/* -------------------------------------------------- 6. REGIONAL BENEFICIARIES STATISTICS & IMPACT */}

@@ -27,6 +27,8 @@ const columns = [
       { label: "Programs", to: "/programs" },
       { label: "Weekly Feeding", to: "/campaigns/weekly-community-food-distribution" },
       { label: "Ramadan Relief", to: "/campaigns/ramadan-food-support-10-states" },
+      { label: "Dutse School Outreach", to: "#dutse-outreach" },
+      { label: "Football Championship", to: "#football-tournament" },
       { label: "Media & Updates", to: "/media" },
       { label: "Impact", to: "/impact" },
       { label: "Stories", to: "/stories" },

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "@tanstack/react-router";
 import {
   ArrowRight,
@@ -13,14 +13,110 @@ import {
   Utensils,
   Globe2,
   Info,
+  Maximize2,
+  Grid,
+  Droplets,
+  ChevronLeft,
+  ChevronRight,
+  Sparkle,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+  type CarouselApi,
+} from "@/components/ui/carousel";
 import { Reveal } from "./Reveal";
 import { LazyImage } from "./LazyImage";
 import { AnimatedCounter } from "./AnimatedCounter";
-import ramadanFoodPackages from "@/assets/ramadan-food-packages-10-states.jpg";
 import { cn } from "@/lib/utils";
+
+// Ramadan Assets
+import ramadanFoodPackages from "@/assets/ramadan-food-packages-10-states.jpg";
+import ramadanReliefPackagesBoxesWater from "@/assets/ramadan-relief-packages-boxes-water.jpg";
+import ramadanReliefPackageBoxCloseup from "@/assets/ramadan-relief-package-box-closeup.jpg";
+import ramadanReliefGridBottledWater from "@/assets/ramadan-relief-grid-bottled-water.jpg";
+import ramadanReliefCourtyardDisplay from "@/assets/ramadan-relief-courtyard-display.jpg";
+import ramadanReliefCartonsAssembly from "@/assets/ramadan-relief-cartons-assembly.jpg";
+
+export interface RamadanPhoto {
+  id: string;
+  src: string;
+  alt: string;
+  title: string;
+  category: string;
+  caption: string;
+  isMainHeadImage?: boolean;
+}
+
+export const ramadanGallery: RamadanPhoto[] = [
+  {
+    id: "ramadan-relief-boxes-water-courtyard",
+    src: ramadanReliefPackagesBoxesWater,
+    alt: "Rows of white branded Ramadan Package cartons with packs of bottled table water donated by Abba Roller Foundation and Seyi Tinubu",
+    title: "Ramadan Food & Water Packages for Muslim Ummah",
+    category: "Food & Water Cartons",
+    caption:
+      "Extensive rows of white branded cartons featuring food provisions topped with packs of clean bottled drinking water, organized for the Muslim Ummah across Northern Nigeria.",
+    isMainHeadImage: true,
+  },
+  {
+    id: "ramadan-relief-box-closeup",
+    src: ramadanReliefPackageBoxCloseup,
+    alt: "Close-up of official white Ramadan Package carton donated by Abba Roller Foundation (ARF) and Seyi Tinubu with bottled water",
+    title: "ARF & Seyi Tinubu Ramadan Relief Package",
+    category: "Branded Provisions",
+    caption:
+      "Official Ramadan Package cartons specially branded with Abba Roller Foundation (ARF) and Seyi Tinubu, dedicated to supporting Muslim families and the Ummah during the sacred month of Ramadan.",
+  },
+  {
+    id: "ramadan-food-packages-cooked-meals",
+    src: ramadanFoodPackages,
+    alt: "1,500 food package pieces and freshly cooked hot meal packs with whole fish, rice, and fresh vegetables across 10 states",
+    title: "1,500 Cooked Food Packages & Bundles",
+    category: "Iftar & Sahur Meals",
+    caption:
+      "Freshly prepared hot takeaway meals featuring seasoned rice, whole fish, and salad greens packaged alongside bundled food parcels for multi-state Ramadan relief.",
+  },
+  {
+    id: "ramadan-relief-grid-bottled-water",
+    src: ramadanReliefGridBottledWater,
+    alt: "High-angle perspective of columns of Ramadan packages with packs of drinking water",
+    title: "Nationwide Staging & Water Logistics",
+    category: "Food & Water Cartons",
+    caption:
+      "Vast grid of food packages and table water packs staged in regional hubs ready for immediate delivery into high-need Muslim communities.",
+  },
+  {
+    id: "ramadan-relief-courtyard-display",
+    src: ramadanReliefCourtyardDisplay,
+    alt: "Courtyard display showing rows of stacked food boxes and water bottles for Ramadan relief",
+    title: "Courtyard Assembly for Fasting Households",
+    category: "Grassroots Distribution",
+    caption:
+      "Organized distribution lines ensuring orderly, dignified, and direct handover of food boxes and table water to fasting individuals and families.",
+  },
+  {
+    id: "ramadan-relief-cartons-assembly",
+    src: ramadanReliefCartonsAssembly,
+    alt: "Extensive rows of Ramadan food packages and bottled water cartons ready for distribution",
+    title: "Comprehensive Relief Consignment",
+    category: "Grassroots Distribution",
+    caption:
+      "Hundreds of boxed food provisions and water bottles prepared to bring relief, hydration, and nutritional sustenance to the Muslim Ummah.",
+  },
+];
 
 const coveredStates = [
   { name: "Jigawa State", region: "Northwest", hub: "Primary Operations" },
@@ -37,37 +133,81 @@ const coveredStates = [
 
 const ramadanHighlights = [
   {
-    title: "10-State Multi-Region Footprint",
+    title: "Food Cartons & Clean Water Packs",
     description:
-      "A coordinated logistics operation spanning 10 Nigerian states across the Northwest and Northeast, ensuring simultaneous grassroots reach.",
-    icon: Globe2,
-    badge: "10 States",
+      "Cartons of staple food provisions paired with packs of clean bottled drinking water, ensuring hydration and nourishment during Iftar and Sahur.",
+    icon: Droplets,
+    badge: "Food & Hydration",
   },
   {
     title: "1,500 Complete Package Pieces",
     description:
-      "Every package contains bundled sustenance packs with freshly prepared, high-protein cooked takeaway meals formulated for Iftar and Sahur.",
+      "Every package contains bundled sustenance packs and freshly prepared, high-protein cooked takeaway meals formulated for fasting households.",
     icon: PackageCheck,
-    badge: "1,500 Distributed",
+    badge: "1,500+ Distributed",
   },
   {
-    title: "Nutritious Iftar & Sahur Meals",
+    title: "10-State Nationwide Footprint",
     description:
-      "Prepared with whole fish, seasoned rice, and crisp fresh salad greens, delivering vital calories and micronutrients to fasting households.",
-    icon: Utensils,
-    badge: "Balanced Protein",
+      "A coordinated logistics operation spanning 10 Nigerian states across the Northwest and Northeast, ensuring simultaneous grassroots reach for the Muslim Ummah.",
+    icon: Globe2,
+    badge: "10 States",
   },
   {
     title: "Accountable Grassroots Delivery",
     description:
-      "Distributed directly in partnership with local community leaders and elders to safeguard absolute transparency and recipient dignity.",
+      "Distributed directly in partnership with local community leaders, elders, and Mosques to safeguard absolute transparency and recipient dignity.",
     icon: ShieldCheck,
     badge: "Zero Middlemen",
   },
 ];
 
 export function RamadanSupportSection({ id = "ramadan-support" }: { id?: string }) {
-  const [selectedState, setSelectedState] = useState<string | null>(null);
+  const [carouselApi, setCarouselApi] = useState<CarouselApi>();
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [selectedPhoto, setSelectedPhoto] = useState<RamadanPhoto | null>(null);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [activeCategoryFilter, setActiveCategoryFilter] = useState<string>("All");
+
+  useEffect(() => {
+    if (!carouselApi) return;
+    setCurrentSlide(carouselApi.selectedScrollSnap());
+
+    const onSelect = () => {
+      setCurrentSlide(carouselApi.selectedScrollSnap());
+    };
+    carouselApi.on("select", onSelect);
+
+    // Automatically slide photos every 2.2 seconds
+    const autoSlideInterval = setInterval(() => {
+      if (carouselApi.canScrollNext()) {
+        carouselApi.scrollNext();
+      } else {
+        carouselApi.scrollTo(0);
+      }
+    }, 2200);
+
+    return () => {
+      carouselApi.off("select", onSelect);
+      clearInterval(autoSlideInterval);
+    };
+  }, [carouselApi]);
+
+  const categories = [
+    "All",
+    ...Array.from(new Set(ramadanGallery.map((item) => item.category))),
+  ];
+
+  const filteredPhotos =
+    activeCategoryFilter === "All"
+      ? ramadanGallery
+      : ramadanGallery.filter((item) => item.category === activeCategoryFilter);
+
+  const openLightboxForPhoto = (photo: RamadanPhoto) => {
+    setSelectedPhoto(photo);
+    setLightboxOpen(true);
+  };
 
   return (
     <section
@@ -90,33 +230,36 @@ export function RamadanSupportSection({ id = "ramadan-support" }: { id?: string 
           <Reveal className="max-w-3xl">
             <div className="inline-flex items-center gap-2 rounded-full bg-amber-500/10 px-3.5 py-1.5 text-xs font-bold text-amber-700 dark:text-amber-400 border border-amber-500/20 shadow-2xs">
               <Moon className="size-3.5 fill-amber-500 text-amber-500" />
-              <span>Seasonal Humanitarian Outreach · Nationwide Ramadan Relief</span>
+              <span>Seasonal Humanitarian Outreach · Nationwide Ramadan Relief for the Muslim Ummah</span>
             </div>
             <h2 className="display-2 mt-4 text-ink">
-              Ramadan Support: <span className="text-green-deep">1,500 Packages</span> Across 10 States
+              Ramadan Support: <span className="text-green-deep">Food &amp; Water Packages</span> Across 10 States
             </h2>
             <p className="lede mt-4">
-              Extending compassion and food security during the sacred month. The Abba Roller
-              Foundation distributed 1,500 food package pieces across 10 Nigerian states, ensuring
-              that fasting orphans, widows, and vulnerable households received wholesome Iftar and
-              Sahur sustenance with uncompromised dignity.
+              Extending compassion, nourishment, and clean hydration during the sacred month. In
+              collaboration with Seyi Tinubu, the Abba Roller Foundation mobilized and distributed
+              1,500+ specialized Ramadan food cartons alongside packs of clean bottled drinking
+              water to the Muslim Ummah across 10 Nigerian states — supporting fasting families,
+              orphans, and vulnerable households with uncompromised dignity.
             </p>
           </Reveal>
 
           <Reveal delay={100} className="shrink-0 flex flex-wrap gap-3">
+            <Button
+              type="button"
+              variant="default"
+              size="lg"
+              onClick={() => setDetailsModalOpen(true)}
+              className="bg-green-deep hover:bg-green-mid text-white font-extrabold gap-2 shadow-lift cursor-pointer"
+            >
+              <Grid className="size-4" />
+              <span>View All Ramadan Photos ({ramadanGallery.length})</span>
+            </Button>
             <Button asChild variant="give" size="lg" className="shadow-lift font-bold gap-2">
               <a href="#donate">
                 <Heart className="size-4 fill-white animate-pulse" />
                 <span>Support Ramadan relief</span>
               </a>
-            </Button>
-            <Button asChild variant="outline" size="lg">
-              <Link
-                to="/campaigns/$slug"
-                params={{ slug: "ramadan-food-support-10-states" }}
-              >
-                Campaign report
-              </Link>
             </Button>
           </Reveal>
         </div>
@@ -134,7 +277,7 @@ export function RamadanSupportSection({ id = "ramadan-support" }: { id?: string 
               <p className="mt-2 font-display text-3xl sm:text-4xl font-extrabold text-brand-red">
                 <AnimatedCounter value="1,500+" />
               </p>
-              <span className="text-xs text-ink-soft">Pieces delivered nationwide</span>
+              <span className="text-xs text-ink-soft">Food cartons &amp; water packs</span>
             </div>
 
             <div className="rounded-sm border border-hairline bg-background p-5 shadow-2xs transition-all hover:border-green-deep">
@@ -153,63 +296,141 @@ export function RamadanSupportSection({ id = "ramadan-support" }: { id?: string 
             <div className="rounded-sm border border-hairline bg-background p-5 shadow-2xs transition-all hover:border-green-deep">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                  Target Timing
+                  Target Beneficiaries
                 </span>
                 <Moon className="size-4 text-amber-600" />
               </div>
-              <p className="mt-2 font-display text-3xl sm:text-4xl font-extrabold text-ink">
-                Iftar &amp; Sahur
+              <p className="mt-2 font-display text-2xl sm:text-3xl font-extrabold text-ink">
+                Muslim Ummah
               </p>
-              <span className="text-xs text-ink-soft">Critical fasting sustenance</span>
+              <span className="text-xs text-ink-soft">Fasting households &amp; orphans</span>
             </div>
 
             <div className="rounded-sm border border-hairline bg-background p-5 shadow-2xs transition-all hover:border-green-deep">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                  Field Verification
+                  Provisions
                 </span>
-                <ShieldCheck className="size-4 text-green-mid" />
+                <Droplets className="size-4 text-blue-500" />
               </div>
-              <p className="mt-2 font-display text-3xl sm:text-4xl font-extrabold text-green-deep">
-                <AnimatedCounter value="100%" />
+              <p className="mt-2 font-display text-2xl sm:text-3xl font-extrabold text-blue-600">
+                Food &amp; Water
               </p>
-              <span className="text-xs text-ink-soft">Direct community handover</span>
+              <span className="text-xs text-ink-soft">Carton boxes + table water</span>
             </div>
           </div>
         </Reveal>
 
-        {/* Central Dual Grid: Visual Proof & 10-State Interactive Cloud */}
-        <div className="mt-14 grid gap-10 lg:grid-cols-12 lg:items-center">
-          {/* Left Column: Authentic Photo Showcase (7 cols) */}
+        {/* Central Dual Grid: Interactive Carousel (Left) & 10-State Footprint (Right) */}
+        <div className="mt-14 grid gap-10 lg:grid-cols-12 lg:items-start">
+          {/* Left Column: Interactive Carousel with Field Photos (7 cols) */}
           <Reveal className="lg:col-span-7 flex flex-col gap-4">
-            <div className="group relative overflow-hidden rounded-sm border border-hairline bg-muted shadow-sm transition-all hover:border-green-deep">
-              <div className="overflow-hidden">
-                <LazyImage
-                  src={ramadanFoodPackages}
-                  alt="Packed green bags and freshly prepared meal containers with whole fish, rice and salad during ARF Ramadan distribution across 10 states"
-                  aspectRatio="aspect-[4/3] sm:aspect-[16/10]"
-                  zoomOnHover
-                  width={1200}
-                  height={800}
-                  imagePosition="object-center"
-                />
-              </div>
+            <div className="rounded-sm border border-hairline bg-surface p-3.5 shadow-xs">
+              <Carousel opts={{ loop: true }} setApi={setCarouselApi} className="w-full">
+                <CarouselContent>
+                  {ramadanGallery.map((photo, index) => (
+                    <CarouselItem key={photo.id}>
+                      <div className="relative overflow-hidden rounded-xs bg-muted group">
+                        <LazyImage
+                          src={photo.src}
+                          alt={photo.alt}
+                          aspectRatio="aspect-[4/5] sm:aspect-[4/3] lg:aspect-[4/3]"
+                          className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          width={1000}
+                          height={750}
+                        />
 
-              {/* Overlay Badge & Caption */}
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-5 text-white">
-                <div className="flex items-center gap-2">
-                  <span className="inline-block rounded-full bg-green-mid px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-white">
-                    10-State Distribution Bundles
-                  </span>
-                  <span className="inline-block rounded-full bg-brand-red px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-white">
-                    1,500 Packages
-                  </span>
+                        {/* Top Badges */}
+                        <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 z-10 pointer-events-none">
+                          <span className="inline-flex items-center gap-1.5 rounded-full bg-black/80 px-3 py-1 text-xs font-bold text-amber-400 backdrop-blur-md border border-amber-400/30">
+                            {photo.isMainHeadImage ? (
+                              <>
+                                <Moon className="size-3.5 fill-amber-400 text-amber-400" />
+                                <span>Muslim Ummah Relief</span>
+                              </>
+                            ) : (
+                              <>
+                                <Sparkles className="size-3.5" />
+                                <span>{photo.category}</span>
+                              </>
+                            )}
+                          </span>
+
+                          <span className="rounded-full bg-black/80 px-2.5 py-1 text-xs font-semibold text-slate-200 backdrop-blur-md border border-white/10">
+                            {index + 1} / {ramadanGallery.length}
+                          </span>
+                        </div>
+
+                        {/* Expand Photo Button */}
+                        <button
+                          type="button"
+                          onClick={() => openLightboxForPhoto(photo)}
+                          className="absolute bottom-3 right-3 z-10 flex size-10 items-center justify-center rounded-full bg-black/80 text-white backdrop-blur-md transition-all hover:bg-green-deep hover:text-white hover:scale-110 shadow-lg cursor-pointer"
+                          aria-label={`Enlarge photo: ${photo.title}`}
+                        >
+                          <Maximize2 className="size-4" />
+                        </button>
+
+                        {/* Bottom Gradient with Caption */}
+                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/70 to-transparent p-4 pt-14 text-white">
+                          <p className="font-display text-base font-bold text-white">
+                            {photo.title}
+                          </p>
+                          <p className="mt-1 line-clamp-2 text-xs text-white/90">
+                            {photo.caption}
+                          </p>
+                        </div>
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+
+                {/* Carousel Controls */}
+                <div className="mt-3 flex items-center justify-between px-1">
+                  <div className="flex items-center gap-2">
+                    <CarouselPrevious className="static translate-y-0 size-8 rounded-full border-hairline bg-background text-ink hover:bg-green-deep hover:text-white hover:border-green-deep cursor-pointer" />
+                    <CarouselNext className="static translate-y-0 size-8 rounded-full border-hairline bg-background text-ink hover:bg-green-deep hover:text-white hover:border-green-deep cursor-pointer" />
+                    <span className="text-xs font-medium text-ink-soft ml-1">
+                      Swipe or click arrows to explore all packages
+                    </span>
+                  </div>
+
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setDetailsModalOpen(true)}
+                    className="text-xs text-green-deep hover:text-green-mid hover:bg-green-wash p-0 h-auto font-bold cursor-pointer"
+                  >
+                    View All ({ramadanGallery.length}) →
+                  </Button>
                 </div>
-                <p className="mt-2 text-xs sm:text-sm font-medium leading-snug text-white/95 max-w-2xl">
-                  Bundled green relief packages and freshly prepared takeaway meals featuring
-                  whole fish, seasoned rice, and fresh vegetables ready for distribution to fasting
-                  families.
-                </p>
+              </Carousel>
+
+              {/* Horizontal Thumbnails Strip */}
+              <div className="mt-3 pt-3 border-t border-hairline flex gap-2 overflow-x-auto pb-1 scrollbar-thin">
+                {ramadanGallery.map((item, idx) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => carouselApi?.scrollTo(idx)}
+                    className={cn(
+                      "relative shrink-0 size-14 rounded-xs overflow-hidden border-2 transition-all cursor-pointer",
+                      currentSlide === idx
+                        ? "border-green-deep ring-2 ring-green-mid/40 opacity-100 scale-105"
+                        : "border-transparent opacity-60 hover:opacity-100"
+                    )}
+                    aria-label={`Jump to slide ${idx + 1}: ${item.title}`}
+                  >
+                    <LazyImage
+                      src={item.src}
+                      alt={item.title}
+                      aspectRatio="aspect-square"
+                      className="size-full object-cover"
+                      width={100}
+                      height={100}
+                    />
+                  </button>
+                ))}
               </div>
             </div>
 
@@ -217,10 +438,10 @@ export function RamadanSupportSection({ id = "ramadan-support" }: { id?: string 
             <div className="rounded-sm border border-hairline bg-surface p-4 text-xs text-ink-soft flex items-start gap-3">
               <Info className="size-4 text-green-mid shrink-0 mt-0.5" />
               <p>
-                <strong className="text-ink font-semibold">Logistical Coordination:</strong>{" "}
-                Packages were staged in regional hubs and distributed directly into vulnerable
-                wards in Jigawa, Kano, Yobe, Borno, Kaduna, Katsina, Bauchi, Sokoto, Gombe, and
-                Zamfara, guaranteeing fast and fresh handover.
+                <strong className="text-ink font-semibold">Special Ramadan Ummah Initiative:</strong>{" "}
+                Boxes are packed with staple foodstuffs and distributed alongside full packs of
+                pure drinking table water. Donated in compassionate solidarity with Seyi Tinubu and
+                local community leadership across Northern Nigeria.
               </p>
             </div>
           </Reveal>
@@ -257,7 +478,7 @@ export function RamadanSupportSection({ id = "ramadan-support" }: { id?: string 
               </div>
             </div>
 
-            {/* Operational Highlights Accordion/Cards */}
+            {/* Operational Highlights Cards */}
             <div className="space-y-3">
               {ramadanHighlights.slice(0, 2).map((item) => {
                 const Icon = item.icon;
@@ -301,7 +522,7 @@ export function RamadanSupportSection({ id = "ramadan-support" }: { id?: string 
                 Partner with ARF for Seasonal Hunger Relief
               </h4>
               <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
-                Direct your Ramadan charity, Fidya, or general food donation towards certified
+                Direct your Ramadan charity, Fidya, Zakat, or general food donation towards certified
                 grassroots feeding across vulnerable communities in Nigeria.
               </p>
 
@@ -326,6 +547,109 @@ export function RamadanSupportSection({ id = "ramadan-support" }: { id?: string 
           </Reveal>
         </div>
       </div>
+
+      {/* -------------------------------------------------- 1. DIALOG MODAL: ALL RAMADAN PHOTOS */}
+      <Dialog open={detailsModalOpen} onOpenChange={setDetailsModalOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-background border-hairline p-6 sm:p-8">
+          <DialogHeader>
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-600">
+              <Moon className="size-4 fill-amber-500 text-amber-500" />
+              <span>Full Field Documentation · Ramadan Relief for the Muslim Ummah</span>
+            </div>
+            <DialogTitle className="font-display text-2xl sm:text-3xl font-extrabold text-ink">
+              Ramadan Food &amp; Water Distribution Archive
+            </DialogTitle>
+            <DialogDescription className="text-sm text-ink-soft">
+              Photographic records of the 1,500+ food cartons, bottled table water packs, and hot
+              meals distributed across 10 states in partnership with Seyi Tinubu.
+            </DialogDescription>
+          </DialogHeader>
+
+          {/* Category Filter Pills */}
+          <div className="mt-4 flex flex-wrap gap-2 border-b border-hairline pb-4">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => setActiveCategoryFilter(cat)}
+                className={cn(
+                  "rounded-full px-3 py-1 text-xs font-bold transition-all cursor-pointer",
+                  activeCategoryFilter === cat
+                    ? "bg-green-deep text-white shadow-xs"
+                    : "bg-surface text-ink-soft hover:bg-surface-muted hover:text-ink"
+                )}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+
+          {/* Gallery Grid */}
+          <div className="mt-6">
+            <h4 className="font-display text-lg font-bold text-ink mb-3">
+              Distribution Photos ({filteredPhotos.length})
+            </h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredPhotos.map((photo) => (
+                <div
+                  key={photo.id}
+                  onClick={() => openLightboxForPhoto(photo)}
+                  className="group relative cursor-pointer overflow-hidden rounded-xs border border-hairline bg-surface transition-all hover:border-green-deep hover:shadow-md"
+                >
+                  <div className="relative aspect-[4/3] overflow-hidden bg-surface-muted">
+                    <LazyImage
+                      src={photo.src}
+                      alt={photo.alt}
+                      aspectRatio="aspect-[4/3]"
+                      className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      width={400}
+                      height={300}
+                    />
+                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <div className="size-9 rounded-full bg-green-deep text-white flex items-center justify-center shadow-md">
+                        <Maximize2 className="size-4" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-3">
+                    <span className="text-[11px] text-green-deep font-bold mb-1 block">
+                      {photo.category}
+                    </span>
+                    <p className="font-display text-sm font-bold text-ink line-clamp-1">
+                      {photo.title}
+                    </p>
+                    <p className="text-xs text-ink-soft mt-1 line-clamp-2">{photo.caption}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* -------------------------------------------------- 2. LIGHTBOX MODAL */}
+      {selectedPhoto && (
+        <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
+          <DialogContent className="max-w-3xl bg-background/95 border-hairline p-4 sm:p-6 backdrop-blur-xl">
+            <div className="relative overflow-hidden rounded-xs bg-black flex items-center justify-center max-h-[75vh]">
+              <img
+                src={selectedPhoto.src}
+                alt={selectedPhoto.alt}
+                className="max-h-[70vh] w-auto max-w-full object-contain"
+              />
+            </div>
+            <div className="mt-4">
+              <span className="text-xs text-green-deep font-bold block">
+                {selectedPhoto.category}
+              </span>
+              <h3 className="font-display text-xl font-bold text-ink mt-1">
+                {selectedPhoto.title}
+              </h3>
+              <p className="text-xs sm:text-sm text-ink-soft mt-2">{selectedPhoto.caption}</p>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </section>
   );
 }

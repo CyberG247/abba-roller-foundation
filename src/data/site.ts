@@ -17,6 +17,8 @@ import programYouth from "@/assets/program-youth.jpg";
 import weeklyFoodMeals from "@/assets/weekly-food-distribution-meals.jpg";
 import weeklyFoodBeneficiaries from "@/assets/weekly-food-distribution-beneficiaries.jpg";
 import ramadanFoodPackages from "@/assets/ramadan-food-packages-10-states.jpg";
+import visuallyImpairedSchoolDutse1 from "@/assets/visually-impaired-school-dutse-1.jpg";
+import footballTournamentTrophyPresentation from "@/assets/football-tournament-trophy-presentation.jpg";
 
 export const CMS_PLACEHOLDER = "—" as const;
 
@@ -177,7 +179,7 @@ export const campaigns: Campaign[] = [
       "Young boys, youths and children happily holding fresh takeout meals during ARF weekly food distribution",
     activities: [
       "Weekly distribution of 250+ cooked takeaway meal packs",
-      "Balanced protein nutrition with fish, rice and fresh greens",
+      "Balanced protein nutrition with fresh salad & whole fish, fried/jollof rice & chicken",
       "Direct neighborhood outreach to vulnerable street children and orphans",
       "Structured community handover preserving beneficiary dignity",
       "Regular hygiene and nutritional quality checks",
@@ -185,7 +187,7 @@ export const campaigns: Campaign[] = [
     ],
     body: [
       "No child or vulnerable individual should face severe hunger or malnutrition. The Abba Roller Foundation Weekly Food Distribution programme operates on a dependable weekly cycle, ensuring that at least 250 freshly cooked, balanced meals are delivered directly to individuals and families carrying the greatest vulnerability.",
-      "Each takeaway meal pack is prepared under rigorous hygienic standards and features nutrient-rich seasoned rice, fresh vegetable greens, and wholesome fish/protein, packaged securely in food containers and distributed directly across high-need wards.",
+      "Each takeaway meal pack is prepared under rigorous hygienic standards and features nutrient-rich seasoned rice, fresh salad greens, wholesome fresh salad & whole fish, or savory fried/jollof rice & chicken, packaged securely in food containers and distributed directly across high-need wards.",
       "Beyond providing immediate sustenance, our weekly presence allows Foundation volunteers to build meaningful, caring relationships with neighborhood children, monitor acute community welfare needs, and connect households to long-term skills and empowerment pathways.",
     ],
   },
@@ -265,14 +267,67 @@ export const stories: Story[] = [
       "Every week, ARF prepares and distributes over 250 hot, balanced, nutritious meal packs to street children, orphans, and indigent families across local communities.",
     image: weeklyFoodMeals,
     imageAlt:
-      "Freshly prepared nutritious takeaway meal packs containing fish, seasoned rice, and fresh vegetables ready for ARF weekly distribution",
+      "Freshly prepared nutritious takeaway meal packs containing fresh salad & whole fish, fried/jollof rice & chicken ready for ARF weekly distribution",
     body: [
       "Every week across high-need municipal wards in Northern Nigeria, the Abba Roller Foundation team mobilizes to prepare and distribute over 250 wholesome, freshly cooked meal packs directly to vulnerable children, orphans, and indigent community members.",
-      "Each meal container is thoughtfully assembled with seasoned rice, fresh salad greens, and whole fish, providing essential protein and vital micronutrients that are often out of reach for struggling households.",
+      "Each meal container is thoughtfully assembled with fresh salad & whole fish, fried/jollof rice & chicken, providing essential protein and vital micronutrients that are often out of reach for struggling households.",
       "## Direct, Dignified Community Delivery",
       "Rather than impersonal handouts, ARF's weekly distribution is conducted with warmth, respect, and direct engagement. Team members hand each pack directly to recipients, ensuring transparent delivery without administrative intermediaries.",
       "## Reaching 1,000+ Meals Every Month",
       "With 250+ meals disbursed every single week, the Foundation achieves a consistent monthly impact of over 1,000 hot meals. This ongoing commitment ensures that direct nutritional relief remains a reliable lifeline for vulnerable youth across Northern Nigeria.",
+    ],
+  },
+  {
+    slug: "visually-impaired-school-dutse-jigawa",
+    title: "Compassion in action: Comprehensive welfare relief for Visually Impaired School in Dutse, Jigawa State",
+    category: "Community Story",
+    date: "2026-09-12",
+    author: "ARF Special Education Desk",
+    readingTime: "4 min read",
+    excerpt:
+      "ARF mobilized extensive humanitarian relief to the Visually Impaired School in Dutse, delivering nutritious food, laundry detergents, sanitary pads, and bathing materials directly to students in their residential hostel.",
+    image: visuallyImpairedSchoolDutse1,
+    imageAlt:
+      "A young visually impaired student in Dutse school hostel during ARF comprehensive welfare outreach",
+    body: [
+      "Special needs education demands not only dedicated instructional care but an uncompromising commitment to basic human dignity, proper nutrition, and hygiene.",
+      "The Abba Roller Foundation team, led by Founder & Chairman Hon. Usman Aminu Usman (Abba Roller), carried out a comprehensive welfare outreach at the Jigawa State School for the Visually Impaired, located in Limawa, Dutse, Jigawa State.",
+      "Under the school's inspiring motto — 'Education is light for All' — visually impaired pupils study and live on-campus in residential hostels. The Foundation delegation met with school administrators, teachers, and pupils directly in their hostels and assembly grounds to conduct an extensive, direct handover of living and nutritional support.",
+      "## Multidimensional Relief: Food, Hygiene & Personal Dignity",
+      "During the outreach, Foundation volunteers presented an extensive consignment of essential provisions tailored to the pupils' immediate needs:",
+      "- **Nutritious Food Provisions**: Wholesome cooked takeaway meals, seasoned rice, protein provisions, and kitchen staples to support student nutrition in the hostel.",
+      "- **Laundry Detergents & Cleaners**: Cartons of heavy-duty washing detergent powders, Viva washing packs, antiseptic solutions, and cleaning soaps to safeguard hostel cleanliness.",
+      "- **Sanitary Pads for Female Students**: High-grade sanitary pads and menstrual health supplies under the Foundation's Pad Up initiative, ensuring young visually impaired girls manage their periods with absolute confidence.",
+      "- **Bathing Materials & Toiletries**: Antibacterial bathing soaps, personal body sponges, toothbrushes, toothpaste, and personal grooming packs distributed in individual washing buckets to students.",
+      "- **Custom Foundation Sports Kits**: Specially branded Abba Roller Foundation athletic jerseys presented to senior students to foster confidence, inclusion, and belonging.",
+      "## Inclusion, Warmth, and Respect",
+      "Interacting warmly with the students and hostel staff, the Foundation reaffirmed its guiding principle: every vulnerable child deserves protection, empathy, and equal access to clean, healthy living conditions. ARF will continue to champion targeted interventions that uplift special needs institutions across Northern Nigeria.",
+    ],
+  },
+  {
+    slug: "grassroots-football-championship-peace-cup",
+    title: "Uniting youth through sport: Abba Roller Foundation hosts grassroots football championship",
+    category: "Community Story",
+    date: "2026-09-18",
+    author: "ARF Youth & Sports Directorate",
+    readingTime: "4 min read",
+    excerpt:
+      "Hon. Usman Aminu Usman (Abba Roller) sponsored and hosted a premier grassroots football tournament, donating full sets of team kits, awarding cash prizes, and presenting the prestigious Golden Championship Cup.",
+    image: footballTournamentTrophyPresentation,
+    imageAlt:
+      "Founder Hon. Usman Aminu Usman presenting the golden championship trophy and team jerseys to captains",
+    body: [
+      "Sport possesses an unmatched power to transcend divisions, spark healthy ambition, and unite diverse youth around a shared goal of excellence and sportsmanship.",
+      "Recognizing this vital role in youth development, the Abba Roller Foundation, under the direct stewardship of Founder & Chairman Hon. Usman Aminu Usman (Abba Roller), hosted and sponsored a premier grassroots football tournament bringing together grassroots clubs across Jigawa State and northern Nigeria, including KAFC Dandidibabs FC Gumel.",
+      "The tournament drew energetic crowds, community leaders, and scouts, culminating in a spirited grand finale celebrated for fair play, mutual respect, and electrifying athletic display.",
+      "## Comprehensive Tournament Sponsorship & Player Incentives",
+      "To ensure grassroots players experienced professional-grade competition and felt valued for their commitment, the Abba Roller Foundation provided all-inclusive support:",
+      "- **Official ARF Golden Championship Cup**: Awarded to the champions alongside commemorative gold medals and certificates of merit.",
+      "- **Substantial Cash Prize Awards**: Presented direct cash envelopes to finalists, runners-up, tournament MVPs, and standout players to support their athletic journeys.",
+      "- **Complete Sets of Team Match Kits**: Donated factory-fresh, branded team jerseys and shorts to equip competing community clubs lacking standardized uniforms.",
+      "- **Mentorship and Youth Anti-Vice Campaign**: Keynote address by Hon. Usman Aminu Usman emphasizing discipline, education, avoidance of illicit drugs, and peaceful coexistence.",
+      "## Transforming Communities Through Youth Empowerment",
+      "The Foundation continues to pioneer interventions that engage young minds constructively, creating platforms where talent is discovered, friendships are forged, and hope is restored for a brighter communal future.",
     ],
   },
   {
@@ -510,6 +565,40 @@ export const updateCategories: UpdateCategory[] = [
 
 export const updates: Update[] = [
   {
+    id: "grassroots-football-championship-peace-cup",
+    title: "Youth unity & sports development: Abba Roller Foundation hosts grassroots football championship",
+    category: "Empowerment",
+    date: "2026-09-18",
+    location: "Gumel & Jigawa State Community Stadiums",
+    summary:
+      "Hon. Usman Aminu Usman (Abba Roller) sponsored and hosted a premier grassroots football tournament, donating complete sets of team kits, awarding substantial cash prizes, and presenting the Golden Championship Cup.",
+    image: footballTournamentTrophyPresentation,
+    imageAlt:
+      "Founder Hon. Usman Aminu Usman presenting the golden championship trophy and team jerseys to captains",
+    highlights: [
+      "Official ARF Golden Championship Cup and gold medals awarded to winners",
+      "Direct cash prize envelopes for winning squads, finalists & tournament MVPs",
+      "Complete sets of branded jerseys and match equipment donated to community clubs",
+    ],
+  },
+  {
+    id: "visually-impaired-school-dutse-outreach",
+    title: "Comprehensive welfare & humanitarian relief at Visually Impaired School, Dutse",
+    category: "Humanitarian Support",
+    date: "2026-09-12",
+    location: "Visually Impaired School, Dutse, Jigawa State",
+    summary:
+      "ARF conducted a compassionate intervention at the Visually Impaired School in Dutse, delivering wholesome cooked food, heavy-duty laundry detergents, sanitary pads, and bathing materials directly to students in their hostel.",
+    image: visuallyImpairedSchoolDutse1,
+    imageAlt:
+      "Visually impaired pupil in hostel room during ARF welfare intervention in Dutse, Jigawa State",
+    highlights: [
+      "Direct distribution of food, detergents, sanitary pads & bathing toiletries",
+      "Hostel dormitory welfare and student living support",
+      "Pad Up personal menstrual hygiene supplies for visually impaired girls",
+    ],
+  },
+  {
     id: "ramadan-food-packages-10-states",
     title: "Ramadan relief: 1,500 food package pieces distributed across 10 States in Nigeria",
     category: "Food Distribution",
@@ -533,13 +622,13 @@ export const updates: Update[] = [
     date: "2026-08-28",
     location: "Grassroots community wards across Kano & Jigawa State",
     summary:
-      "ARF conducts ongoing weekly food distributions delivering 250+ balanced, freshly prepared takeaway meals (featuring wholesome whole fish, seasoned rice, and fresh vegetables) directly to street children, orphans, and vulnerable families in our communities.",
+      "ARF conducts ongoing weekly food distributions delivering 250+ balanced, freshly prepared takeaway meals (featuring fresh salad & whole fish, fried/jollof rice & chicken) directly to street children, orphans, and vulnerable families in our communities.",
     image: weeklyFoodBeneficiaries,
     imageAlt:
       "Children and young beneficiaries holding freshly prepared meal packs during ARF weekly food distribution",
     highlights: [
       "250+ freshly prepared hot takeaway meals distributed every week",
-      "Balanced protein nutrition with whole fish, rice, and fresh greens",
+      "Balanced protein nutrition with fresh salad & whole fish, fried/jollof rice & chicken",
       "Direct grassroots delivery targeting 1,000+ meals disbursed monthly",
     ],
   },
