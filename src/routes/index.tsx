@@ -56,72 +56,72 @@ function Home() {
         <div aria-hidden className="absolute inset-0 bg-green-deep/75 backdrop-blur-[1px]" />
         <div aria-hidden className="motif-grid absolute inset-0 opacity-40" />
 
-        <div className="shell relative grid gap-10 pt-36 pb-20 md:pt-44 md:pb-24">
+        <div className="shell relative grid gap-8 pt-28 pb-14 sm:gap-10 sm:pt-36 sm:pb-20 md:pt-44 md:pb-24">
           <Reveal className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-bold text-brand-red-wash backdrop-blur-md border border-white/10">
-              <span className="flex size-2 rounded-full bg-brand-red-bright animate-pulse" />
-              <span>
+            <div className="inline-flex max-w-full items-center gap-2 rounded-full bg-white/10 px-3.5 py-1.5 text-[11px] sm:text-xs font-bold text-brand-red-wash backdrop-blur-md border border-white/10">
+              <span className="flex size-2 shrink-0 rounded-full bg-brand-red-bright animate-pulse" />
+              <span className="truncate">
                 {org.shortName} · {org.country} · Jigawa &amp; Kano State Operations
               </span>
             </div>
 
-            <h1 className="display-1 mt-5 text-on-dark">{org.tagline}</h1>
-            <p className="lede mt-6 max-w-2xl text-on-dark-muted">{org.description}</p>
+            <h1 className="display-1 mt-4 sm:mt-5 text-on-dark">{org.tagline}</h1>
+            <p className="lede mt-4 sm:mt-6 max-w-2xl text-on-dark-muted">{org.description}</p>
 
-            <div className="mt-9 flex flex-wrap items-center gap-3">
-              <Button asChild variant="give" size="lg" className="shadow-lift font-bold gap-2">
+            <div className="mt-7 sm:mt-9 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
+              <Button asChild variant="give" size="lg" className="w-full sm:w-auto shadow-lift font-bold gap-2">
                 <a href="#donate">
                   <Heart className="size-4.5 fill-white animate-pulse" />
                   <span>Donate now</span>
                 </a>
               </Button>
-              <Button asChild variant="onDarkOutline" size="lg" className="font-semibold">
+              <Button asChild variant="onDarkOutline" size="lg" className="w-full sm:w-auto font-semibold">
                 <a href="#about">Explore our mission</a>
               </Button>
             </div>
           </Reveal>
 
           {/* Quick Metrics Live Ticker Strip */}
-          <Reveal delay={120} className="mt-6 border-t border-white/15 pt-8">
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:gap-6">
-              <div className="rounded-xs border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-brand-red-wash">
+          <Reveal delay={120} className="mt-4 sm:mt-6 border-t border-white/15 pt-6 sm:pt-8">
+            <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-4 lg:gap-6">
+              <div className="rounded-xs border border-white/10 bg-white/5 p-3 sm:p-4 backdrop-blur-sm">
+                <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-brand-red-wash block truncate">
                   Total Beneficiaries
                 </span>
-                <p className="mt-1 font-display text-2xl sm:text-3xl font-extrabold text-on-dark">
+                <p className="mt-1 font-display text-xl sm:text-2xl lg:text-3xl font-extrabold text-on-dark truncate">
                   <AnimatedCounter value="15,400+" />
                 </p>
-                <span className="text-[11px] text-on-dark-muted">Jigawa &amp; Kano Corridor</span>
+                <span className="text-[10px] sm:text-[11px] text-on-dark-muted block truncate">Jigawa &amp; Kano Corridor</span>
               </div>
 
-              <div className="rounded-xs border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-brand-red-wash">
+              <div className="rounded-xs border border-white/10 bg-white/5 p-3 sm:p-4 backdrop-blur-sm">
+                <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-brand-red-wash block truncate">
                   Weekly Feeding
                 </span>
-                <p className="mt-1 font-display text-2xl sm:text-3xl font-extrabold text-on-dark">
+                <p className="mt-1 font-display text-xl sm:text-2xl lg:text-3xl font-extrabold text-on-dark truncate">
                   <AnimatedCounter value="250+" />
                 </p>
-                <span className="text-[11px] text-on-dark-muted">Hot Meals Weekly</span>
+                <span className="text-[10px] sm:text-[11px] text-on-dark-muted block truncate">Hot Meals Weekly</span>
               </div>
 
-              <div className="rounded-xs border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-brand-red-wash">
+              <div className="rounded-xs border border-white/10 bg-white/5 p-3 sm:p-4 backdrop-blur-sm">
+                <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-brand-red-wash block truncate">
                   Covered LGAs
                 </span>
-                <p className="mt-1 font-display text-2xl sm:text-3xl font-extrabold text-on-dark">
+                <p className="mt-1 font-display text-xl sm:text-2xl lg:text-3xl font-extrabold text-on-dark truncate">
                   <AnimatedCounter value="14 LGAs" />
                 </p>
-                <span className="text-[11px] text-on-dark-muted">Community Councils</span>
+                <span className="text-[10px] sm:text-[11px] text-on-dark-muted block truncate">Community Councils</span>
               </div>
 
-              <div className="rounded-xs border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-brand-red-wash">
+              <div className="rounded-xs border border-white/10 bg-white/5 p-3 sm:p-4 backdrop-blur-sm">
+                <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-brand-red-wash block truncate">
                   Sanitary Packs
                 </span>
-                <p className="mt-1 font-display text-2xl sm:text-3xl font-extrabold text-on-dark">
+                <p className="mt-1 font-display text-xl sm:text-2xl lg:text-3xl font-extrabold text-on-dark truncate">
                   <AnimatedCounter value="1,200+" />
                 </p>
-                <span className="text-[11px] text-on-dark-muted">Pad Up Nigerian Girls</span>
+                <span className="text-[10px] sm:text-[11px] text-on-dark-muted block truncate">Pad Up Nigerian Girls</span>
               </div>
             </div>
           </Reveal>

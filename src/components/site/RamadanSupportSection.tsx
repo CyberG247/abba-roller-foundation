@@ -265,58 +265,58 @@ export function RamadanSupportSection({ id = "ramadan-support" }: { id?: string 
         </div>
 
         {/* 4 Quick Metrics Banner */}
-        <Reveal delay={120} className="mt-12">
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:gap-6">
-            <div className="rounded-sm border border-hairline bg-background p-5 shadow-2xs transition-all hover:border-green-deep">
+        <Reveal delay={120} className="mt-8 sm:mt-12">
+          <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-4 lg:gap-6">
+            <div className="rounded-sm border border-hairline bg-background p-3.5 sm:p-5 shadow-2xs transition-all hover:border-green-deep">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-muted-foreground truncate">
                   Packages Distributed
                 </span>
-                <PackageCheck className="size-4 text-brand-red" />
+                <PackageCheck className="size-3.5 sm:size-4 text-brand-red shrink-0" />
               </div>
-              <p className="mt-2 font-display text-3xl sm:text-4xl font-extrabold text-brand-red">
+              <p className="mt-1.5 sm:mt-2 font-display text-xl sm:text-2xl lg:text-3xl font-extrabold text-brand-red truncate">
                 <AnimatedCounter value="1,500+" />
               </p>
-              <span className="text-xs text-ink-soft">Food cartons &amp; water packs</span>
+              <span className="text-[10px] sm:text-xs text-ink-soft block truncate">Food cartons &amp; water packs</span>
             </div>
 
-            <div className="rounded-sm border border-hairline bg-background p-5 shadow-2xs transition-all hover:border-green-deep">
+            <div className="rounded-sm border border-hairline bg-background p-3.5 sm:p-5 shadow-2xs transition-all hover:border-green-deep">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-muted-foreground truncate">
                   States Reached
                 </span>
-                <Globe2 className="size-4 text-green-mid" />
+                <Globe2 className="size-3.5 sm:size-4 text-green-mid shrink-0" />
               </div>
-              <p className="mt-2 font-display text-3xl sm:text-4xl font-extrabold text-green-deep">
+              <p className="mt-1.5 sm:mt-2 font-display text-xl sm:text-2xl lg:text-3xl font-extrabold text-green-deep truncate">
                 <AnimatedCounter value="10 States" />
               </p>
-              <span className="text-xs text-ink-soft">Northwest &amp; Northeast corridor</span>
+              <span className="text-[10px] sm:text-xs text-ink-soft block truncate">Northwest &amp; Northeast</span>
             </div>
 
-            <div className="rounded-sm border border-hairline bg-background p-5 shadow-2xs transition-all hover:border-green-deep">
+            <div className="rounded-sm border border-hairline bg-background p-3.5 sm:p-5 shadow-2xs transition-all hover:border-green-deep">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-muted-foreground truncate">
                   Target Beneficiaries
                 </span>
-                <Moon className="size-4 text-amber-600" />
+                <Moon className="size-3.5 sm:size-4 text-amber-600 shrink-0" />
               </div>
-              <p className="mt-2 font-display text-2xl sm:text-3xl font-extrabold text-ink">
+              <p className="mt-1.5 sm:mt-2 font-display text-lg sm:text-2xl lg:text-3xl font-extrabold text-ink truncate">
                 Muslim Ummah
               </p>
-              <span className="text-xs text-ink-soft">Fasting households &amp; orphans</span>
+              <span className="text-[10px] sm:text-xs text-ink-soft block truncate">Fasting households &amp; orphans</span>
             </div>
 
-            <div className="rounded-sm border border-hairline bg-background p-5 shadow-2xs transition-all hover:border-green-deep">
+            <div className="rounded-sm border border-hairline bg-background p-3.5 sm:p-5 shadow-2xs transition-all hover:border-green-deep">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-muted-foreground truncate">
                   Provisions
                 </span>
-                <Droplets className="size-4 text-blue-500" />
+                <Droplets className="size-3.5 sm:size-4 text-blue-500 shrink-0" />
               </div>
-              <p className="mt-2 font-display text-2xl sm:text-3xl font-extrabold text-blue-600">
+              <p className="mt-1.5 sm:mt-2 font-display text-lg sm:text-2xl lg:text-3xl font-extrabold text-blue-600 truncate">
                 Food &amp; Water
               </p>
-              <span className="text-xs text-ink-soft">Carton boxes + table water</span>
+              <span className="text-[10px] sm:text-xs text-ink-soft block truncate">Carton boxes + table water</span>
             </div>
           </div>
         </Reveal>
@@ -386,12 +386,12 @@ export function RamadanSupportSection({ id = "ramadan-support" }: { id?: string 
                 </CarouselContent>
 
                 {/* Carousel Controls */}
-                <div className="mt-3 flex items-center justify-between px-1">
+                <div className="mt-3 flex flex-wrap items-center justify-between px-1 gap-2">
                   <div className="flex items-center gap-2">
                     <CarouselPrevious className="static translate-y-0 size-8 rounded-full border-hairline bg-background text-ink hover:bg-green-deep hover:text-white hover:border-green-deep cursor-pointer" />
                     <CarouselNext className="static translate-y-0 size-8 rounded-full border-hairline bg-background text-ink hover:bg-green-deep hover:text-white hover:border-green-deep cursor-pointer" />
-                    <span className="text-xs font-medium text-ink-soft ml-1">
-                      Swipe or click arrows to explore all packages
+                    <span className="text-[11px] sm:text-xs font-semibold text-ink-soft ml-1">
+                      {currentSlide + 1} / {ramadanGallery.length}
                     </span>
                   </div>
 
@@ -550,16 +550,16 @@ export function RamadanSupportSection({ id = "ramadan-support" }: { id?: string 
 
       {/* -------------------------------------------------- 1. DIALOG MODAL: ALL RAMADAN PHOTOS */}
       <Dialog open={detailsModalOpen} onOpenChange={setDetailsModalOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-background border-hairline p-6 sm:p-8">
+        <DialogContent className="w-[calc(100vw-1.5rem)] sm:max-w-4xl max-h-[90vh] overflow-y-auto bg-background border-hairline p-4 sm:p-6 md:p-8 rounded-md">
           <DialogHeader>
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-600">
               <Moon className="size-4 fill-amber-500 text-amber-500" />
               <span>Full Field Documentation · Ramadan Relief for the Muslim Ummah</span>
             </div>
-            <DialogTitle className="font-display text-2xl sm:text-3xl font-extrabold text-ink">
+            <DialogTitle className="font-display text-xl sm:text-2xl md:text-3xl font-extrabold text-ink mt-1">
               Ramadan Food &amp; Water Distribution Archive
             </DialogTitle>
-            <DialogDescription className="text-sm text-ink-soft">
+            <DialogDescription className="text-xs sm:text-sm text-ink-soft mt-1">
               Photographic records of the 1,500+ food cartons, bottled table water packs, and hot
               meals distributed across 10 states in partnership with Seyi Tinubu.
             </DialogDescription>
@@ -630,12 +630,12 @@ export function RamadanSupportSection({ id = "ramadan-support" }: { id?: string 
       {/* -------------------------------------------------- 2. LIGHTBOX MODAL */}
       {selectedPhoto && (
         <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
-          <DialogContent className="max-w-3xl bg-background/95 border-hairline p-4 sm:p-6 backdrop-blur-xl">
+          <DialogContent className="w-[calc(100vw-1.5rem)] sm:max-w-3xl max-h-[90vh] overflow-y-auto bg-background/95 border-hairline p-3.5 sm:p-6 backdrop-blur-xl rounded-md">
             <div className="relative overflow-hidden rounded-xs bg-black flex items-center justify-center max-h-[75vh]">
               <img
                 src={selectedPhoto.src}
                 alt={selectedPhoto.alt}
-                className="max-h-[70vh] w-auto max-w-full object-contain"
+                className="max-h-[60vh] sm:max-h-[70vh] w-auto max-w-full object-contain"
               />
             </div>
             <div className="mt-4">

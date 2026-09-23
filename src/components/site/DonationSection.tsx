@@ -206,21 +206,21 @@ export function DonationSection({ id = "donate" }: { id?: string }) {
 
           {/* Right Column: Step 1 (Select Amount) or Step 2 (Complete Support) */}
           <Reveal delay={120}>
-            <div className="rounded-sm border border-hairline/20 bg-background p-6 sm:p-8 text-ink shadow-panel transition-all">
+            <div className="rounded-sm border border-hairline/20 bg-background p-4 sm:p-6 md:p-8 text-ink shadow-panel transition-all">
               {step === "select" ? (
                 <>
                   <div className="flex items-center justify-between border-b border-hairline pb-4">
                     <div>
                       <span className="eyebrow text-green-mid">Step 1 of 2 · Choose Impact</span>
-                      <h3 className="font-display text-xl font-bold text-ink mt-0.5">
+                      <h3 className="font-display text-lg sm:text-xl font-bold text-ink mt-0.5">
                         Select Contribution Tier
                       </h3>
                     </div>
-                    <Sparkles className="size-5 text-brand-red" />
+                    <Sparkles className="size-4.5 sm:size-5 text-brand-red shrink-0" />
                   </div>
 
                   {/* Tiers Grid */}
-                  <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                  <div className="mt-5 sm:mt-6 grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-2.5">
                     {tiers.map((tier) => (
                       <button
                         key={tier.numeric}
@@ -230,18 +230,18 @@ export function DonationSection({ id = "donate" }: { id?: string }) {
                           setCustomAmount("");
                         }}
                         className={cn(
-                          "relative flex flex-col items-center justify-center rounded-xs p-3.5 text-center transition-all border cursor-pointer",
+                          "relative flex flex-col items-center justify-center rounded-xs p-2.5 sm:p-3.5 text-center transition-all border cursor-pointer",
                           selectedTier === tier.numeric && !customAmount
                             ? "border-green-deep bg-green-wash font-bold text-green-deep shadow-xs ring-2 ring-green-deep/30"
                             : "border-hairline bg-surface text-ink hover:border-green-mid",
                         )}
                       >
                         {tier.tag && (
-                          <span className="absolute -top-2 rounded-full bg-brand-red px-2 py-0.5 text-[9px] font-extrabold text-white uppercase shadow-xs">
+                          <span className="absolute -top-2 rounded-full bg-brand-red px-1.5 sm:px-2 py-0.5 text-[8px] sm:text-[9px] font-extrabold text-white uppercase shadow-xs">
                             {tier.tag}
                           </span>
                         )}
-                        <span className="font-display text-lg font-extrabold">₦{tier.amount}</span>
+                        <span className="font-display text-base sm:text-lg font-extrabold">₦{tier.amount}</span>
                       </button>
                     ))}
                   </div>
@@ -272,7 +272,7 @@ export function DonationSection({ id = "donate" }: { id?: string }) {
                   </div>
 
                   {/* Impact Description Card */}
-                  <div className="mt-6 rounded-xs border border-hairline bg-surface p-4.5">
+                  <div className="mt-5 sm:mt-6 rounded-xs border border-hairline bg-surface p-3.5 sm:p-4.5">
                     <div className="flex items-start gap-3">
                       <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-green-deep text-white shadow-xs">
                         <Heart className="size-4 fill-white" />
@@ -281,7 +281,7 @@ export function DonationSection({ id = "donate" }: { id?: string }) {
                         <span className="text-xs font-bold tracking-wide text-green-mid uppercase">
                           Verified Impact Outcome
                         </span>
-                        <p className="mt-1 text-sm leading-relaxed font-semibold text-ink">
+                        <p className="mt-1 text-xs sm:text-sm leading-relaxed font-semibold text-ink">
                           {activeTier.impact}
                         </p>
                       </div>
@@ -289,11 +289,11 @@ export function DonationSection({ id = "donate" }: { id?: string }) {
                   </div>
 
                   {/* Action CTA to Proceed to Step 2 */}
-                  <div className="mt-8 flex flex-col gap-3">
+                  <div className="mt-6 sm:mt-8 flex flex-col gap-3">
                     <button
                       type="button"
                       onClick={handleProceed}
-                      className="btn-shine group relative w-full overflow-hidden rounded-sm bg-gradient-to-r from-brand-red via-brand-red to-brand-red-bright py-4 px-6 text-center text-base font-extrabold text-white shadow-lg shadow-brand-red/30 ring-1 ring-white/30 transition-all duration-300 hover:shadow-xl hover:shadow-brand-red/45 hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
+                      className="btn-shine group relative w-full overflow-hidden rounded-sm bg-gradient-to-r from-brand-red via-brand-red to-brand-red-bright py-3.5 sm:py-4 px-4 sm:px-6 text-center text-sm sm:text-base font-extrabold text-white shadow-lg shadow-brand-red/30 ring-1 ring-white/30 transition-all duration-300 hover:shadow-xl hover:shadow-brand-red/45 hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
                     >
                       <span className="relative z-10 inline-flex items-center justify-center gap-2">
                         <span>Proceed to Complete Support (₦{activeAmount.toLocaleString()})</span>
@@ -316,7 +316,7 @@ export function DonationSection({ id = "donate" }: { id?: string }) {
                 </>
               ) : (
                 /* Step 2: Complete Support Details */
-                <div className="space-y-6 animate-in fade-in zoom-in-95 duration-300">
+                <div className="space-y-5 sm:space-y-6 animate-in fade-in zoom-in-95 duration-300">
                   <div className="flex items-center justify-between border-b border-hairline pb-4">
                     <button
                       type="button"
@@ -326,13 +326,13 @@ export function DonationSection({ id = "donate" }: { id?: string }) {
                       <ArrowLeft className="size-3.5" />
                       <span>Change amount</span>
                     </button>
-                    <span className="rounded-full bg-brand-red-wash px-3 py-1 text-xs font-extrabold text-brand-red">
+                    <span className="rounded-full bg-brand-red-wash px-2.5 sm:px-3 py-1 text-xs font-extrabold text-brand-red">
                       Target: ₦{activeAmount.toLocaleString()}
                     </span>
                   </div>
 
                   <div>
-                    <h3 className="font-display text-2xl font-black text-ink">
+                    <h3 className="font-display text-xl sm:text-2xl font-black text-ink">
                       Complete Your Support
                     </h3>
                     <p className="mt-1 text-xs text-muted-foreground">
@@ -342,8 +342,8 @@ export function DonationSection({ id = "donate" }: { id?: string }) {
                   </div>
 
                   {/* Transfer Details Card */}
-                  <div className="rounded-sm border-2 border-green-deep/30 bg-green-wash/40 p-5 space-y-3">
-                    <div className="flex items-center justify-between">
+                  <div className="rounded-sm border-2 border-green-deep/30 bg-green-wash/40 p-4 sm:p-5 space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between items-start gap-1 sm:gap-0">
                       <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                         Bank Name
                       </span>
@@ -352,7 +352,7 @@ export function DonationSection({ id = "donate" }: { id?: string }) {
                       </span>
                     </div>
 
-                    <div className="flex items-center justify-between border-t border-hairline pt-2.5">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between items-start gap-1 sm:gap-0 border-t border-hairline pt-2.5">
                       <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                         Account Name
                       </span>
@@ -361,7 +361,7 @@ export function DonationSection({ id = "donate" }: { id?: string }) {
                       </span>
                     </div>
 
-                    <div className="flex items-center justify-between border-t border-hairline pt-2.5">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between items-start gap-1.5 sm:gap-0 border-t border-hairline pt-2.5">
                       <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                         Account Number
                       </span>
@@ -379,7 +379,7 @@ export function DonationSection({ id = "donate" }: { id?: string }) {
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between border-t border-hairline pt-2.5">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between items-start gap-1.5 sm:gap-0 border-t border-hairline pt-2.5">
                       <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                         Payment Reference
                       </span>

@@ -491,8 +491,8 @@ export function VisuallyImpairedSchoolSection({ id = "dutse-outreach" }: { id?: 
                 </CarouselContent>
 
                 {/* Carousel Navigation Controls */}
-                <div className="mt-3 flex items-center justify-between px-1">
-                  <div className="flex items-center gap-1.5">
+                <div className="mt-3 flex items-center justify-between px-1 gap-2">
+                  <div className="hidden sm:flex items-center gap-1.5 flex-wrap">
                     {dutseSchoolGallery.map((_, idx) => (
                       <button
                         key={idx}
@@ -506,6 +506,10 @@ export function VisuallyImpairedSchoolSection({ id = "dutse-outreach" }: { id?: 
                       />
                     ))}
                   </div>
+
+                  <span className="sm:hidden text-xs font-semibold text-ink-soft">
+                    {currentSlide + 1} / {totalSlides}
+                  </span>
 
                   <div className="flex items-center gap-2">
                     <CarouselPrevious
@@ -663,34 +667,34 @@ export function VisuallyImpairedSchoolSection({ id = "dutse-outreach" }: { id?: 
       {/* FULL OUTREACH DETAILS & ALL IMAGES MODAL DIALOG                           */}
       {/* ========================================================================= */}
       <Dialog open={detailsModalOpen} onOpenChange={setDetailsModalOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-6 md:p-8 bg-surface">
+        <DialogContent className="w-[calc(100vw-1.5rem)] sm:max-w-4xl max-h-[90vh] overflow-y-auto p-4 sm:p-6 md:p-8 bg-surface rounded-md">
           <DialogHeader>
             <div className="inline-flex items-center gap-2 rounded-full bg-brand-red-wash px-3 py-1 text-xs font-bold text-brand-red border border-brand-red/15 w-fit">
               <Building2 className="size-3.5" />
               <span>Dutse Special Needs Relief Archive</span>
             </div>
-            <DialogTitle className="font-display text-2xl md:text-3xl font-extrabold text-ink mt-2">
+            <DialogTitle className="font-display text-xl sm:text-2xl md:text-3xl font-extrabold text-ink mt-2">
               Visually Impaired School In Dutse, Jigawa State
             </DialogTitle>
-            <DialogDescription className="text-sm text-muted-foreground mt-1">
+            <DialogDescription className="text-xs sm:text-sm text-muted-foreground mt-1">
               Complete photographic documentation and comprehensive itemized breakdown of the welfare
               relief intervention conducted by the Abba Roller Foundation.
             </DialogDescription>
           </DialogHeader>
 
           {/* Photo Gallery Grid */}
-          <div className="mt-6">
-            <div className="flex items-center justify-between mb-3">
-              <h4 className="font-display text-base font-bold text-ink flex items-center gap-2">
+          <div className="mt-5 sm:mt-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-1">
+              <h4 className="font-display text-sm sm:text-base font-bold text-ink flex items-center gap-2">
                 <Grid className="size-4 text-green-mid" />
                 <span>Outreach Photo Archive ({dutseSchoolGallery.length} Photos)</span>
               </h4>
-              <span className="text-xs text-muted-foreground">
+              <span className="text-[11px] sm:text-xs text-muted-foreground">
                 Click any image to view enlarged caption
               </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
               {dutseSchoolGallery.map((photo) => (
                 <div
                   key={photo.id}
@@ -734,26 +738,26 @@ export function VisuallyImpairedSchoolSection({ id = "dutse-outreach" }: { id?: 
 
             {/* Active Enlarge Display Box */}
             {activeGalleryModalImage && (
-              <div className="mt-4 rounded-sm border border-green-deep/20 bg-background p-4 flex flex-col md:flex-row gap-4 items-center">
-                <div className="w-full md:w-48 shrink-0 aspect-[4/3] rounded-xs overflow-hidden bg-muted">
+              <div className="mt-4 rounded-sm border border-green-deep/20 bg-background p-3.5 sm:p-4 flex flex-col sm:flex-row gap-3 sm:gap-4 items-start sm:items-center">
+                <div className="w-full sm:w-48 shrink-0 aspect-[4/3] rounded-xs overflow-hidden bg-muted">
                   <img
                     src={activeGalleryModalImage.src}
                     alt={activeGalleryModalImage.alt}
                     className="size-full object-cover"
                   />
                 </div>
-                <div className="flex-1 text-left">
+                <div className="flex-1 text-left min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="rounded-full bg-green-wash text-green-deep text-xs font-bold px-2.5 py-0.5">
+                    <span className="rounded-full bg-green-wash text-green-deep text-[11px] sm:text-xs font-bold px-2.5 py-0.5">
                       {activeGalleryModalImage.category}
                     </span>
                     {activeGalleryModalImage.isMainHeadImage && (
-                      <span className="rounded-full bg-brand-red text-white text-xs font-bold px-2.5 py-0.5">
+                      <span className="rounded-full bg-brand-red text-white text-[10px] sm:text-xs font-bold px-2 py-0.5">
                         Main Head Image
                       </span>
                     )}
                   </div>
-                  <h5 className="font-display text-base font-bold text-ink mt-1.5">
+                  <h5 className="font-display text-sm sm:text-base font-bold text-ink mt-1.5 break-words">
                     {activeGalleryModalImage.title}
                   </h5>
                   <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
@@ -833,18 +837,19 @@ export function VisuallyImpairedSchoolSection({ id = "dutse-outreach" }: { id?: 
           </div>
 
           {/* Modal Footer Actions */}
-          <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-hairline pt-4">
+          <div className="mt-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 border-t border-hairline pt-4">
             <Button
               type="button"
               variant="outline"
               size="sm"
               onClick={() => setDetailsModalOpen(false)}
+              className="w-full sm:w-auto"
             >
               Close Archive
             </Button>
 
-            <div className="flex items-center gap-2">
-              <Button asChild variant="outline" size="sm">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+              <Button asChild variant="outline" size="sm" className="w-full sm:w-auto">
                 <Link
                   to="/stories/$slug"
                   params={{ slug: "visually-impaired-school-dutse-jigawa" }}
@@ -854,7 +859,7 @@ export function VisuallyImpairedSchoolSection({ id = "dutse-outreach" }: { id?: 
                   <ExternalLink className="size-3.5 ml-1.5" />
                 </Link>
               </Button>
-              <Button asChild variant="give" size="sm" className="font-bold">
+              <Button asChild variant="give" size="sm" className="w-full sm:w-auto font-bold">
                 <a href="#donate" onClick={() => setDetailsModalOpen(false)}>
                   <Heart className="size-3.5 fill-white animate-pulse" />
                   <span>Support Special Needs Relief</span>

@@ -345,58 +345,58 @@ export function FootballTournamentSection({
         </div>
 
         {/* Tournament Highlights Metric Bar */}
-        <Reveal delay={120} className="mt-12">
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:gap-6">
-            <div className="rounded-sm border border-slate-800 bg-slate-900/80 p-5 shadow-2xs transition-all hover:border-amber-400/50 backdrop-blur-sm">
+        <Reveal delay={120} className="mt-8 sm:mt-12">
+          <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-4 lg:gap-6">
+            <div className="rounded-sm border border-slate-800 bg-slate-900/80 p-3.5 sm:p-5 shadow-2xs transition-all hover:border-amber-400/50 backdrop-blur-sm">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400 truncate">
                   Location &amp; Teams
                 </span>
-                <MapPin className="size-4 text-amber-400" />
+                <MapPin className="size-3.5 sm:size-4 text-amber-400 shrink-0" />
               </div>
-              <p className="mt-2 font-display text-2xl sm:text-3xl font-extrabold text-white">
+              <p className="mt-1.5 sm:mt-2 font-display text-lg sm:text-2xl lg:text-3xl font-extrabold text-white truncate">
                 Gumel &amp; Beyond
               </p>
-              <span className="text-xs text-slate-400">KAFC Gumel &amp; Grassroots Clubs</span>
+              <span className="text-[10px] sm:text-xs text-slate-400 block truncate">KAFC Gumel &amp; Grassroots Clubs</span>
             </div>
 
-            <div className="rounded-sm border border-slate-800 bg-slate-900/80 p-5 shadow-2xs transition-all hover:border-emerald-500/50 backdrop-blur-sm">
+            <div className="rounded-sm border border-slate-800 bg-slate-900/80 p-3.5 sm:p-5 shadow-2xs transition-all hover:border-emerald-500/50 backdrop-blur-sm">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400 truncate">
                   Grand Trophy
                 </span>
-                <Trophy className="size-4 text-amber-400" />
+                <Trophy className="size-3.5 sm:size-4 text-amber-400 shrink-0" />
               </div>
-              <p className="mt-2 font-display text-2xl sm:text-3xl font-extrabold text-amber-400">
+              <p className="mt-1.5 sm:mt-2 font-display text-lg sm:text-2xl lg:text-3xl font-extrabold text-amber-400 truncate">
                 Golden Cup
               </p>
-              <span className="text-xs text-slate-400">Official ARF Champion Trophy</span>
+              <span className="text-[10px] sm:text-xs text-slate-400 block truncate">Official ARF Champion Trophy</span>
             </div>
 
-            <div className="rounded-sm border border-slate-800 bg-slate-900/80 p-5 shadow-2xs transition-all hover:border-amber-400/50 backdrop-blur-sm">
+            <div className="rounded-sm border border-slate-800 bg-slate-900/80 p-3.5 sm:p-5 shadow-2xs transition-all hover:border-amber-400/50 backdrop-blur-sm">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400 truncate">
                   Cash Rewards
                 </span>
-                <DollarSign className="size-4 text-emerald-400" />
+                <DollarSign className="size-3.5 sm:size-4 text-emerald-400 shrink-0" />
               </div>
-              <p className="mt-2 font-display text-2xl sm:text-3xl font-extrabold text-emerald-400">
+              <p className="mt-1.5 sm:mt-2 font-display text-lg sm:text-2xl lg:text-3xl font-extrabold text-emerald-400 truncate">
                 Cash Prizes
               </p>
-              <span className="text-xs text-slate-400">Direct grants to finalists &amp; MVPs</span>
+              <span className="text-[10px] sm:text-xs text-slate-400 block truncate">Direct grants to finalists &amp; MVPs</span>
             </div>
 
-            <div className="rounded-sm border border-slate-800 bg-slate-900/80 p-5 shadow-2xs transition-all hover:border-blue-500/50 backdrop-blur-sm">
+            <div className="rounded-sm border border-slate-800 bg-slate-900/80 p-3.5 sm:p-5 shadow-2xs transition-all hover:border-blue-500/50 backdrop-blur-sm">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400 truncate">
                   Team Equipment
                 </span>
-                <Shirt className="size-4 text-blue-400" />
+                <Shirt className="size-3.5 sm:size-4 text-blue-400 shrink-0" />
               </div>
-              <p className="mt-2 font-display text-2xl sm:text-3xl font-extrabold text-blue-400">
+              <p className="mt-1.5 sm:mt-2 font-display text-lg sm:text-2xl lg:text-3xl font-extrabold text-blue-400 truncate">
                 Full Kits
               </p>
-              <span className="text-xs text-slate-400">Brand new match jerseys donated</span>
+              <span className="text-[10px] sm:text-xs text-slate-400 block truncate">Brand new match jerseys donated</span>
             </div>
           </div>
         </Reveal>
@@ -467,12 +467,12 @@ export function FootballTournamentSection({
                 </CarouselContent>
 
                 {/* Carousel Controls */}
-                <div className="mt-3 flex items-center justify-between px-1">
+                <div className="mt-3 flex flex-wrap items-center justify-between px-1 gap-2">
                   <div className="flex items-center gap-2">
                     <CarouselPrevious className="static translate-y-0 size-8 rounded-full border-slate-700 bg-slate-800 text-slate-200 hover:bg-amber-500 hover:text-slate-950 hover:border-amber-500 cursor-pointer" />
                     <CarouselNext className="static translate-y-0 size-8 rounded-full border-slate-700 bg-slate-800 text-slate-200 hover:bg-amber-500 hover:text-slate-950 hover:border-amber-500 cursor-pointer" />
-                    <span className="text-xs font-medium text-slate-400 ml-1">
-                      Swipe or use arrows to view all match moments
+                    <span className="text-[11px] sm:text-xs font-semibold text-slate-400 ml-1">
+                      {currentSlide + 1} / {tournamentGallery.length}
                     </span>
                   </div>
 
@@ -622,16 +622,16 @@ export function FootballTournamentSection({
 
       {/* -------------------------------------------------- 1. DIALOG MODAL: ALL TOURNAMENT PHOTOS & RELIEF REPORT */}
       <Dialog open={detailsModalOpen} onOpenChange={setDetailsModalOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-slate-950 text-white border-slate-800 p-6 sm:p-8">
+        <DialogContent className="w-[calc(100vw-1.5rem)] sm:max-w-4xl max-h-[90vh] overflow-y-auto bg-slate-950 text-white border-slate-800 p-4 sm:p-6 md:p-8 rounded-md">
           <DialogHeader>
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-400">
               <Trophy className="size-4" />
               <span>Full Field Documentation &amp; Tournament Archive</span>
             </div>
-            <DialogTitle className="font-display text-2xl sm:text-3xl font-extrabold text-white">
+            <DialogTitle className="font-display text-xl sm:text-2xl md:text-3xl font-extrabold text-white mt-1">
               Abba Roller Foundation Football Championship
             </DialogTitle>
-            <DialogDescription className="text-sm text-slate-300">
+            <DialogDescription className="text-xs sm:text-sm text-slate-300 mt-1">
               Complete photographic records and detailed inventory of tournament sponsorship, kit
               donations, cash prize rewards, and youth engagement.
             </DialogDescription>
@@ -761,12 +761,12 @@ export function FootballTournamentSection({
       {/* -------------------------------------------------- 2. LIGHTBOX MODAL: FULL RESOLUTION IMAGE VIEWER */}
       {selectedPhoto && (
         <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
-          <DialogContent className="max-w-3xl bg-slate-950/95 border-slate-800 text-white p-4 sm:p-6 backdrop-blur-xl">
+          <DialogContent className="w-[calc(100vw-1.5rem)] sm:max-w-3xl max-h-[90vh] overflow-y-auto bg-slate-950/95 border-slate-800 text-white p-3.5 sm:p-6 backdrop-blur-xl rounded-md">
             <div className="relative overflow-hidden rounded-xs bg-black flex items-center justify-center max-h-[75vh]">
               <img
                 src={selectedPhoto.src}
                 alt={selectedPhoto.alt}
-                className="max-h-[70vh] w-auto max-w-full object-contain"
+                className="max-h-[60vh] sm:max-h-[70vh] w-auto max-w-full object-contain"
               />
             </div>
             <div className="mt-4">

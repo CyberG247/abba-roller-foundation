@@ -109,7 +109,7 @@ export function SiteFooter() {
           )}
         </div>
 
-        <div className="grid gap-10 sm:grid-cols-3">
+        <div className="grid gap-8 grid-cols-2 sm:grid-cols-3">
           {columns.map((column) => (
             <nav key={column.heading} aria-label={column.heading}>
               <h2 className="eyebrow text-on-dark">{column.heading}</h2>
@@ -149,10 +149,10 @@ export function SiteFooter() {
               {org.country}
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-3 rounded-xs border border-white/10 bg-white/5 px-3.5 py-2">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 rounded-xs border border-white/10 bg-white/5 px-3 sm:px-3.5 py-2 text-[11px] sm:text-xs">
             <span className="font-semibold text-on-dark">Official Account:</span>
             <span className="font-mono font-bold text-white">POLARIS BANK · 4092448499</span>
-            <span className="rounded-full bg-brand-red px-2 py-0.5 text-[10px] font-extrabold text-white">
+            <span className="rounded-full bg-brand-red px-2 py-0.5 text-[9px] sm:text-[10px] font-extrabold text-white">
               VERIFIED
             </span>
           </div>

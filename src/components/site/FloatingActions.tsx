@@ -66,10 +66,10 @@ export function FloatingActions() {
   const strokeDashoffset = circumference - (scrollProgress / 100) * circumference;
 
   return (
-    <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-3 transition-all duration-500 ease-out">
+    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 flex flex-col items-end gap-2.5 sm:gap-3 transition-all duration-500 ease-out">
       {/* Quick Bank Details Floating Card */}
       {showBankCard && (
-        <div className="mb-2 w-72 rounded-sm border border-hairline bg-surface/98 p-4 shadow-panel backdrop-blur-xl animate-in fade-in slide-in-from-bottom-3 duration-200">
+        <div className="mb-2 w-[calc(100vw-2rem)] max-w-72 sm:w-72 rounded-sm border border-hairline bg-surface/98 p-3.5 sm:p-4 shadow-panel backdrop-blur-xl animate-in fade-in slide-in-from-bottom-3 duration-200">
           <div className="flex items-center justify-between border-b border-hairline pb-2">
             <div className="flex items-center gap-1.5 text-xs font-bold text-green-deep">
               <Building2 className="size-3.5" />
@@ -133,16 +133,16 @@ export function FloatingActions() {
         </div>
       )}
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
         {/* Quick Bank Icon Toggle */}
         <button
           type="button"
           onClick={() => setShowBankCard(!showBankCard)}
           aria-label="Show quick bank transfer details"
-          className="flex size-11 items-center justify-center rounded-full bg-green-deep text-white shadow-lift transition-all hover:bg-green-mid hover:scale-105 active:scale-95 cursor-pointer ring-2 ring-white/30"
+          className="flex size-10 sm:size-11 items-center justify-center rounded-full bg-green-deep text-white shadow-lift transition-all hover:bg-green-mid hover:scale-105 active:scale-95 cursor-pointer ring-2 ring-white/30"
           title="Quick Polaris Bank Details"
         >
-          <Building2 className="size-4.5" />
+          <Building2 className="size-4 sm:size-4.5" />
         </button>
 
         {/* Quick Donate Floating Pill */}
@@ -150,7 +150,7 @@ export function FloatingActions() {
           type="button"
           onClick={scrollToDonate}
           aria-label="Quick donate"
-          className="btn-shine group flex items-center gap-2 rounded-full bg-gradient-to-r from-brand-red via-brand-red to-brand-red-bright px-4.5 py-2.5 text-xs font-extrabold text-white shadow-lift shadow-brand-red/30 ring-1 ring-white/30 transition-all hover:shadow-lg hover:shadow-brand-red/45 hover:scale-105 active:scale-95 cursor-pointer"
+          className="btn-shine group flex items-center gap-1.5 sm:gap-2 rounded-full bg-gradient-to-r from-brand-red via-brand-red to-brand-red-bright px-3.5 sm:px-4.5 py-2 sm:py-2.5 text-xs font-extrabold text-white shadow-lift shadow-brand-red/30 ring-1 ring-white/30 transition-all hover:shadow-lg hover:shadow-brand-red/45 hover:scale-105 active:scale-95 cursor-pointer"
         >
           <Heart className="size-3.5 fill-white transition-transform group-hover:scale-120 animate-pulse" />
           <span className="hidden sm:inline">Support ARF</span>
@@ -162,7 +162,7 @@ export function FloatingActions() {
           type="button"
           onClick={scrollToTop}
           aria-label="Scroll back to top"
-          className="group relative flex size-11 items-center justify-center rounded-full bg-background/95 text-ink shadow-lift backdrop-blur-md transition-all hover:border-green-deep hover:scale-110 active:scale-95 border border-hairline"
+          className="group relative flex size-10 sm:size-11 items-center justify-center rounded-full bg-background/95 text-ink shadow-lift backdrop-blur-md transition-all hover:border-green-deep hover:scale-110 active:scale-95 border border-hairline"
         >
           <svg className="absolute inset-0 size-full -rotate-90" viewBox="0 0 44 44">
             <circle
@@ -183,7 +183,7 @@ export function FloatingActions() {
               strokeLinecap="round"
             />
           </svg>
-          <ArrowUp className="size-4.5 text-green-deep transition-transform group-hover:-translate-y-0.5" />
+          <ArrowUp className="size-4 sm:size-4.5 text-green-deep transition-transform group-hover:-translate-y-0.5" />
         </button>
       </div>
     </div>

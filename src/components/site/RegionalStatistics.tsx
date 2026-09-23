@@ -214,14 +214,14 @@ export function RegionalStatistics({
         </div>
 
         {/* State Selector Tabs */}
-        <div className="mt-10 flex flex-wrap gap-2.5 border-b border-hairline pb-4">
+        <div className="mt-8 sm:mt-10 flex flex-wrap gap-2 sm:gap-2.5 border-b border-hairline pb-4">
           {regionalStatisticsData.map((tab) => (
             <button
               key={tab.id}
               type="button"
               onClick={() => setSelectedState(tab.id)}
               className={cn(
-                "group inline-flex items-center gap-2.5 rounded-full px-5 py-2.5 text-sm font-bold transition-all",
+                "group inline-flex items-center gap-2 sm:gap-2.5 rounded-full px-3.5 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold transition-all cursor-pointer",
                 selectedState === tab.id
                   ? "bg-green-deep text-on-dark shadow-sm"
                   : "bg-surface text-ink-soft hover:bg-muted hover:text-ink border border-hairline",
@@ -229,14 +229,14 @@ export function RegionalStatistics({
             >
               <MapPin
                 className={cn(
-                  "size-4 transition-transform group-hover:scale-110",
+                  "size-3.5 sm:size-4 transition-transform group-hover:scale-110",
                   selectedState === tab.id ? "text-brand-red-bright" : "text-muted-foreground",
                 )}
               />
               <span>{tab.name}</span>
               <span
                 className={cn(
-                  "rounded-full px-2 py-0.5 text-xs font-semibold",
+                  "rounded-full px-2 py-0.5 text-[10px] sm:text-xs font-semibold",
                   selectedState === tab.id
                     ? "bg-white/20 text-on-dark"
                     : "bg-hairline text-muted-foreground",
@@ -249,47 +249,47 @@ export function RegionalStatistics({
         </div>
 
         {/* Active Tab Content Card */}
-        <div className="mt-10 grid gap-8 lg:grid-cols-[1.3fr_0.9fr]">
+        <div className="mt-8 sm:mt-10 grid gap-6 sm:gap-8 lg:grid-cols-[1.3fr_0.9fr]">
           {/* Metrics Grid */}
           <Reveal className="space-y-6">
-            <div className="rounded-sm border border-hairline bg-surface p-6 sm:p-8 shadow-xs">
-              <div className="flex flex-wrap items-center justify-between gap-4 border-b border-hairline pb-6">
+            <div className="rounded-sm border border-hairline bg-surface p-4 sm:p-6 md:p-8 shadow-xs">
+              <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-4 border-b border-hairline pb-4 sm:pb-6">
                 <div>
                   <span className="eyebrow text-brand-red">{activeData.badge}</span>
                   <h3 className="display-3 mt-1 text-ink">{activeData.name}</h3>
                 </div>
-                <div className="text-right">
-                  <span className="block font-display text-3xl font-extrabold text-green-deep sm:text-4xl">
+                <div className="text-left sm:text-right">
+                  <span className="block font-display text-2xl sm:text-3xl md:text-4xl font-extrabold text-green-deep">
                     <AnimatedCounter key={activeData.id} value={activeData.totalBeneficiaries} />
                   </span>
-                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  <span className="text-[11px] sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                     Total Beneficiaries
                   </span>
                 </div>
               </div>
 
-              <p className="mt-5 text-sm leading-relaxed text-muted-foreground">
+              <p className="mt-4 sm:mt-5 text-xs sm:text-sm leading-relaxed text-muted-foreground">
                 {activeData.summary}
               </p>
 
               {/* 4 Metric Cards */}
-              <div className="mt-8 grid gap-4 sm:grid-cols-2">
+              <div className="mt-6 sm:mt-8 grid gap-3 sm:gap-4 sm:grid-cols-2">
                 {activeData.metrics.map((metric) => (
                   <div
                     key={metric.label}
-                    className="flex flex-col justify-between rounded-xs border border-hairline bg-background p-4.5 shadow-2xs transition-all hover:border-green-deep"
+                    className="flex flex-col justify-between rounded-xs border border-hairline bg-background p-3.5 sm:p-4.5 shadow-2xs transition-all hover:border-green-deep"
                   >
-                    <span className="text-xs font-bold tracking-wide text-muted-foreground uppercase">
+                    <span className="text-[11px] sm:text-xs font-bold tracking-wide text-muted-foreground uppercase">
                       {metric.label}
                     </span>
-                    <div className="mt-3">
-                      <span className="font-display text-2xl font-extrabold text-ink sm:text-3xl">
+                    <div className="mt-2.5 sm:mt-3">
+                      <span className="font-display text-xl sm:text-2xl lg:text-3xl font-extrabold text-ink">
                         <AnimatedCounter
                           key={`${activeData.id}-${metric.label}`}
                           value={metric.value}
                         />
                       </span>
-                      <p className="mt-1 text-xs text-green-mid font-medium">{metric.subtext}</p>
+                      <p className="mt-1 text-[11px] sm:text-xs text-green-mid font-medium">{metric.subtext}</p>
                     </div>
                   </div>
                 ))}
@@ -299,22 +299,22 @@ export function RegionalStatistics({
 
           {/* Side Details / Covered LGAs & Verified Highlights */}
           <Reveal delay={120} className="flex flex-col gap-6">
-            <div className="flex-1 rounded-sm border border-hairline bg-surface p-6 sm:p-8 shadow-xs">
+            <div className="flex-1 rounded-sm border border-hairline bg-surface p-4 sm:p-6 md:p-8 shadow-xs">
               <div className="flex items-center gap-2 text-green-deep">
-                <MapPin className="size-5 text-brand-red" />
-                <h4 className="font-display text-lg font-bold text-ink">
+                <MapPin className="size-4.5 text-brand-red shrink-0" />
+                <h4 className="font-display text-base sm:text-lg font-bold text-ink">
                   Coverage: {activeData.lgasCount}
                 </h4>
               </div>
-              <p className="mt-2 text-xs text-muted-foreground">
+              <p className="mt-1.5 sm:mt-2 text-xs text-muted-foreground">
                 Active community operational hubs &amp; outreach nodes:
               </p>
 
-              <div className="mt-4 flex flex-wrap gap-2">
+              <div className="mt-3.5 sm:mt-4 flex flex-wrap gap-1.5 sm:gap-2">
                 {activeData.lgasList.map((lga) => (
                   <span
                     key={lga}
-                    className="inline-flex items-center rounded-xs border border-hairline bg-background px-3 py-1 text-xs font-semibold text-ink shadow-2xs"
+                    className="inline-flex items-center rounded-xs border border-hairline bg-background px-2.5 sm:px-3 py-1 text-xs font-semibold text-ink shadow-2xs"
                   >
                     <span className="mr-1.5 size-1.5 rounded-full bg-green-mid" />
                     {lga} LGA
@@ -322,7 +322,7 @@ export function RegionalStatistics({
                 ))}
               </div>
 
-              <div className="mt-8 border-t border-hairline pt-6">
+              <div className="mt-6 sm:mt-8 border-t border-hairline pt-5 sm:pt-6">
                 <h5 className="font-display text-sm font-bold text-ink">
                   Verified Field Highlights
                 </h5>
@@ -338,17 +338,17 @@ export function RegionalStatistics({
             </div>
 
             {/* Northern Nigeria Footprint Callout */}
-            <div className="relative isolate overflow-hidden rounded-sm bg-green-deep p-6 text-on-dark shadow-sm">
+            <div className="relative isolate overflow-hidden rounded-sm bg-green-deep p-4 sm:p-6 text-on-dark shadow-sm">
               <div aria-hidden="true" className="motif-grid absolute inset-0 opacity-25" />
               <div className="relative z-10">
                 <div className="flex items-center gap-2">
                   <Sparkles className="size-4 text-brand-red-wash" />
                   <span className="eyebrow text-brand-red-wash">Regional Reach</span>
                 </div>
-                <h4 className="mt-2 font-display text-base font-bold text-on-dark">
+                <h4 className="mt-1.5 sm:mt-2 font-display text-sm sm:text-base font-bold text-on-dark">
                   Direct Delivery from Jigawa to Kano
                 </h4>
-                <p className="mt-2 text-xs text-on-dark-muted leading-relaxed">
+                <p className="mt-1.5 sm:mt-2 text-xs text-on-dark-muted leading-relaxed">
                   Every food carton, medical bill subsidy, and sanitary pack is documented and
                   distributed directly in collaboration with local community leadership and
                   authorities.

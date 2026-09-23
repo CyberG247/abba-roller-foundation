@@ -105,9 +105,9 @@ export function SiteHeader() {
         <div className="shell grid h-18 grid-cols-[minmax(0,1fr)_auto] items-center gap-4 md:h-20">
           <Logo tone={tone} />
 
-          <div className="flex items-center gap-2 lg:gap-6 xl:gap-8">
-            <nav aria-label="Primary" className="hidden lg:block">
-              <ul className="flex items-center gap-5 xl:gap-6">
+          <div className="flex items-center gap-2 sm:gap-4 xl:gap-8">
+            <nav aria-label="Primary" className="hidden xl:block">
+              <ul className="flex items-center gap-4 2xl:gap-6">
                 {navItems.map((item) => {
                   const active = isHome
                     ? activeSection === item.sectionId
@@ -118,7 +118,7 @@ export function SiteHeader() {
                         href={isHome ? `#${item.sectionId}` : item.to}
                         onClick={(e) => scrollToSection(item.sectionId, e)}
                         className={cn(
-                          "relative text-xs xl:text-sm font-semibold transition-all py-1 cursor-pointer",
+                          "relative text-xs 2xl:text-sm font-semibold transition-all py-1 cursor-pointer whitespace-nowrap",
                           solid
                             ? active
                               ? "text-green-deep font-bold"
@@ -145,7 +145,7 @@ export function SiteHeader() {
             <a
               href={isHome ? "#donate" : "/donate"}
               onClick={(e) => scrollToSection("donate", e)}
-              className="btn-shine hidden sm:inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-brand-red via-brand-red to-brand-red-bright px-5 py-2 text-xs font-bold text-white shadow-md shadow-brand-red/25 ring-1 ring-white/30 transition-all duration-300 hover:shadow-lg hover:shadow-brand-red/40 hover:scale-105 active:scale-95 cursor-pointer"
+              className="btn-shine hidden sm:inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-brand-red via-brand-red to-brand-red-bright px-4 lg:px-5 py-2 text-xs font-bold text-white shadow-md shadow-brand-red/25 ring-1 ring-white/30 transition-all duration-300 hover:shadow-lg hover:shadow-brand-red/40 hover:scale-105 active:scale-95 cursor-pointer whitespace-nowrap"
             >
               <Heart className="size-3.5 fill-white animate-pulse" />
               <span>Donate</span>
@@ -157,7 +157,7 @@ export function SiteHeader() {
               aria-label="Open menu"
               aria-expanded={open}
               className={cn(
-                "inline-flex size-11 items-center justify-center rounded-sm transition-colors lg:hidden",
+                "inline-flex size-11 items-center justify-center rounded-sm transition-colors xl:hidden",
                 solid ? "text-ink hover:bg-muted" : "text-on-dark hover:bg-on-dark/10",
               )}
             >
@@ -170,7 +170,7 @@ export function SiteHeader() {
       {/* Mobile Navigation Drawer */}
       <div
         className={cn(
-          "fixed inset-0 z-60 bg-green-deep transition-opacity duration-300 lg:hidden overflow-y-auto",
+          "fixed inset-0 z-60 bg-green-deep transition-opacity duration-300 xl:hidden overflow-y-auto h-[100dvh]",
           open ? "opacity-100" : "pointer-events-none opacity-0",
         )}
         aria-hidden={!open}

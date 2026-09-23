@@ -108,7 +108,7 @@ export function PartnersMarquee({
       <div className="relative w-full overflow-hidden">
         <div
           aria-hidden="true"
-          className={`pointer-events-none absolute inset-y-0 left-0 z-10 w-20 sm:w-36 ${
+          className={`pointer-events-none absolute inset-y-0 left-0 z-10 w-8 sm:w-20 md:w-36 ${
             tone === "dark"
               ? "bg-gradient-to-r from-green-deep to-transparent"
               : tone === "white"
@@ -118,7 +118,7 @@ export function PartnersMarquee({
         />
         <div
           aria-hidden="true"
-          className={`pointer-events-none absolute inset-y-0 right-0 z-10 w-20 sm:w-36 ${
+          className={`pointer-events-none absolute inset-y-0 right-0 z-10 w-8 sm:w-20 md:w-36 ${
             tone === "dark"
               ? "bg-gradient-to-l from-green-deep to-transparent"
               : tone === "white"
@@ -127,13 +127,13 @@ export function PartnersMarquee({
           }`}
         />
 
-        <div className="animate-marquee-slow flex items-center gap-6 py-4">
+        <div className="animate-marquee-slow flex items-center gap-4 sm:gap-6 py-4">
           {marqueeItems.map((partner, index) => (
             <div
               key={`marquee-partner-${partner.name}-${index}`}
-              className="group flex min-w-[300px] max-w-[340px] items-center gap-4 rounded-sm border border-hairline bg-background px-5 py-4 shadow-2xs transition-all duration-300 hover:scale-[1.03] hover:border-green-deep hover:shadow-lift"
+              className="group flex min-w-[250px] sm:min-w-[300px] max-w-[340px] items-center gap-3 sm:gap-4 rounded-sm border border-hairline bg-background px-3.5 sm:px-5 py-3 sm:py-4 shadow-2xs transition-all duration-300 hover:scale-[1.03] hover:border-green-deep hover:shadow-lift"
             >
-              <div className="flex h-14 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xs bg-white p-1.5 border border-hairline/60 shadow-2xs">
+              <div className="flex h-12 w-16 sm:h-14 sm:w-20 shrink-0 items-center justify-center overflow-hidden rounded-xs bg-white p-1.5 border border-hairline/60 shadow-2xs">
                 <img
                   src={partner.logo}
                   alt={`${partner.name} logo`}
