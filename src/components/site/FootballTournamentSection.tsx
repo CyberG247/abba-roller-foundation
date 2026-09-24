@@ -19,6 +19,8 @@ import {
   DollarSign,
   Shirt,
   Calendar,
+  Play,
+  Pause,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -231,11 +233,22 @@ export function FootballTournamentSection({
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [selectedPhoto, setSelectedPhoto] = useState<TournamentPhoto | null>(null);
+  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [activeCategoryFilter, setActiveCategoryFilter] = useState<string>("All");
+  const [isPaused, setIsPaused] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
-  // Track active slide in the main carousel & auto-slide every 2.2 seconds
+  // Preload all tournament photos immediately into memory so none are blank or delayed
+  useEffect(() => {
+    tournamentGallery.forEach((photo) => {
+      const img = new Image();
+      img.src = photo.src;
+    });
+  }, []);
+
+  // Track active slide in the main carousel & auto-slide at a calm, readable pace (5.5s)
   useEffect(() => {
     if (!carouselApi) return;
 
@@ -246,20 +259,22 @@ export function FootballTournamentSection({
 
     carouselApi.on("select", onSelect);
 
-    // Automatically slide photos every 2.2 seconds
+    // Only auto-slide if not paused, not hovered, and no modal is open
     const autoSlideInterval = setInterval(() => {
+      if (isPaused || isHovered || lightboxOpen || detailsModalOpen) return;
+
       if (carouselApi.canScrollNext()) {
         carouselApi.scrollNext();
       } else {
         carouselApi.scrollTo(0);
       }
-    }, 2200);
+    }, 5500);
 
     return () => {
       carouselApi.off("select", onSelect);
       clearInterval(autoSlideInterval);
     };
-  }, [carouselApi]);
+  }, [carouselApi, isPaused, isHovered, lightboxOpen, detailsModalOpen]);
 
   const categories = [
     "All",
@@ -271,10 +286,35 @@ export function FootballTournamentSection({
       ? tournamentGallery
       : tournamentGallery.filter((item) => item.category === activeCategoryFilter);
 
-  const openLightboxForPhoto = (photo: TournamentPhoto) => {
+  const openLightboxForPhoto = (photo: TournamentPhoto, index?: number) => {
+    const idx = index ?? tournamentGallery.findIndex((p) => p.id === photo.id);
     setSelectedPhoto(photo);
+    setSelectedPhotoIndex(idx >= 0 ? idx : 0);
     setLightboxOpen(true);
   };
+
+  const goToPrevPhoto = () => {
+    const newIdx = (selectedPhotoIndex - 1 + tournamentGallery.length) % tournamentGallery.length;
+    setSelectedPhotoIndex(newIdx);
+    setSelectedPhoto(tournamentGallery[newIdx]);
+  };
+
+  const goToNextPhoto = () => {
+    const newIdx = (selectedPhotoIndex + 1) % tournamentGallery.length;
+    setSelectedPhotoIndex(newIdx);
+    setSelectedPhoto(tournamentGallery[newIdx]);
+  };
+
+  // Keyboard navigation for lightbox
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") goToPrevPhoto();
+      if (e.key === "ArrowRight") goToNextPhoto();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [lightboxOpen, selectedPhotoIndex]);
 
   return (
     <section
@@ -357,7 +397,9 @@ export function FootballTournamentSection({
               <p className="mt-1.5 sm:mt-2 font-display text-lg sm:text-2xl lg:text-3xl font-extrabold text-white truncate">
                 Gumel &amp; Beyond
               </p>
-              <span className="text-[10px] sm:text-xs text-slate-400 block truncate">KAFC Gumel &amp; Grassroots Clubs</span>
+              <span className="text-[10px] sm:text-xs text-slate-400 block truncate">
+                KAFC Gumel &amp; Grassroots Clubs
+              </span>
             </div>
 
             <div className="rounded-sm border border-slate-800 bg-slate-900/80 p-3.5 sm:p-5 shadow-2xs transition-all hover:border-emerald-500/50 backdrop-blur-sm">
@@ -370,7 +412,9 @@ export function FootballTournamentSection({
               <p className="mt-1.5 sm:mt-2 font-display text-lg sm:text-2xl lg:text-3xl font-extrabold text-amber-400 truncate">
                 Golden Cup
               </p>
-              <span className="text-[10px] sm:text-xs text-slate-400 block truncate">Official ARF Champion Trophy</span>
+              <span className="text-[10px] sm:text-xs text-slate-400 block truncate">
+                Official ARF Champion Trophy
+              </span>
             </div>
 
             <div className="rounded-sm border border-slate-800 bg-slate-900/80 p-3.5 sm:p-5 shadow-2xs transition-all hover:border-amber-400/50 backdrop-blur-sm">
@@ -383,7 +427,9 @@ export function FootballTournamentSection({
               <p className="mt-1.5 sm:mt-2 font-display text-lg sm:text-2xl lg:text-3xl font-extrabold text-emerald-400 truncate">
                 Cash Prizes
               </p>
-              <span className="text-[10px] sm:text-xs text-slate-400 block truncate">Direct grants to finalists &amp; MVPs</span>
+              <span className="text-[10px] sm:text-xs text-slate-400 block truncate">
+                Direct grants to finalists &amp; MVPs
+              </span>
             </div>
 
             <div className="rounded-sm border border-slate-800 bg-slate-900/80 p-3.5 sm:p-5 shadow-2xs transition-all hover:border-blue-500/50 backdrop-blur-sm">
@@ -396,7 +442,9 @@ export function FootballTournamentSection({
               <p className="mt-1.5 sm:mt-2 font-display text-lg sm:text-2xl lg:text-3xl font-extrabold text-blue-400 truncate">
                 Full Kits
               </p>
-              <span className="text-[10px] sm:text-xs text-slate-400 block truncate">Brand new match jerseys donated</span>
+              <span className="text-[10px] sm:text-xs text-slate-400 block truncate">
+                Brand new match jerseys donated
+              </span>
             </div>
           </div>
         </Reveal>
@@ -405,66 +453,77 @@ export function FootballTournamentSection({
         <div className="mt-14 grid gap-10 lg:grid-cols-12 lg:items-start">
           {/* Left Column: Interactive Carousel with Match Photos */}
           <Reveal className="lg:col-span-6 flex flex-col gap-4">
-            <div className="rounded-sm border border-slate-800 bg-slate-900/90 p-3.5 shadow-lg">
+            <div
+              className="rounded-sm border border-slate-800 bg-slate-900/90 p-3.5 shadow-lg"
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
+              onTouchStart={() => setIsHovered(true)}
+              onTouchEnd={() => setIsHovered(false)}
+            >
               {/* Carousel Container */}
               <Carousel opts={{ loop: true }} setApi={setCarouselApi} className="w-full">
                 <CarouselContent>
                   {tournamentGallery.map((photo, index) => (
                     <CarouselItem key={photo.id}>
-                      <div className="relative overflow-hidden rounded-xs bg-slate-950 flex items-center justify-center h-[280px] xs:h-[320px] sm:h-[400px] md:h-[460px] w-full group">
-                        {/* Ambient blurred backdrop so letterbox area glows matching the photo */}
-                        <img
-                          src={photo.src}
-                          alt=""
-                          aria-hidden="true"
-                          className="absolute inset-0 size-full object-cover blur-2xl opacity-35 scale-110 pointer-events-none select-none"
-                        />
+                      <div className="flex flex-col overflow-hidden rounded-xs border border-slate-800 bg-slate-900 shadow-xs transition-all">
+                        {/* Pure Crisp Photo - ZERO SHADOW, NO OVERLAY GRADIENT */}
+                        <div
+                          onClick={() => openLightboxForPhoto(photo, index)}
+                          role="button"
+                          tabIndex={0}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              openLightboxForPhoto(photo, index);
+                            }
+                          }}
+                          className="relative overflow-hidden h-[260px] xs:h-[320px] sm:h-[380px] md:h-[440px] w-full group cursor-pointer select-none bg-slate-950"
+                          aria-label={`Open photo: ${photo.title}`}
+                        >
+                          <img
+                            src={photo.src}
+                            alt={photo.alt}
+                            loading="eager"
+                            decoding="async"
+                            className="size-full object-cover object-center transition-transform duration-500 group-hover:scale-105 select-none"
+                          />
 
-                        {/* Main picture - 100% fully fitted without cropping or excessive zooming */}
-                        <img
-                          src={photo.src}
-                          alt={photo.alt}
-                          className="relative z-10 max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-[1.02] pointer-events-none select-none"
-                          loading={index === 0 ? "eager" : "lazy"}
-                        />
+                          {/* Top Overlay Badges */}
+                          <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 z-10 pointer-events-none">
+                            <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-950/85 px-2.5 sm:px-3 py-1 text-[10px] sm:text-xs font-bold text-amber-400 backdrop-blur-md border border-amber-400/30">
+                              {photo.isMainHeadImage ? (
+                                <>
+                                  <Trophy className="size-3 sm:size-3.5" />
+                                  <span>Grand Trophy Handover</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Flame className="size-3 sm:size-3.5" />
+                                  <span>{photo.category}</span>
+                                </>
+                              )}
+                            </span>
 
-                        {/* Top Overlay Badges */}
-                        <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 z-20 pointer-events-none">
-                          <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-950/80 px-2.5 sm:px-3 py-1 text-[10px] sm:text-xs font-bold text-amber-400 backdrop-blur-md border border-amber-400/30">
-                            {photo.isMainHeadImage ? (
-                              <>
-                                <Trophy className="size-3 sm:size-3.5" />
-                                <span>Grand Trophy Handover</span>
-                              </>
-                            ) : (
-                              <>
-                                <Flame className="size-3 sm:size-3.5" />
-                                <span>{photo.category}</span>
-                              </>
-                            )}
-                          </span>
-
-                          <span className="rounded-full bg-slate-950/80 px-2 sm:px-2.5 py-1 text-[10px] sm:text-xs font-semibold text-slate-300 backdrop-blur-md border border-slate-800">
-                            {index + 1} / {tournamentGallery.length}
-                          </span>
+                            <span className="rounded-full bg-slate-950/85 px-2 sm:px-2.5 py-1 text-[10px] sm:text-xs font-semibold text-slate-300 backdrop-blur-md border border-slate-800">
+                              {index + 1} / {tournamentGallery.length}
+                            </span>
+                          </div>
                         </div>
 
-                        {/* Expand Photo Button */}
-                        <button
-                          type="button"
-                          onClick={() => openLightboxForPhoto(photo)}
-                          className="absolute bottom-3 right-3 z-30 flex size-8 sm:size-9 items-center justify-center rounded-full bg-slate-950/80 text-white backdrop-blur-md transition-all hover:bg-amber-500 hover:text-slate-950 hover:scale-110 shadow-lg cursor-pointer"
-                          aria-label={`Enlarge photo: ${photo.title}`}
+                        {/* Caption Below Photo - Zero shadow covering the image */}
+                        <div
+                          onClick={() => openLightboxForPhoto(photo, index)}
+                          className="p-3.5 sm:p-4 bg-slate-900 border-t border-slate-800 cursor-pointer hover:bg-slate-800/80 transition-colors"
                         >
-                          <Maximize2 className="size-3.5 sm:size-4" />
-                        </button>
-
-                        {/* Bottom Gradient with Caption */}
-                        <div className="absolute inset-x-0 bottom-0 z-20 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent px-3.5 py-2.5 pt-8 sm:px-4 sm:py-3.5 sm:pt-12 text-white">
-                          <p className="font-display text-xs sm:text-sm font-bold text-white leading-tight">
-                            {photo.title}
-                          </p>
-                          <p className="mt-0.5 text-[11px] sm:text-xs text-slate-300 leading-snug line-clamp-1 sm:line-clamp-2">
+                          <div className="flex items-center justify-between gap-2 mb-1">
+                            <p className="font-display text-xs sm:text-sm font-bold text-white leading-tight">
+                              {photo.title}
+                            </p>
+                            <span className="text-[11px] text-amber-400 font-semibold shrink-0 sm:inline-block hidden">
+                              Click to Open ↗
+                            </span>
+                          </div>
+                          <p className="text-[11px] sm:text-xs text-slate-300 leading-snug line-clamp-2">
                             {photo.caption}
                           </p>
                         </div>
@@ -478,8 +537,29 @@ export function FootballTournamentSection({
                   <div className="flex items-center gap-2">
                     <CarouselPrevious className="static translate-y-0 size-8 rounded-full border-slate-700 bg-slate-800 text-slate-200 hover:bg-amber-500 hover:text-slate-950 hover:border-amber-500 cursor-pointer" />
                     <CarouselNext className="static translate-y-0 size-8 rounded-full border-slate-700 bg-slate-800 text-slate-200 hover:bg-amber-500 hover:text-slate-950 hover:border-amber-500 cursor-pointer" />
+
+                    {/* Play/Pause Button */}
+                    <button
+                      type="button"
+                      onClick={() => setIsPaused((prev) => !prev)}
+                      className="size-8 rounded-full border border-slate-700 bg-slate-800 text-slate-300 hover:bg-amber-500 hover:text-slate-950 hover:border-amber-500 flex items-center justify-center cursor-pointer transition-colors ml-1"
+                      aria-label={isPaused ? "Resume auto-slide" : "Pause auto-slide"}
+                      title={isPaused ? "Resume auto-slide" : "Pause auto-slide"}
+                    >
+                      {isPaused ? (
+                        <Play className="size-3.5 ml-0.5" />
+                      ) : (
+                        <Pause className="size-3.5" />
+                      )}
+                    </button>
+
                     <span className="text-[11px] sm:text-xs font-semibold text-slate-400 ml-1">
                       {currentSlide + 1} / {tournamentGallery.length}
+                      {isPaused && (
+                        <span className="ml-1.5 text-[10px] text-amber-400 font-mono">
+                          (Paused)
+                        </span>
+                      )}
                     </span>
                   </div>
 
@@ -500,22 +580,24 @@ export function FootballTournamentSection({
                   <button
                     key={item.id}
                     type="button"
-                    onClick={() => carouselApi?.scrollTo(idx)}
+                    onClick={() => {
+                      carouselApi?.scrollTo(idx);
+                      setCurrentSlide(idx);
+                    }}
                     className={cn(
-                      "relative shrink-0 size-14 rounded-xs overflow-hidden border-2 transition-all cursor-pointer",
+                      "relative shrink-0 size-14 rounded-xs overflow-hidden border-2 transition-all cursor-pointer bg-slate-950",
                       currentSlide === idx
                         ? "border-amber-400 ring-2 ring-amber-400/40 opacity-100 scale-105"
-                        : "border-transparent opacity-60 hover:opacity-100"
+                        : "border-slate-800 opacity-60 hover:opacity-100",
                     )}
                     aria-label={`Jump to slide ${idx + 1}: ${item.title}`}
                   >
-                    <LazyImage
+                    <img
                       src={item.src}
                       alt={item.title}
-                      aspectRatio="aspect-square"
+                      loading="eager"
+                      decoding="async"
                       className="size-full object-cover"
-                      width={100}
-                      height={100}
                     />
                   </button>
                 ))}
@@ -565,7 +647,7 @@ export function FootballTournamentSection({
                         <div
                           className={cn(
                             "flex size-10 items-center justify-center rounded-full border",
-                            cat.color
+                            cat.color,
                           )}
                         >
                           <Icon className="size-5" />
@@ -602,13 +684,17 @@ export function FootballTournamentSection({
               <p className="mt-2 text-sm italic text-slate-200">
                 &ldquo;Football is far more than ninety minutes on a pitch. It teaches our young
                 people endurance, discipline, brotherhood, and collective purpose. When we invest in
-                grassroots sports, we keep our youth inspired, active, and united away from crime and
-                hopelessness.&rdquo;
+                grassroots sports, we keep our youth inspired, active, and united away from crime
+                and hopelessness.&rdquo;
               </p>
               <div className="mt-3 flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-bold text-white">Hon. Usman Aminu Usman (Abba Roller)</p>
-                  <p className="text-[11px] text-slate-400">Founder &amp; Chairman, Abba Roller Foundation</p>
+                  <p className="text-xs font-bold text-white">
+                    Hon. Usman Aminu Usman (Abba Roller)
+                  </p>
+                  <p className="text-[11px] text-slate-400">
+                    Founder &amp; Chairman, Abba Roller Foundation
+                  </p>
                 </div>
 
                 <Button
@@ -655,7 +741,7 @@ export function FootballTournamentSection({
                   "rounded-full px-3 py-1 text-xs font-bold transition-all cursor-pointer",
                   activeCategoryFilter === cat
                     ? "bg-amber-500 text-slate-950 shadow-xs"
-                    : "bg-slate-900 text-slate-300 hover:bg-slate-800"
+                    : "bg-slate-900 text-slate-300 hover:bg-slate-800",
                 )}
               >
                 {cat}
@@ -675,16 +761,15 @@ export function FootballTournamentSection({
                   onClick={() => openLightboxForPhoto(photo)}
                   className="group relative cursor-pointer overflow-hidden rounded-xs border border-slate-800 bg-slate-900 transition-all hover:border-amber-400/80 hover:shadow-lg"
                 >
-                  <div className="relative aspect-[4/3] overflow-hidden bg-slate-950">
-                    <LazyImage
+                  <div className="relative aspect-[4/3] overflow-hidden bg-slate-950 flex items-center justify-center">
+                    <img
                       src={photo.src}
                       alt={photo.alt}
-                      aspectRatio="aspect-[4/3]"
+                      loading="eager"
+                      decoding="async"
                       className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
-                      width={400}
-                      height={300}
                     />
-                    <div className="absolute inset-0 bg-slate-950/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <div className="absolute inset-0 bg-slate-950/25 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
                       <div className="size-9 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center shadow-md">
                         <Maximize2 className="size-4" />
                       </div>
@@ -768,16 +853,39 @@ export function FootballTournamentSection({
       {/* -------------------------------------------------- 2. LIGHTBOX MODAL: FULL RESOLUTION IMAGE VIEWER */}
       {selectedPhoto && (
         <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
-          <DialogContent className="w-[calc(100vw-1.5rem)] sm:max-w-3xl max-h-[90vh] overflow-y-auto bg-slate-950/95 border-slate-800 text-white p-3.5 sm:p-6 backdrop-blur-xl rounded-md">
-            <div className="relative overflow-hidden rounded-xs bg-black flex items-center justify-center max-h-[75vh]">
+          <DialogContent className="w-[calc(100vw-1.5rem)] sm:max-w-4xl max-h-[95vh] overflow-y-auto bg-slate-950/98 border-slate-800 text-white p-3.5 sm:p-6 backdrop-blur-xl rounded-md">
+            {/* Image Container with Prev/Next Navigation */}
+            <div className="relative overflow-hidden rounded-xs bg-black flex items-center justify-center min-h-[300px] max-h-[75vh]">
               <img
                 src={selectedPhoto.src}
                 alt={selectedPhoto.alt}
-                className="max-h-[60vh] sm:max-h-[70vh] w-auto max-w-full object-contain"
+                loading="eager"
+                decoding="async"
+                className="max-h-[60vh] sm:max-h-[72vh] w-auto max-w-full object-contain select-none"
               />
+
+              {/* Lightbox Prev / Next Overlay Buttons */}
+              <button
+                type="button"
+                onClick={goToPrevPhoto}
+                className="absolute left-2 top-1/2 -translate-y-1/2 size-10 rounded-full bg-slate-950/80 text-white border border-slate-700 hover:bg-amber-500 hover:text-slate-950 hover:border-amber-500 flex items-center justify-center cursor-pointer transition-all shadow-xl"
+                aria-label="Previous photo"
+              >
+                <ChevronLeft className="size-5" />
+              </button>
+
+              <button
+                type="button"
+                onClick={goToNextPhoto}
+                className="absolute right-2 top-1/2 -translate-y-1/2 size-10 rounded-full bg-slate-950/80 text-white border border-slate-700 hover:bg-amber-500 hover:text-slate-950 hover:border-amber-500 flex items-center justify-center cursor-pointer transition-all shadow-xl"
+                aria-label="Next photo"
+              >
+                <ChevronRight className="size-5" />
+              </button>
             </div>
-            <div className="mt-4">
-              <div className="flex items-center justify-between text-xs text-amber-400 font-bold">
+
+            <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2 text-xs text-amber-400 font-bold">
                 <span>{selectedPhoto.category}</span>
                 {selectedPhoto.isMainHeadImage && (
                   <span className="bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded">
@@ -785,10 +893,46 @@ export function FootballTournamentSection({
                   </span>
                 )}
               </div>
-              <h3 className="font-display text-xl font-bold text-white mt-1">
+              <span className="text-xs font-mono text-slate-400">
+                Photo {selectedPhotoIndex + 1} of {tournamentGallery.length} (Use ← → arrows)
+              </span>
+            </div>
+
+            <div className="mt-2">
+              <h3 className="font-display text-lg sm:text-xl font-bold text-white">
                 {selectedPhoto.title}
               </h3>
-              <p className="text-xs sm:text-sm text-slate-300 mt-2">{selectedPhoto.caption}</p>
+              <p className="text-xs sm:text-sm text-slate-300 mt-1 leading-relaxed">
+                {selectedPhoto.caption}
+              </p>
+            </div>
+
+            {/* Thumbnail Strip inside Lightbox */}
+            <div className="mt-4 pt-3 border-t border-slate-800/80 flex gap-2 overflow-x-auto pb-1 scrollbar-thin">
+              {tournamentGallery.map((item, idx) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => {
+                    setSelectedPhoto(item);
+                    setSelectedPhotoIndex(idx);
+                  }}
+                  className={cn(
+                    "relative shrink-0 size-12 rounded-xs overflow-hidden border-2 transition-all cursor-pointer bg-slate-950",
+                    selectedPhotoIndex === idx
+                      ? "border-amber-400 ring-2 ring-amber-400/40 opacity-100 scale-105"
+                      : "border-slate-800 opacity-50 hover:opacity-100",
+                  )}
+                  aria-label={`Jump to photo ${idx + 1}`}
+                >
+                  <img
+                    src={item.src}
+                    alt={item.title}
+                    loading="eager"
+                    className="size-full object-cover"
+                  />
+                </button>
+              ))}
             </div>
           </DialogContent>
         </Dialog>

@@ -19,6 +19,8 @@ import { MediaSection } from "@/components/site/MediaSection";
 import { RegionalStatistics } from "@/components/site/RegionalStatistics";
 import { PartnersMarquee } from "@/components/site/PartnersMarquee";
 import { GetInvolvedSection } from "@/components/site/GetInvolvedSection";
+import { VolunteerSection } from "@/components/site/VolunteerSection";
+import { LawyersVolunteerSection } from "@/components/site/LawyersVolunteerSection";
 import { DonationSection } from "@/components/site/DonationSection";
 import { ContactSection } from "@/components/site/ContactSection";
 import { StoryCard, StatList } from "@/components/site/blocks";
@@ -68,15 +70,35 @@ function Home() {
             <h1 className="display-1 mt-4 sm:mt-5 text-on-dark">{org.tagline}</h1>
             <p className="lede mt-4 sm:mt-6 max-w-2xl text-on-dark-muted">{org.description}</p>
 
-            <div className="mt-7 sm:mt-9 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
-              <Button asChild variant="give" size="lg" className="w-full sm:w-auto shadow-lift font-bold gap-2">
+            <div className="mt-7 sm:mt-9 flex flex-wrap items-center gap-3 w-full sm:w-auto">
+              <Button
+                asChild
+                size="lg"
+                className="bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold shadow-lift gap-2 border border-amber-300/40 w-full sm:w-auto"
+              >
+                <Link to="/membership">
+                  <Users className="size-4.5" />
+                  <span>Become a Member</span>
+                </Link>
+              </Button>
+              <Button
+                asChild
+                variant="give"
+                size="lg"
+                className="w-full sm:w-auto shadow-lift font-bold gap-2"
+              >
                 <a href="#donate">
                   <Heart className="size-4.5 fill-white animate-pulse" />
                   <span>Donate now</span>
                 </a>
               </Button>
-              <Button asChild variant="onDarkOutline" size="lg" className="w-full sm:w-auto font-semibold">
-                <a href="#about">Explore our mission</a>
+              <Button
+                asChild
+                variant="onDarkOutline"
+                size="lg"
+                className="w-full sm:w-auto font-semibold"
+              >
+                <Link to="/work">Explore Our Work</Link>
               </Button>
             </div>
           </Reveal>
@@ -91,7 +113,9 @@ function Home() {
                 <p className="mt-1 font-display text-xl sm:text-2xl lg:text-3xl font-extrabold text-on-dark truncate">
                   <AnimatedCounter value="15,400+" />
                 </p>
-                <span className="text-[10px] sm:text-[11px] text-on-dark-muted block truncate">Jigawa &amp; Kano Corridor</span>
+                <span className="text-[10px] sm:text-[11px] text-on-dark-muted block truncate">
+                  Jigawa &amp; Kano Corridor
+                </span>
               </div>
 
               <div className="rounded-xs border border-white/10 bg-white/5 p-3 sm:p-4 backdrop-blur-sm">
@@ -101,7 +125,9 @@ function Home() {
                 <p className="mt-1 font-display text-xl sm:text-2xl lg:text-3xl font-extrabold text-on-dark truncate">
                   <AnimatedCounter value="250+" />
                 </p>
-                <span className="text-[10px] sm:text-[11px] text-on-dark-muted block truncate">Hot Meals Weekly</span>
+                <span className="text-[10px] sm:text-[11px] text-on-dark-muted block truncate">
+                  Hot Meals Weekly
+                </span>
               </div>
 
               <div className="rounded-xs border border-white/10 bg-white/5 p-3 sm:p-4 backdrop-blur-sm">
@@ -111,7 +137,9 @@ function Home() {
                 <p className="mt-1 font-display text-xl sm:text-2xl lg:text-3xl font-extrabold text-on-dark truncate">
                   <AnimatedCounter value="14 LGAs" />
                 </p>
-                <span className="text-[10px] sm:text-[11px] text-on-dark-muted block truncate">Community Councils</span>
+                <span className="text-[10px] sm:text-[11px] text-on-dark-muted block truncate">
+                  Community Councils
+                </span>
               </div>
 
               <div className="rounded-xs border border-white/10 bg-white/5 p-3 sm:p-4 backdrop-blur-sm">
@@ -121,7 +149,9 @@ function Home() {
                 <p className="mt-1 font-display text-xl sm:text-2xl lg:text-3xl font-extrabold text-on-dark truncate">
                   <AnimatedCounter value="1,200+" />
                 </p>
-                <span className="text-[10px] sm:text-[11px] text-on-dark-muted block truncate">Pad Up Nigerian Girls</span>
+                <span className="text-[10px] sm:text-[11px] text-on-dark-muted block truncate">
+                  Pad Up Nigerian Girls
+                </span>
               </div>
             </div>
           </Reveal>
@@ -192,10 +222,16 @@ function Home() {
       {/* -------------------------------------------------- 9. GET INVOLVED */}
       <GetInvolvedSection id="get-involved" />
 
-      {/* -------------------------------------------------- 10. DONATE SECTION */}
+      {/* -------------------------------------------------- 10. VOLUNTEER SECTION */}
+      <VolunteerSection id="volunteer" />
+
+      {/* -------------------------------------------------- 10B. LAWYERS VOLUNTEER SECTION */}
+      <LawyersVolunteerSection id="lawyers-volunteer" />
+
+      {/* -------------------------------------------------- 11. DONATE SECTION */}
       <DonationSection id="donate" />
 
-      {/* -------------------------------------------------- 11. CONTACT SECTION */}
+      {/* -------------------------------------------------- 12. CONTACT SECTION */}
       <ContactSection id="contact" />
 
       {/* -------------------------------------------------- FLOATING ACTION & SCROLL PROGRESS */}

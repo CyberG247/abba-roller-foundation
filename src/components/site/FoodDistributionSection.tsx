@@ -65,7 +65,8 @@ const galleryImages = [
   {
     src: weeklyFoodMeals,
     alt: "Freshly prepared nutritious meal containers with whole fish, chicken, fried and jollof rice, and salad stacked for distribution",
-    caption: "Hygienically packaged balanced meals featuring fresh salad & whole fish, fried/jollof rice & chicken",
+    caption:
+      "Hygienically packaged balanced meals featuring fresh salad & whole fish, fried/jollof rice & chicken",
     tag: "Nutritional Preparation",
     aspect: "aspect-[4/5] sm:aspect-[4/3] lg:aspect-[4/5]",
   },
@@ -116,7 +117,10 @@ export function FoodDistributionSection({ id = "food-distribution" }: { id?: str
               </a>
             </Button>
             <Button asChild variant="outline" size="lg">
-              <Link to="/stories/$slug" params={{ slug: "weekly-community-food-distribution-250-people" }}>
+              <Link
+                to="/stories/$slug"
+                params={{ slug: "weekly-community-food-distribution-250-people" }}
+              >
                 Read field story
               </Link>
             </Button>
@@ -191,7 +195,9 @@ export function FoodDistributionSection({ id = "food-distribution" }: { id?: str
               <div
                 className={cn(
                   "group relative overflow-hidden rounded-sm border transition-all duration-300 bg-muted cursor-pointer shadow-xs",
-                  activeImageIndex === 0 ? "border-green-deep ring-2 ring-green-deep/20" : "border-hairline hover:border-green-mid"
+                  activeImageIndex === 0
+                    ? "border-green-deep ring-2 ring-green-deep/20"
+                    : "border-hairline hover:border-green-mid",
                 )}
                 onClick={() => setActiveImageIndex(0)}
               >
@@ -220,7 +226,9 @@ export function FoodDistributionSection({ id = "food-distribution" }: { id?: str
               <div
                 className={cn(
                   "group relative overflow-hidden rounded-sm border transition-all duration-300 bg-muted cursor-pointer shadow-xs",
-                  activeImageIndex === 1 ? "border-green-deep ring-2 ring-green-deep/20" : "border-hairline hover:border-green-mid"
+                  activeImageIndex === 1
+                    ? "border-green-deep ring-2 ring-green-deep/20"
+                    : "border-hairline hover:border-green-mid",
                 )}
                 onClick={() => setActiveImageIndex(1)}
               >
@@ -252,8 +260,8 @@ export function FoodDistributionSection({ id = "food-distribution" }: { id?: str
               <p>
                 <strong className="text-ink font-semibold">On-the-ground documentation:</strong>{" "}
                 Each package contains seasoned rice, fresh salad greens, and wholesome portions of
-                fresh salad &amp; whole fish or fried/jollof rice &amp; chicken, packaged in clean takeaway containers ready for distribution to waiting
-                children and youth.
+                fresh salad &amp; whole fish or fried/jollof rice &amp; chicken, packaged in clean
+                takeaway containers ready for distribution to waiting children and youth.
               </p>
             </div>
           </Reveal>
@@ -315,7 +323,10 @@ export function FoodDistributionSection({ id = "food-distribution" }: { id?: str
                   </a>
                 </Button>
                 <Button asChild variant="outline" size="sm" className="text-xs">
-                  <Link to="/campaigns/$slug" params={{ slug: "weekly-community-food-distribution" }}>
+                  <Link
+                    to="/campaigns/$slug"
+                    params={{ slug: "weekly-community-food-distribution" }}
+                  >
                     Campaign details
                     <ArrowRight className="size-3 ml-1" />
                   </Link>

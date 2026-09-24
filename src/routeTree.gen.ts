@@ -12,16 +12,20 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AccessibilityRouteImport } from './routes/accessibility'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as DonateRouteImport } from './routes/donate'
 import { Route as FounderRouteImport } from './routes/founder'
+import { Route as GalleryRouteImport } from './routes/gallery'
 import { Route as GetInvolvedRouteImport } from './routes/get-involved'
 import { Route as ImpactRouteImport } from './routes/impact'
 import { Route as MediaRouteImport } from './routes/media'
+import { Route as MembershipRouteImport } from './routes/membership'
 import { Route as PartnersRouteImport } from './routes/partners'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as VolunteerRouteImport } from './routes/volunteer'
+import { Route as WorkRouteImport } from './routes/work'
 import { Route as CampaignsIndexRouteImport } from './routes/campaigns.index'
 import { Route as CampaignsSlugRouteImport } from './routes/campaigns.$slug'
 import { Route as ProgramsIndexRouteImport } from './routes/programs.index'
@@ -44,6 +48,11 @@ const AccessibilityRoute = AccessibilityRouteImport.update({
   path: '/accessibility',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
@@ -59,6 +68,11 @@ const FounderRoute = FounderRouteImport.update({
   path: '/founder',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GalleryRoute = GalleryRouteImport.update({
+  id: '/gallery',
+  path: '/gallery',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GetInvolvedRoute = GetInvolvedRouteImport.update({
   id: '/get-involved',
   path: '/get-involved',
@@ -72,6 +86,11 @@ const ImpactRoute = ImpactRouteImport.update({
 const MediaRoute = MediaRouteImport.update({
   id: '/media',
   path: '/media',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MembershipRoute = MembershipRouteImport.update({
+  id: '/membership',
+  path: '/membership',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PartnersRoute = PartnersRouteImport.update({
@@ -92,6 +111,11 @@ const TermsRoute = TermsRouteImport.update({
 const VolunteerRoute = VolunteerRouteImport.update({
   id: '/volunteer',
   path: '/volunteer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WorkRoute = WorkRouteImport.update({
+  id: '/work',
+  path: '/work',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CampaignsIndexRoute = CampaignsIndexRouteImport.update({
@@ -129,16 +153,20 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/accessibility': typeof AccessibilityRoute
+  '/admin': typeof AdminRoute
   '/contact': typeof ContactRoute
   '/donate': typeof DonateRoute
   '/founder': typeof FounderRoute
+  '/gallery': typeof GalleryRoute
   '/get-involved': typeof GetInvolvedRoute
   '/impact': typeof ImpactRoute
   '/media': typeof MediaRoute
+  '/membership': typeof MembershipRoute
   '/partners': typeof PartnersRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/volunteer': typeof VolunteerRoute
+  '/work': typeof WorkRoute
   '/campaigns/$slug': typeof CampaignsSlugRoute
   '/programs/$slug': typeof ProgramsSlugRoute
   '/stories/$slug': typeof StoriesSlugRoute
@@ -150,16 +178,20 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/accessibility': typeof AccessibilityRoute
+  '/admin': typeof AdminRoute
   '/contact': typeof ContactRoute
   '/donate': typeof DonateRoute
   '/founder': typeof FounderRoute
+  '/gallery': typeof GalleryRoute
   '/get-involved': typeof GetInvolvedRoute
   '/impact': typeof ImpactRoute
   '/media': typeof MediaRoute
+  '/membership': typeof MembershipRoute
   '/partners': typeof PartnersRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/volunteer': typeof VolunteerRoute
+  '/work': typeof WorkRoute
   '/campaigns/$slug': typeof CampaignsSlugRoute
   '/programs/$slug': typeof ProgramsSlugRoute
   '/stories/$slug': typeof StoriesSlugRoute
@@ -172,16 +204,20 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/accessibility': typeof AccessibilityRoute
+  '/admin': typeof AdminRoute
   '/contact': typeof ContactRoute
   '/donate': typeof DonateRoute
   '/founder': typeof FounderRoute
+  '/gallery': typeof GalleryRoute
   '/get-involved': typeof GetInvolvedRoute
   '/impact': typeof ImpactRoute
   '/media': typeof MediaRoute
+  '/membership': typeof MembershipRoute
   '/partners': typeof PartnersRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/volunteer': typeof VolunteerRoute
+  '/work': typeof WorkRoute
   '/campaigns/$slug': typeof CampaignsSlugRoute
   '/programs/$slug': typeof ProgramsSlugRoute
   '/stories/$slug': typeof StoriesSlugRoute
@@ -195,16 +231,20 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/accessibility'
+    | '/admin'
     | '/contact'
     | '/donate'
     | '/founder'
+    | '/gallery'
     | '/get-involved'
     | '/impact'
     | '/media'
+    | '/membership'
     | '/partners'
     | '/privacy'
     | '/terms'
     | '/volunteer'
+    | '/work'
     | '/campaigns/$slug'
     | '/programs/$slug'
     | '/stories/$slug'
@@ -216,16 +256,20 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/accessibility'
+    | '/admin'
     | '/contact'
     | '/donate'
     | '/founder'
+    | '/gallery'
     | '/get-involved'
     | '/impact'
     | '/media'
+    | '/membership'
     | '/partners'
     | '/privacy'
     | '/terms'
     | '/volunteer'
+    | '/work'
     | '/campaigns/$slug'
     | '/programs/$slug'
     | '/stories/$slug'
@@ -237,16 +281,20 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/accessibility'
+    | '/admin'
     | '/contact'
     | '/donate'
     | '/founder'
+    | '/gallery'
     | '/get-involved'
     | '/impact'
     | '/media'
+    | '/membership'
     | '/partners'
     | '/privacy'
     | '/terms'
     | '/volunteer'
+    | '/work'
     | '/campaigns/$slug'
     | '/programs/$slug'
     | '/stories/$slug'
@@ -259,16 +307,20 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AccessibilityRoute: typeof AccessibilityRoute
+  AdminRoute: typeof AdminRoute
   ContactRoute: typeof ContactRoute
   DonateRoute: typeof DonateRoute
   FounderRoute: typeof FounderRoute
+  GalleryRoute: typeof GalleryRoute
   GetInvolvedRoute: typeof GetInvolvedRoute
   ImpactRoute: typeof ImpactRoute
   MediaRoute: typeof MediaRoute
+  MembershipRoute: typeof MembershipRoute
   PartnersRoute: typeof PartnersRoute
   PrivacyRoute: typeof PrivacyRoute
   TermsRoute: typeof TermsRoute
   VolunteerRoute: typeof VolunteerRoute
+  WorkRoute: typeof WorkRoute
   CampaignsSlugRoute: typeof CampaignsSlugRoute
   ProgramsSlugRoute: typeof ProgramsSlugRoute
   StoriesSlugRoute: typeof StoriesSlugRoute
@@ -300,6 +352,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AccessibilityRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/contact': {
       id: '/contact'
       path: '/contact'
@@ -321,6 +380,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FounderRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/gallery': {
+      id: '/gallery'
+      path: '/gallery'
+      fullPath: '/gallery'
+      preLoaderRoute: typeof GalleryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/get-involved': {
       id: '/get-involved'
       path: '/get-involved'
@@ -340,6 +406,13 @@ declare module '@tanstack/react-router' {
       path: '/media'
       fullPath: '/media'
       preLoaderRoute: typeof MediaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/membership': {
+      id: '/membership'
+      path: '/membership'
+      fullPath: '/membership'
+      preLoaderRoute: typeof MembershipRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/partners': {
@@ -368,6 +441,13 @@ declare module '@tanstack/react-router' {
       path: '/volunteer'
       fullPath: '/volunteer'
       preLoaderRoute: typeof VolunteerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/work': {
+      id: '/work'
+      path: '/work'
+      fullPath: '/work'
+      preLoaderRoute: typeof WorkRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/campaigns/': {
@@ -419,16 +499,20 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AccessibilityRoute: AccessibilityRoute,
+  AdminRoute: AdminRoute,
   ContactRoute: ContactRoute,
   DonateRoute: DonateRoute,
   FounderRoute: FounderRoute,
+  GalleryRoute: GalleryRoute,
   GetInvolvedRoute: GetInvolvedRoute,
   ImpactRoute: ImpactRoute,
   MediaRoute: MediaRoute,
+  MembershipRoute: MembershipRoute,
   PartnersRoute: PartnersRoute,
   PrivacyRoute: PrivacyRoute,
   TermsRoute: TermsRoute,
   VolunteerRoute: VolunteerRoute,
+  WorkRoute: WorkRoute,
   CampaignsSlugRoute: CampaignsSlugRoute,
   ProgramsSlugRoute: ProgramsSlugRoute,
   StoriesSlugRoute: StoriesSlugRoute,

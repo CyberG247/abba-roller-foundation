@@ -21,6 +21,8 @@ import {
   MapPin,
   HeartHandshake,
   Grid,
+  Play,
+  Pause,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -288,6 +290,18 @@ export function VisuallyImpairedSchoolSection({ id = "dutse-outreach" }: { id?: 
   const [totalSlides, setTotalSlides] = useState(dutseSchoolGallery.length);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [activeGalleryModalImage, setActiveGalleryModalImage] = useState<GalleryPhoto | null>(null);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+
+  // Preload all photos into memory
+  useEffect(() => {
+    dutseSchoolGallery.forEach((photo) => {
+      const img = new Image();
+      img.src = photo.src;
+    });
+  }, []);
 
   useEffect(() => {
     if (!carouselApi) return;
@@ -299,20 +313,52 @@ export function VisuallyImpairedSchoolSection({ id = "dutse-outreach" }: { id?: 
     };
     carouselApi.on("select", onSelect);
 
-    // Automatically slide photos every 2.2 seconds
+    // Calm auto-slide every 5.5 seconds, paused when hovering or inspecting
     const autoSlideInterval = setInterval(() => {
+      if (isPaused || isHovered || detailsModalOpen || lightboxOpen) return;
+
       if (carouselApi.canScrollNext()) {
         carouselApi.scrollNext();
       } else {
         carouselApi.scrollTo(0);
       }
-    }, 2200);
+    }, 5500);
 
     return () => {
       carouselApi.off("select", onSelect);
       clearInterval(autoSlideInterval);
     };
-  }, [carouselApi]);
+  }, [carouselApi, isPaused, isHovered, detailsModalOpen, lightboxOpen]);
+
+  const openLightboxForPhoto = (photo: GalleryPhoto, index?: number) => {
+    const idx = index ?? dutseSchoolGallery.findIndex((p) => p.id === photo.id);
+    setSelectedPhotoIndex(idx >= 0 ? idx : 0);
+    setActiveGalleryModalImage(photo);
+    setLightboxOpen(true);
+  };
+
+  const goToPrevPhoto = () => {
+    const newIdx = (selectedPhotoIndex - 1 + dutseSchoolGallery.length) % dutseSchoolGallery.length;
+    setSelectedPhotoIndex(newIdx);
+    setActiveGalleryModalImage(dutseSchoolGallery[newIdx]);
+  };
+
+  const goToNextPhoto = () => {
+    const newIdx = (selectedPhotoIndex + 1) % dutseSchoolGallery.length;
+    setSelectedPhotoIndex(newIdx);
+    setActiveGalleryModalImage(dutseSchoolGallery[newIdx]);
+  };
+
+  // Keyboard navigation for lightbox
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") goToPrevPhoto();
+      if (e.key === "ArrowRight") goToNextPhoto();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [lightboxOpen, selectedPhotoIndex]);
 
   return (
     <section
@@ -342,9 +388,9 @@ export function VisuallyImpairedSchoolSection({ id = "dutse-outreach" }: { id?: 
             </h2>
             <p className="lede mt-4">
               Restoring comfort, health, and dignity for special needs students. The Abba Roller
-              Foundation mobilized comprehensive humanitarian relief to the Visually Impaired School in
-              Dutse, Jigawa State — delivering nutritious food, laundry detergents, sanitary pads, and
-              personal bathing materials directly to students in their residential hostel.
+              Foundation mobilized comprehensive humanitarian relief to the Visually Impaired School
+              in Dutse, Jigawa State — delivering nutritious food, laundry detergents, sanitary
+              pads, and personal bathing materials directly to students in their residential hostel.
             </p>
           </Reveal>
 
@@ -430,67 +476,80 @@ export function VisuallyImpairedSchoolSection({ id = "dutse-outreach" }: { id?: 
         <div className="mt-14 grid gap-10 lg:grid-cols-12 lg:items-start">
           {/* Left Column: Sliding Carousel with Main Head Image */}
           <Reveal className="lg:col-span-6 flex flex-col gap-4">
-            <div className="rounded-sm border border-hairline bg-surface p-3.5 shadow-xs">
+            <div
+              className="rounded-sm border border-hairline bg-surface p-3.5 shadow-xs"
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
+              onTouchStart={() => setIsHovered(true)}
+              onTouchEnd={() => setIsHovered(false)}
+            >
               {/* Carousel Container */}
               <Carousel opts={{ loop: true }} setApi={setCarouselApi} className="w-full">
                 <CarouselContent>
                   {dutseSchoolGallery.map((photo, index) => (
                     <CarouselItem key={photo.id}>
-                      <div className="relative overflow-hidden rounded-xs bg-slate-950 flex items-center justify-center h-[280px] xs:h-[320px] sm:h-[400px] md:h-[460px] w-full group">
-                        {/* Ambient blurred backdrop so letterbox area glows matching the photo */}
-                        <img
-                          src={photo.src}
-                          alt=""
-                          aria-hidden="true"
-                          className="absolute inset-0 size-full object-cover blur-2xl opacity-35 scale-110 pointer-events-none select-none"
-                        />
+                      <div className="flex flex-col overflow-hidden rounded-xs border border-hairline bg-surface shadow-xs transition-all">
+                        {/* 100% Crisp Photo - ZERO SHADOW, NO DARK GRADIENT OVERLAY */}
+                        <div
+                          onClick={() => openLightboxForPhoto(photo, index)}
+                          role="button"
+                          tabIndex={0}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              openLightboxForPhoto(photo, index);
+                            }
+                          }}
+                          className="relative overflow-hidden h-[260px] xs:h-[320px] sm:h-[380px] md:h-[440px] w-full group cursor-pointer select-none bg-slate-900"
+                          aria-label={`Open photo: ${photo.title}`}
+                        >
+                          <img
+                            src={photo.src}
+                            alt={photo.alt}
+                            className="size-full object-cover object-center transition-transform duration-500 group-hover:scale-105 select-none"
+                            loading="eager"
+                            decoding="async"
+                          />
 
-                        {/* Main picture - 100% fully fitted without cropping or excessive zooming */}
-                        <img
-                          src={photo.src}
-                          alt={photo.alt}
-                          className="relative z-10 max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-[1.02] pointer-events-none select-none"
-                          loading={index === 0 ? "eager" : "lazy"}
-                        />
+                          {/* Top Badges */}
+                          <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 z-10 pointer-events-none">
+                            <div className="flex items-center gap-1.5">
+                              <span
+                                className={cn(
+                                  "rounded-full px-2.5 sm:px-3 py-1 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider shadow-sm",
+                                  photo.isMainHeadImage
+                                    ? "bg-brand-red text-white"
+                                    : "bg-slate-950/80 text-white backdrop-blur-xs",
+                                )}
+                              >
+                                {photo.isMainHeadImage ? "Main Head Image" : photo.category}
+                              </span>
+                              <span className="rounded-full bg-slate-950/80 backdrop-blur-xs px-2 sm:px-2.5 py-1 text-[10px] sm:text-[11px] font-medium text-white">
+                                {index + 1} / {dutseSchoolGallery.length}
+                              </span>
+                            </div>
 
-                        {/* Top Badge: Indicates Main Head Image or Category */}
-                        <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 z-20 pointer-events-none">
-                          <div className="flex items-center gap-1.5">
-                            <span
-                              className={cn(
-                                "rounded-full px-2.5 sm:px-3 py-1 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider shadow-sm",
-                                photo.isMainHeadImage
-                                  ? "bg-brand-red text-white"
-                                  : "bg-black/75 text-white backdrop-blur-xs"
-                              )}
-                            >
-                              {photo.isMainHeadImage ? "Main Head Image" : photo.category}
-                            </span>
-                            <span className="rounded-full bg-black/60 backdrop-blur-xs px-2 sm:px-2.5 py-1 text-[10px] sm:text-[11px] font-medium text-white/90">
-                              {index + 1} / {dutseSchoolGallery.length}
-                            </span>
+                            <div className="inline-flex items-center gap-1 rounded-full bg-slate-950/80 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur-xs border border-white/20">
+                              <Maximize2 className="size-3" />
+                              <span>Enlarge</span>
+                            </div>
                           </div>
-
-                          {/* Quick Expand Button */}
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setActiveGalleryModalImage(photo);
-                              setDetailsModalOpen(true);
-                            }}
-                            className="pointer-events-auto size-8 sm:size-8.5 rounded-full bg-black/60 backdrop-blur-xs text-white hover:bg-black/90 flex items-center justify-center transition-colors cursor-pointer"
-                            aria-label="Enlarge image & view details"
-                          >
-                            <Maximize2 className="size-3.5 sm:size-4" />
-                          </button>
                         </div>
 
-                        {/* Bottom Caption Overlay */}
-                        <div className="absolute inset-x-0 bottom-0 z-20 bg-gradient-to-t from-black/95 via-black/70 to-transparent px-3.5 py-2.5 pt-8 sm:px-4 sm:py-3.5 sm:pt-10 text-white">
-                          <h4 className="font-display text-xs sm:text-sm font-bold text-white leading-tight">
-                            {photo.title}
-                          </h4>
-                          <p className="mt-0.5 text-[11px] sm:text-xs text-white/90 leading-snug line-clamp-1 sm:line-clamp-2">
+                        {/* Caption Below Photo - Zero shadow covering the image */}
+                        <div
+                          onClick={() => openLightboxForPhoto(photo, index)}
+                          className="p-3.5 sm:p-4 bg-surface border-t border-hairline cursor-pointer hover:bg-muted/30 transition-colors"
+                        >
+                          <div className="flex items-center justify-between gap-2 mb-1">
+                            <h4 className="font-display text-xs sm:text-sm font-bold text-ink leading-tight">
+                              {photo.title}
+                            </h4>
+                            <span className="text-[11px] text-green-deep font-bold shrink-0 hidden sm:inline-block">
+                              Click to Enlarge ↗
+                            </span>
+                          </div>
+                          <p className="text-[11px] sm:text-xs text-ink-soft leading-snug line-clamp-2">
                             {photo.caption}
                           </p>
                         </div>
@@ -501,25 +560,6 @@ export function VisuallyImpairedSchoolSection({ id = "dutse-outreach" }: { id?: 
 
                 {/* Carousel Navigation Controls */}
                 <div className="mt-3 flex items-center justify-between px-1 gap-2">
-                  <div className="hidden sm:flex items-center gap-1.5 flex-wrap">
-                    {dutseSchoolGallery.map((_, idx) => (
-                      <button
-                        key={idx}
-                        type="button"
-                        onClick={() => carouselApi?.scrollTo(idx)}
-                        className={cn(
-                          "h-2 rounded-full transition-all cursor-pointer",
-                          currentSlide === idx ? "w-6 bg-green-deep" : "w-2 bg-hairline hover:bg-ink-soft/40"
-                        )}
-                        aria-label={`Go to slide ${idx + 1}`}
-                      />
-                    ))}
-                  </div>
-
-                  <span className="sm:hidden text-xs font-semibold text-ink-soft">
-                    {currentSlide + 1} / {totalSlides}
-                  </span>
-
                   <div className="flex items-center gap-2">
                     <CarouselPrevious
                       variant="outline"
@@ -531,7 +571,38 @@ export function VisuallyImpairedSchoolSection({ id = "dutse-outreach" }: { id?: 
                       size="sm"
                       className="static size-8 translate-y-0 text-ink hover:text-green-deep cursor-pointer"
                     />
+
+                    {/* Play/Pause Button */}
+                    <button
+                      type="button"
+                      onClick={() => setIsPaused((prev) => !prev)}
+                      className="size-8 rounded-full border border-hairline bg-surface text-ink hover:text-green-deep flex items-center justify-center cursor-pointer transition-colors"
+                      aria-label={isPaused ? "Resume auto-slide" : "Pause auto-slide"}
+                      title={isPaused ? "Resume auto-slide" : "Pause auto-slide"}
+                    >
+                      {isPaused ? (
+                        <Play className="size-3.5 ml-0.5" />
+                      ) : (
+                        <Pause className="size-3.5" />
+                      )}
+                    </button>
+
+                    <span className="text-xs font-semibold text-ink-soft ml-1">
+                      {currentSlide + 1} / {totalSlides}
+                      {isPaused && (
+                        <span className="ml-1 text-[10px] text-green-deep font-mono">(Paused)</span>
+                      )}
+                    </span>
                   </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setDetailsModalOpen(true)}
+                    className="font-bold text-xs text-green-deep hover:text-brand-red inline-flex items-center gap-1 cursor-pointer transition-colors"
+                  >
+                    <Eye className="size-3.5" />
+                    <span>View all ({totalSlides}) →</span>
+                  </button>
                 </div>
 
                 {/* Horizontal Sliding Thumbnail Strip */}
@@ -540,12 +611,15 @@ export function VisuallyImpairedSchoolSection({ id = "dutse-outreach" }: { id?: 
                     <button
                       key={photo.id}
                       type="button"
-                      onClick={() => carouselApi?.scrollTo(idx)}
+                      onClick={() => {
+                        carouselApi?.scrollTo(idx);
+                        setCurrentSlide(idx);
+                      }}
                       className={cn(
                         "relative shrink-0 size-13 sm:size-15 rounded-xs overflow-hidden border-2 transition-all cursor-pointer bg-muted",
                         currentSlide === idx
                           ? "border-green-deep ring-2 ring-green-deep/30 opacity-100 scale-105"
-                          : "border-hairline opacity-65 hover:opacity-100"
+                          : "border-hairline opacity-65 hover:opacity-100",
                       )}
                       aria-label={`Jump to slide ${idx + 1}: ${photo.title}`}
                     >
@@ -564,7 +638,8 @@ export function VisuallyImpairedSchoolSection({ id = "dutse-outreach" }: { id?: 
               <div className="mt-3 border-t border-hairline pt-3 flex flex-wrap items-center justify-between gap-2 text-xs">
                 <span className="text-ink-soft flex items-center gap-1.5">
                   <Info className="size-3.5 text-green-mid" />
-                  Slide {currentSlide + 1} of {totalSlides}: <strong className="text-ink">{dutseSchoolGallery[currentSlide]?.title}</strong>
+                  Slide {currentSlide + 1} of {totalSlides}:{" "}
+                  <strong className="text-ink">{dutseSchoolGallery[currentSlide]?.title}</strong>
                 </span>
                 <button
                   type="button"
@@ -686,8 +761,8 @@ export function VisuallyImpairedSchoolSection({ id = "dutse-outreach" }: { id?: 
               Visually Impaired School In Dutse, Jigawa State
             </DialogTitle>
             <DialogDescription className="text-xs sm:text-sm text-muted-foreground mt-1">
-              Complete photographic documentation and comprehensive itemized breakdown of the welfare
-              relief intervention conducted by the Abba Roller Foundation.
+              Complete photographic documentation and comprehensive itemized breakdown of the
+              welfare relief intervention conducted by the Abba Roller Foundation.
             </DialogDescription>
           </DialogHeader>
 
@@ -712,7 +787,7 @@ export function VisuallyImpairedSchoolSection({ id = "dutse-outreach" }: { id?: 
                     "group relative overflow-hidden rounded-sm border cursor-pointer bg-background transition-all hover:shadow-md",
                     activeGalleryModalImage?.id === photo.id
                       ? "border-green-deep ring-2 ring-green-deep/30"
-                      : "border-hairline hover:border-green-mid"
+                      : "border-hairline hover:border-green-mid",
                   )}
                 >
                   <div className="aspect-[4/3] overflow-hidden">
@@ -838,10 +913,13 @@ export function VisuallyImpairedSchoolSection({ id = "dutse-outreach" }: { id?: 
           <div className="mt-6 rounded-sm border border-hairline bg-surface p-4 text-xs text-ink-soft flex items-start gap-3">
             <Heart className="size-4.5 text-brand-red shrink-0 mt-0.5 fill-brand-red/20" />
             <p className="leading-relaxed">
-              <strong className="text-ink font-semibold">Hon. Usman Aminu Usman (Founder &amp; Chairman):</strong>{" "}
-              &ldquo;Special needs children require proactive empathy, dignity, and consistent support.
-              Our visit to the Visually Impaired School in Dutse is part of our unwavering resolve to
-              ensure that no child is forgotten or left behind, regardless of physical challenges.&rdquo;
+              <strong className="text-ink font-semibold">
+                Hon. Usman Aminu Usman (Founder &amp; Chairman):
+              </strong>{" "}
+              &ldquo;Special needs children require proactive empathy, dignity, and consistent
+              support. Our visit to the Visually Impaired School in Dutse is part of our unwavering
+              resolve to ensure that no child is forgotten or left behind, regardless of physical
+              challenges.&rdquo;
             </p>
           </div>
 
@@ -878,6 +956,94 @@ export function VisuallyImpairedSchoolSection({ id = "dutse-outreach" }: { id?: 
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* LIGHTBOX MODAL: FULL RESOLUTION IMAGE VIEWER */}
+      {activeGalleryModalImage && (
+        <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
+          <DialogContent className="w-[calc(100vw-1.5rem)] sm:max-w-4xl max-h-[95vh] overflow-y-auto bg-slate-950/98 border-slate-800 text-white p-3.5 sm:p-6 backdrop-blur-xl rounded-md">
+            {/* Image Container with Prev/Next Navigation */}
+            <div className="relative overflow-hidden rounded-xs bg-black flex items-center justify-center min-h-[300px] max-h-[75vh]">
+              <img
+                src={activeGalleryModalImage.src}
+                alt={activeGalleryModalImage.alt}
+                loading="eager"
+                decoding="async"
+                className="max-h-[60vh] sm:max-h-[72vh] w-auto max-w-full object-contain select-none"
+              />
+
+              {/* Prev / Next Overlay Buttons */}
+              <button
+                type="button"
+                onClick={goToPrevPhoto}
+                className="absolute left-2 top-1/2 -translate-y-1/2 size-10 rounded-full bg-slate-950/80 text-white border border-slate-700 hover:bg-green-600 hover:border-green-600 flex items-center justify-center cursor-pointer transition-all shadow-xl"
+                aria-label="Previous photo"
+              >
+                <ChevronLeft className="size-5" />
+              </button>
+
+              <button
+                type="button"
+                onClick={goToNextPhoto}
+                className="absolute right-2 top-1/2 -translate-y-1/2 size-10 rounded-full bg-slate-950/80 text-white border border-slate-700 hover:bg-green-600 hover:border-green-600 flex items-center justify-center cursor-pointer transition-all shadow-xl"
+                aria-label="Next photo"
+              >
+                <ChevronRight className="size-5" />
+              </button>
+            </div>
+
+            <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2 text-xs text-green-400 font-bold">
+                <span>{activeGalleryModalImage.category}</span>
+                {activeGalleryModalImage.isMainHeadImage && (
+                  <span className="bg-brand-red text-white px-2 py-0.5 rounded">
+                    Main Head Image
+                  </span>
+                )}
+              </div>
+              <span className="text-xs font-mono text-slate-400">
+                Photo {selectedPhotoIndex + 1} of {dutseSchoolGallery.length} (Use ← → arrows)
+              </span>
+            </div>
+
+            <div className="mt-2">
+              <h3 className="font-display text-lg sm:text-xl font-bold text-white">
+                {activeGalleryModalImage.title}
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-300 mt-1 leading-relaxed">
+                {activeGalleryModalImage.caption}
+              </p>
+            </div>
+
+            {/* Thumbnail Strip inside Lightbox */}
+            <div className="mt-4 pt-3 border-t border-slate-800/80 flex gap-2 overflow-x-auto pb-1 scrollbar-thin">
+              {dutseSchoolGallery.map((item, idx) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => {
+                    setActiveGalleryModalImage(item);
+                    setSelectedPhotoIndex(idx);
+                  }}
+                  className={cn(
+                    "relative shrink-0 size-12 rounded-xs overflow-hidden border-2 transition-all cursor-pointer bg-slate-950",
+                    selectedPhotoIndex === idx
+                      ? "border-green-500 ring-2 ring-green-500/40 opacity-100 scale-105"
+                      : "border-slate-800 opacity-50 hover:opacity-100",
+                  )}
+                  aria-label={`Jump to photo ${idx + 1}`}
+                >
+                  <img
+                    src={item.src}
+                    alt={item.title}
+                    loading="eager"
+                    className="size-full object-cover"
+                  />
+                </button>
+              ))}
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </section>
   );
 }

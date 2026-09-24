@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Heart, Menu, X } from "lucide-react";
+import { Heart, Menu, X, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Logo } from "./Logo";
@@ -9,13 +9,12 @@ import { cn } from "@/lib/utils";
 const navItems = [
   { label: "Home", sectionId: "hero", to: "/" },
   { label: "About", sectionId: "about", to: "/about" },
+  { label: "Our Work", sectionId: "work", to: "/work" },
   { label: "Founder's Desk", sectionId: "founder", to: "/founder" },
-  { label: "Programs", sectionId: "programs", to: "/programs" },
-  { label: "Weekly Feeding", sectionId: "food-distribution", to: "/campaigns/weekly-community-food-distribution" },
-  { label: "Media & Updates", sectionId: "media", to: "/media" },
-  { label: "Impact", sectionId: "impact", to: "/impact" },
-  { label: "Partners", sectionId: "partners", to: "/partners" },
-  { label: "Get Involved", sectionId: "get-involved", to: "/get-involved" },
+  { label: "Membership", sectionId: "membership", to: "/membership" },
+  { label: "Gallery", sectionId: "gallery", to: "/gallery" },
+  { label: "Media & News", sectionId: "media", to: "/media" },
+  { label: "Volunteer", sectionId: "volunteer", to: "/volunteer" },
 ] as const;
 
 export function SiteHeader() {
@@ -142,6 +141,19 @@ export function SiteHeader() {
               </ul>
             </nav>
 
+            <Link
+              to="/membership"
+              className={cn(
+                "hidden md:inline-flex items-center gap-1.5 rounded-full px-3.5 lg:px-4 py-2 text-xs font-bold transition-all border shadow-xs whitespace-nowrap cursor-pointer",
+                solid
+                  ? "border-green-deep/30 bg-green-wash text-green-deep hover:bg-green-deep hover:text-white"
+                  : "border-white/30 bg-white/10 text-white hover:bg-white hover:text-green-deep backdrop-blur-xs",
+              )}
+            >
+              <Users className="size-3.5" />
+              <span>Become a Member</span>
+            </Link>
+
             <a
               href={isHome ? "#donate" : "/donate"}
               onClick={(e) => scrollToSection("donate", e)}
@@ -213,14 +225,25 @@ export function SiteHeader() {
               </a>
             </li>
           </ul>
-          <a
-            href={isHome ? "#donate" : "/donate"}
-            onClick={(e) => scrollToSection("donate", e)}
-            className="btn-shine mt-8 flex w-full items-center justify-center gap-2.5 rounded-sm bg-gradient-to-r from-brand-red via-brand-red to-brand-red-bright py-4 text-base font-extrabold text-white shadow-lift ring-1 ring-white/30 transition-all active:scale-[0.99] cursor-pointer"
-          >
-            <Heart className="size-4.5 fill-white animate-pulse" />
-            <span>Donate Now</span>
-          </a>
+          <div className="mt-8 flex flex-col gap-3">
+            <Link
+              to="/membership"
+              onClick={() => setOpen(false)}
+              className="flex w-full items-center justify-center gap-2 rounded-sm bg-amber-400 py-3.5 text-base font-bold text-slate-950 shadow-md transition-all active:scale-[0.99] cursor-pointer"
+            >
+              <Users className="size-4.5" />
+              <span>Become a Member</span>
+            </Link>
+
+            <a
+              href={isHome ? "#donate" : "/donate"}
+              onClick={(e) => scrollToSection("donate", e)}
+              className="btn-shine flex w-full items-center justify-center gap-2.5 rounded-sm bg-gradient-to-r from-brand-red via-brand-red to-brand-red-bright py-4 text-base font-extrabold text-white shadow-lift ring-1 ring-white/30 transition-all active:scale-[0.99] cursor-pointer"
+            >
+              <Heart className="size-4.5 fill-white animate-pulse" />
+              <span>Donate Now</span>
+            </a>
+          </div>
         </nav>
       </div>
     </>

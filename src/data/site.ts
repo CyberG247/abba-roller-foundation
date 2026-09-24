@@ -144,7 +144,8 @@ export const campaigns: Campaign[] = [
     slug: "ramadan-food-support-10-states",
     title: "Ramadan Food Support: 1,500 Packages Across 10 States",
     kicker: "Nationwide Ramadan Humanitarian Relief",
-    location: "10 States Across Nigeria (Jigawa, Kano, Yobe, Borno, Kaduna, Katsina, Bauchi, Sokoto, Gombe, Zamfara)",
+    location:
+      "10 States Across Nigeria (Jigawa, Kano, Yobe, Borno, Kaduna, Katsina, Bauchi, Sokoto, Gombe, Zamfara)",
     status: "Active",
     summary:
       "A landmark nationwide Ramadan humanitarian campaign distributing 1,500 wholesome food package pieces across 10 Nigerian states to support vulnerable fasting households, orphans, and indigent community members.",
@@ -279,7 +280,8 @@ export const stories: Story[] = [
   },
   {
     slug: "visually-impaired-school-dutse-jigawa",
-    title: "Compassion in action: Comprehensive welfare relief for Visually Impaired School in Dutse, Jigawa State",
+    title:
+      "Compassion in action: Comprehensive welfare relief for Visually Impaired School in Dutse, Jigawa State",
     category: "Community Story",
     date: "2026-09-12",
     author: "ARF Special Education Desk",
@@ -306,7 +308,8 @@ export const stories: Story[] = [
   },
   {
     slug: "grassroots-football-championship-peace-cup",
-    title: "Uniting youth through sport: Abba Roller Foundation hosts grassroots football championship",
+    title:
+      "Uniting youth through sport: Abba Roller Foundation hosts grassroots football championship",
     category: "Community Story",
     date: "2026-09-18",
     author: "ARF Youth & Sports Directorate",
@@ -566,7 +569,8 @@ export const updateCategories: UpdateCategory[] = [
 export const updates: Update[] = [
   {
     id: "grassroots-football-championship-peace-cup",
-    title: "Youth unity & sports development: Abba Roller Foundation hosts grassroots football championship",
+    title:
+      "Youth unity & sports development: Abba Roller Foundation hosts grassroots football championship",
     category: "Empowerment",
     date: "2026-09-18",
     location: "Gumel & Jigawa State Community Stadiums",
@@ -603,7 +607,8 @@ export const updates: Update[] = [
     title: "Ramadan relief: 1,500 food package pieces distributed across 10 States in Nigeria",
     category: "Food Distribution",
     date: "2026-04-05",
-    location: "10 States across Nigeria (Jigawa, Kano, Yobe, Borno, Kaduna, Katsina, Bauchi, Sokoto, Gombe, Zamfara)",
+    location:
+      "10 States across Nigeria (Jigawa, Kano, Yobe, Borno, Kaduna, Katsina, Bauchi, Sokoto, Gombe, Zamfara)",
     summary:
       "ARF conducted a major seasonal outreach distributing 1,500 nutritious food package pieces across 10 Nigerian states to provide immediate Iftar and Sahur sustenance to indigent families, orphans, and fasting individuals.",
     image: ramadanFoodPackages,
@@ -800,15 +805,43 @@ export const updates: Update[] = [
 
 /* ----------------------------------------------------------- founder's desk */
 
+export type EducationItem = {
+  degree: string;
+  institution: string;
+  location: string;
+  period: string;
+  grade?: string;
+  highlights?: string;
+};
+
+export type ExperienceItem = {
+  role: string;
+  organization: string;
+  location: string;
+  period: string;
+  type: string;
+  summary: string;
+  achievements: string[];
+};
+
+export type AwardItem = {
+  title: string;
+  issuer: string;
+  year: string;
+  description: string;
+};
+
 export const founder = {
   name: "Hon. Usman Aminu Usman",
   alias: "Abba Roller",
   role: "Founder & Chairman, Abba Roller Foundation",
   initials: "UAU",
   image: founderPortrait,
-  location: "Nigeria",
+  location: "Birmingham, United Kingdom & Nigeria",
   portraitAlt: "Portrait of Hon. Usman Aminu Usman (Abba Roller), Founder of ARF",
   lede: "The Foundation began with a conviction rather than a structure: that no one should be left behind simply because nobody came looking for them.",
+  profileStatement:
+    "Visionary entrepreneur, international business strategist, and compassionate humanitarian leader with over 8 years of cross-border executive experience spanning the United Kingdom and Nigeria. Combines advanced business management acumen obtained from Birmingham City University with hands-on grassroots philanthropy to empower vulnerable communities, youth, and women.",
   message: [
     "Abba Roller Foundation was established out of a personal commitment to the young people and women of our communities — people full of capability who have too often been overlooked when resources are shared.",
     "Our approach is deliberately close to the ground. We sit with community leaders, we listen before we plan, and we deliver support in a way that protects the dignity of every person who receives it. Whether it is food reaching a household, financial support restoring a woman's small trade, a young person finding direction through mentorship, or a girl receiving sanitary pads and honest health education — the intention is the same: to restore dignity and open a door.",
@@ -821,14 +854,151 @@ export const founder = {
     "Education and skills development",
     "Health advocacy and period poverty",
   ],
-  /** Biography details awaiting confirmation from the Foundation — never invented. */
   profile: [
     { label: "Full name", value: "Hon. Usman Aminu Usman" },
     { label: "Popularly known as", value: "Abba Roller" },
     { label: "Position", value: "Founder & Chairman, Abba Roller Foundation" },
-    { label: "State of origin", value: CMS_PLACEHOLDER },
-    { label: "Education", value: CMS_PLACEHOLDER },
-    { label: "Public service", value: CMS_PLACEHOLDER },
-    { label: "Professional background", value: CMS_PLACEHOLDER },
+    { label: "Global Presence", value: "Birmingham, UK & Nigeria" },
+    {
+      label: "Education",
+      value: "MSc (Merit) & BA (2:1), Birmingham City University, UK",
+    },
+    {
+      label: "Professional background",
+      value: "CEO, International Trade Analyst & Tech Founder (8+ Years Experience)",
+    },
+    {
+      label: "Public service",
+      value: "Chairperson & Founder, Abba Roller Care Foundation",
+    },
+  ],
+  education: [
+    {
+      degree: "Master's Degree in International Business & Management",
+      institution: "Birmingham City University",
+      location: "Birmingham, United Kingdom",
+      period: "January 2023 – January 2024",
+      grade: "Grade: Merit",
+      highlights:
+        "Specialized in global market strategy, international supply chain dynamics, executive decision-making, and organizational leadership.",
+    },
+    {
+      degree: "Bachelor's Degree in Business Management",
+      institution: "Birmingham City University",
+      location: "Birmingham, United Kingdom",
+      period: "September 2019 – June 2022",
+      grade: "Grade: 2:1 (Second Class Upper)",
+      highlights:
+        "Comprehensive training in corporate strategy, business analytics, organizational behavior, marketing strategy, and financial planning.",
+    },
+    {
+      degree: "Foundation in Business Management",
+      institution: "Birmingham City University International College",
+      location: "Birmingham, United Kingdom",
+      period: "September 2018 – June 2019",
+      highlights:
+        "Foundational principles of international commerce, business communications, and macroeconomics.",
+    },
+    {
+      degree: "Certificate of Higher Education in Commerce",
+      institution: "Ultimate International College",
+      location: "Kano, Nigeria",
+      period: "September 2014 – July 2017",
+      highlights: "Commercial practice, accountancy fundamentals, and commercial law.",
+    },
+  ] as EducationItem[],
+  experiences: [
+    {
+      role: "Chairperson & Founder",
+      organization: "Abba Roller Care Foundation (ARF)",
+      location: "Nigeria",
+      period: "Dec 2024 – Present",
+      type: "Nonprofit Leadership & Humanitarian Service",
+      summary:
+        "Founded and leads the operational direction of ARF, mobilizing resources, partner networks, and hundreds of verified volunteers to alleviate hardship across Northern Nigeria.",
+      achievements: [
+        "Pioneered sustained weekly community feeding delivering 250+ balanced, hot takeaway meals to orphans and street children.",
+        "Mounted a landmark 10-state Ramadan humanitarian corridor distributing 1,500 wholesome food package pieces.",
+        "Launched Pad Up Nigerian Girls, providing menstrual health education and distributing 1,000+ sanitary pads in Jigawa State.",
+        "Delivered comprehensive student welfare, food, and hygiene supplies to the Visually Impaired School in Dutse.",
+        "Conducted medical bill relief for indigent hospital patients in Gumel and provided food relief to Custodial Centre inmates.",
+        "Sponsored grassroots football championships and donated team kits to foster youth discipline and sportsmanship.",
+      ],
+    },
+    {
+      role: "Chief Executive Officer & Founder",
+      organization: "Bizplug App & Bizplug Agency",
+      location: "London / Birmingham, United Kingdom",
+      period: "Sep 2022 – Present",
+      type: "Technology & Digital Platforms",
+      summary:
+        "Leads product innovation, digital solutions architecture, and business development for a dynamic platform connecting service providers and clients.",
+      achievements: [
+        "Conceived and founded Bizplug from the ground up, directing product roadmap, UX, and technical architecture.",
+        "Developed custom web and mobile applications enabling businesses and startups to scale their online presence.",
+        "Oversees cross-border digital marketing, client acquisition, and workflow optimization across the UK and internationally.",
+      ],
+    },
+    {
+      role: "CEO & Import/Export Analyst",
+      organization: "Uxbridge LTD",
+      location: "Nigeria & Global Corridors",
+      period: "May 2024 – Present",
+      type: "Global Trade, Commodities & Asset Management",
+      summary:
+        "Directs international commercial procurement, agricultural commodity export, and commercial asset portfolios.",
+      achievements: [
+        "Orchestrates large-scale agricultural exports (hibiscus flowers and sesame seeds) from Nigeria to Mexico, China, and Germany.",
+        "Manages cross-continental supply chains for commercial vehicles, machinery, and automotive spare parts from Europe, the UK, and China.",
+        "Oversees portfolio of residential short-let properties and real estate investments.",
+      ],
+    },
+    {
+      role: "Project Coordinator & Operations Lead",
+      organization: "PA Automobiles Ltd & Hanne Ltd",
+      location: "Kano, Nigeria",
+      period: "2016 – 2026",
+      type: "Logistics & Multimodal Procurement",
+      summary:
+        "Coordinated multimodal freight forwarding (air & ocean), customs clearance logistics, and project team performance.",
+      achievements: [
+        "Managed operational procurement budgets and cross-border commercial transactions.",
+        "Supervised vehicle bidding, freight tracking, inspection, and customer delivery standards.",
+        "Mentored and trained cross-functional operational teams to exceed project KPIs.",
+      ],
+    },
+  ] as ExperienceItem[],
+  awards: [
+    {
+      title: "Graduate Plus Bronze Award",
+      issuer: "Birmingham City University, United Kingdom",
+      year: "2019",
+      description:
+        "Awarded in recognition of proactive engagement in high-impact extracurricular leadership and community initiatives.",
+    },
+    {
+      title: "Award Certificate in Project Management",
+      issuer: "Corporate Project Board",
+      year: "2018",
+      description:
+        "Conferred in recognition and appreciation of exceptional project leadership, operational efficiency, and team dedication.",
+    },
+    {
+      title: "Certificate of Excellence in Sales & Marketing",
+      issuer: "Regional Sales & Commerce Forum, UK",
+      year: "2021",
+      description:
+        "Honored for outstanding achievement in client relations, regional market expansion, and business development.",
+    },
+  ] as AwardItem[],
+  executiveSkills: [
+    "Strategic Leadership & Execution",
+    "International Trade & Commodity Export",
+    "Grassroots Humanitarian Operations",
+    "Multimodal Logistics & Supply Chain",
+    "Digital Platform Architecture",
+    "Financial & Commercial Analysis",
+    "Stakeholder & Community Relations",
+    "Cross-Cultural Team Management",
   ],
 };

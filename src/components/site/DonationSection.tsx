@@ -241,7 +241,9 @@ export function DonationSection({ id = "donate" }: { id?: string }) {
                             {tier.tag}
                           </span>
                         )}
-                        <span className="font-display text-base sm:text-lg font-extrabold">₦{tier.amount}</span>
+                        <span className="font-display text-base sm:text-lg font-extrabold">
+                          ₦{tier.amount}
+                        </span>
                       </button>
                     ))}
                   </div>

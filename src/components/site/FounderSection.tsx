@@ -52,7 +52,7 @@ export function FounderSection({ id = "founder" }: { id?: string }) {
             {/* Profile Attributes Table */}
             <dl className="mt-6 divide-y divide-hairline border-y border-hairline text-sm">
               {founder.profile.map((row) => (
-                <div key={row.label} className="grid grid-cols-[1.1fr_1.4fr] gap-2 py-3">
+                <div key={row.label} className="grid grid-cols-[1fr_1.5fr] gap-2 py-3">
                   <dt className="text-xs font-bold tracking-wider text-muted-foreground uppercase">
                     {row.label}
                   </dt>
@@ -66,6 +66,31 @@ export function FounderSection({ id = "founder" }: { id?: string }) {
                 </div>
               ))}
             </dl>
+
+            {/* Quick Education & Track Record Highlight */}
+            <div className="mt-6 p-4 rounded-xs border border-green-mid/20 bg-green-wash/40 space-y-2">
+              <div className="flex items-center gap-2 text-xs font-bold text-green-deep uppercase tracking-wider">
+                <CheckCircle2 className="size-4 text-green-deep shrink-0" />
+                <span>Verified UK Academic Credentials</span>
+              </div>
+              <p className="text-xs text-ink leading-relaxed">
+                Holds a{" "}
+                <strong>
+                  Master&apos;s Degree in International Business &amp; Management (Merit)
+                </strong>{" "}
+                and a <strong>Bachelor&apos;s in Business Management (2:1)</strong> from Birmingham
+                City University, United Kingdom.
+              </p>
+              <div className="pt-2">
+                <Link
+                  to="/founder"
+                  className="text-xs font-bold text-green-deep hover:underline inline-flex items-center gap-1"
+                >
+                  View full CV &amp; career track record
+                  <ArrowRight className="size-3" />
+                </Link>
+              </div>
+            </div>
           </Reveal>
 
           {/* Right Column: Founder Message & Priorities */}
@@ -77,14 +102,19 @@ export function FounderSection({ id = "founder" }: { id?: string }) {
               </p>
             </div>
 
-            <div className="space-y-5 text-base leading-relaxed text-muted-foreground pt-2">
+            {/* Executive Profile Summary */}
+            <div className="p-4 rounded-xs bg-muted/30 border border-hairline">
+              <p className="text-sm leading-relaxed text-ink-soft">{founder.profileStatement}</p>
+            </div>
+
+            <div className="space-y-4 text-sm sm:text-base leading-relaxed text-muted-foreground pt-1">
               {founder.message.map((paragraph, index) => (
                 <p key={index}>{paragraph}</p>
               ))}
             </div>
 
             {/* 4 Priority Areas */}
-            <div className="pt-6">
+            <div className="pt-4">
               <h4 className="eyebrow text-green-mid">Core Priorities &amp; Focus</h4>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 {founder.focusAreas.map((area, index) => (
@@ -101,7 +131,7 @@ export function FounderSection({ id = "founder" }: { id?: string }) {
               </div>
             </div>
 
-            <div className="pt-6 flex flex-wrap gap-3">
+            <div className="pt-4 flex flex-wrap gap-3">
               <Button asChild variant="give" size="lg" className="gap-2">
                 <a href="#donate">
                   <Heart className="size-4 fill-white animate-pulse" />
@@ -109,7 +139,10 @@ export function FounderSection({ id = "founder" }: { id?: string }) {
                 </a>
               </Button>
               <Button asChild variant="outline" size="lg">
-                <a href="#media">Explore recent updates</a>
+                <Link to="/founder" className="inline-flex items-center gap-2">
+                  Full Academic &amp; Career Profile
+                  <ArrowRight className="size-4" />
+                </Link>
               </Button>
             </div>
           </Reveal>

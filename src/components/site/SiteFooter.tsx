@@ -23,24 +23,26 @@ const columns = [
     heading: "Organisation",
     links: [
       { label: "About", to: "/about" },
+      { label: "Our Work", to: "/work" },
       { label: "Founder's Desk", to: "/founder" },
-      { label: "Programs", to: "/programs" },
+      { label: "Photo Gallery", to: "/gallery" },
       { label: "Weekly Feeding", to: "/campaigns/weekly-community-food-distribution" },
       { label: "Ramadan Relief", to: "/campaigns/ramadan-food-support-10-states" },
       { label: "Dutse School Outreach", to: "#dutse-outreach" },
       { label: "Football Championship", to: "#football-tournament" },
       { label: "Media & Updates", to: "/media" },
       { label: "Impact", to: "/impact" },
-      { label: "Stories", to: "/stories" },
       { label: "Contact", to: "/contact" },
     ],
   },
   {
-    heading: "Support",
+    heading: "Get Involved",
     links: [
+      { label: "Become a Member", to: "/membership" },
+      { label: "Volunteer Application", to: "/volunteer" },
+      { label: "Lawyers Pro Bono Corps", to: "/volunteer#lawyers-volunteer" },
       { label: "Donate", to: "/donate" },
-      { label: "Volunteer", to: "/volunteer" },
-      { label: "Ramadan Food Support", to: "/campaigns/ramadan-food-support-10-states" },
+      { label: "Admin Portal", to: "/admin" },
       { label: "Partner With Us", to: "/partners" },
       { label: "Campaigns", to: "/campaigns" },
       { label: "Get Involved", to: "/get-involved" },
@@ -144,7 +146,8 @@ export function SiteFooter() {
               &copy; {new Date().getFullYear()} {org.name}. All rights reserved.
             </p>
             <p className="mt-1 text-on-dark-muted/70">
-              Registered address: {org.address === CMS_PLACEHOLDER ? "To be confirmed" : org.address}
+              Registered address:{" "}
+              {org.address === CMS_PLACEHOLDER ? "To be confirmed" : org.address}
               {" · "}
               {org.country}
             </p>

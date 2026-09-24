@@ -289,7 +289,9 @@ export function RegionalStatistics({
                           value={metric.value}
                         />
                       </span>
-                      <p className="mt-1 text-[11px] sm:text-xs text-green-mid font-medium">{metric.subtext}</p>
+                      <p className="mt-1 text-[11px] sm:text-xs text-green-mid font-medium">
+                        {metric.subtext}
+                      </p>
                     </div>
                   </div>
                 ))}
