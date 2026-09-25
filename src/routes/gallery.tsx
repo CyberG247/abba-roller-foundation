@@ -136,13 +136,15 @@ function GalleryPage() {
   const nextPhoto = () => {
     const nextIdx = (activeIndex + 1) % filteredPhotos.length;
     setActiveIndex(nextIdx);
-    setActivePhoto(filteredPhotos[nextIdx]);
+    const photo = filteredPhotos[nextIdx];
+    if (photo) setActivePhoto(photo);
   };
 
   const prevPhoto = () => {
     const prevIdx = (activeIndex - 1 + filteredPhotos.length) % filteredPhotos.length;
     setActiveIndex(prevIdx);
-    setActivePhoto(filteredPhotos[prevIdx]);
+    const photo = filteredPhotos[prevIdx];
+    if (photo) setActivePhoto(photo);
   };
 
   // Keyboard navigation
@@ -249,15 +251,21 @@ function GalleryPage() {
               className="group relative flex flex-col justify-between overflow-hidden rounded-sm border border-hairline bg-surface cursor-pointer shadow-xs hover:shadow-lg transition-all hover:border-green-deep select-none"
             >
               {/* Photo Frame - Fits & Fills completely edge-to-edge */}
-              <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-950">
+              <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-950 flex items-center justify-center">
+                <img
+                  src={photo.src}
+                  alt=""
+                  aria-hidden="true"
+                  className="absolute inset-0 size-full object-cover blur-2xl opacity-40 scale-110 pointer-events-none select-none"
+                />
                 <img
                   src={photo.src}
                   alt={photo.alt}
                   loading="lazy"
                   decoding="async"
-                  className="size-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
+                  className="relative z-10 max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-105 select-none"
                 />
-                <div className="absolute inset-0 bg-slate-950/25 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                <div className="absolute inset-0 bg-slate-950/25 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none z-20">
                   <div className="size-10 rounded-full bg-green-deep text-white flex items-center justify-center shadow-lg">
                     <Maximize2 className="size-4" />
                   </div>

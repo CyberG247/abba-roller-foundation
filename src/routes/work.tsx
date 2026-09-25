@@ -342,15 +342,21 @@ function OurWorkPage() {
               className="flex flex-col justify-between rounded-sm border border-hairline bg-surface overflow-hidden shadow-xs hover:shadow-md transition-all group"
             >
               <div>
-                {/* Image Container with Cover Fit */}
-                <div className="relative aspect-[16/10] overflow-hidden bg-slate-950">
+                {/* Image Container with Ambient Fit */}
+                <div className="relative aspect-[16/10] overflow-hidden bg-slate-950 flex items-center justify-center">
+                  <img
+                    src={project.image}
+                    alt=""
+                    aria-hidden="true"
+                    className="absolute inset-0 size-full object-cover blur-2xl opacity-40 scale-110 pointer-events-none select-none"
+                  />
                   <img
                     src={project.image}
                     alt={project.title}
-                    className="size-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
+                    className="relative z-10 max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-105 select-none"
                     loading="lazy"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none z-10" />
 
                   {/* Top Badge */}
                   <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 z-10">

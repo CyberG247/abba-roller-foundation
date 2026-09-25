@@ -370,13 +370,22 @@ export function RamadanSupportSection({ id = "ramadan-support" }: { id?: string 
                               openLightboxForPhoto(photo);
                             }
                           }}
-                          className="relative overflow-hidden h-[260px] xs:h-[320px] sm:h-[380px] md:h-[440px] w-full group cursor-pointer select-none bg-slate-950"
+                          className="relative overflow-hidden h-[300px] xs:h-[350px] sm:h-[400px] md:h-[460px] w-full group cursor-pointer select-none bg-slate-950 flex items-center justify-center"
                           aria-label={`Open photo: ${photo.title}`}
                         >
+                          {/* Ambient blurred backdrop so the frame is completely filled edge-to-edge */}
+                          <img
+                            src={photo.src}
+                            alt=""
+                            aria-hidden="true"
+                            className="absolute inset-0 size-full object-cover blur-2xl opacity-40 scale-110 pointer-events-none select-none"
+                          />
+
+                          {/* Main picture - 100% fully fitted without cropping or excessive zooming */}
                           <img
                             src={photo.src}
                             alt={photo.alt}
-                            className="size-full object-cover object-center transition-transform duration-500 group-hover:scale-105 select-none"
+                            className="relative z-10 max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-[1.02] select-none"
                             loading="eager"
                             decoding="async"
                           />
@@ -666,7 +675,8 @@ export function RamadanSupportSection({ id = "ramadan-support" }: { id?: string 
                       src={photo.src}
                       alt={photo.alt}
                       aspectRatio="aspect-[4/3]"
-                      className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      fitMode="ambient"
+                      className="size-full transition-transform duration-300 group-hover:scale-105"
                       width={400}
                       height={300}
                     />

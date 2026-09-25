@@ -500,13 +500,22 @@ export function VisuallyImpairedSchoolSection({ id = "dutse-outreach" }: { id?: 
                               openLightboxForPhoto(photo, index);
                             }
                           }}
-                          className="relative overflow-hidden h-[260px] xs:h-[320px] sm:h-[380px] md:h-[440px] w-full group cursor-pointer select-none bg-slate-900"
+                          className="relative overflow-hidden h-[300px] xs:h-[350px] sm:h-[400px] md:h-[460px] w-full group cursor-pointer select-none bg-slate-950 flex items-center justify-center"
                           aria-label={`Open photo: ${photo.title}`}
                         >
+                          {/* Ambient blurred backdrop so the frame is completely filled edge-to-edge with the photo colors */}
+                          <img
+                            src={photo.src}
+                            alt=""
+                            aria-hidden="true"
+                            className="absolute inset-0 size-full object-cover blur-2xl opacity-40 scale-110 pointer-events-none select-none"
+                          />
+
+                          {/* Main crisp picture: 100% fully fitted without being zoomed or cropped */}
                           <img
                             src={photo.src}
                             alt={photo.alt}
-                            className="size-full object-cover object-center transition-transform duration-500 group-hover:scale-105 select-none"
+                            className="relative z-10 max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-[1.02] select-none"
                             loading="eager"
                             decoding="async"
                           />
@@ -790,11 +799,17 @@ export function VisuallyImpairedSchoolSection({ id = "dutse-outreach" }: { id?: 
                       : "border-hairline hover:border-green-mid",
                   )}
                 >
-                  <div className="aspect-[4/3] overflow-hidden">
+                  <div className="aspect-[4/3] overflow-hidden bg-slate-950 relative flex items-center justify-center">
+                    <img
+                      src={photo.src}
+                      alt=""
+                      aria-hidden="true"
+                      className="absolute inset-0 size-full object-cover blur-xl opacity-35 scale-110 pointer-events-none select-none"
+                    />
                     <img
                       src={photo.src}
                       alt={photo.alt}
-                      className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      className="relative z-10 max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-105 select-none"
                       loading="lazy"
                     />
                   </div>
@@ -823,11 +838,17 @@ export function VisuallyImpairedSchoolSection({ id = "dutse-outreach" }: { id?: 
             {/* Active Enlarge Display Box */}
             {activeGalleryModalImage && (
               <div className="mt-4 rounded-sm border border-green-deep/20 bg-background p-3.5 sm:p-4 flex flex-col sm:flex-row gap-3 sm:gap-4 items-start sm:items-center">
-                <div className="w-full sm:w-48 shrink-0 aspect-[4/3] rounded-xs overflow-hidden bg-muted">
+                <div className="w-full sm:w-48 shrink-0 aspect-[4/3] rounded-xs overflow-hidden bg-slate-950 relative flex items-center justify-center">
+                  <img
+                    src={activeGalleryModalImage.src}
+                    alt=""
+                    aria-hidden="true"
+                    className="absolute inset-0 size-full object-cover blur-xl opacity-35 scale-110 pointer-events-none select-none"
+                  />
                   <img
                     src={activeGalleryModalImage.src}
                     alt={activeGalleryModalImage.alt}
-                    className="size-full object-cover"
+                    className="relative z-10 max-h-full max-w-full object-contain select-none"
                   />
                 </div>
                 <div className="flex-1 text-left min-w-0">

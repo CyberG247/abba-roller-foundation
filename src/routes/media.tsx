@@ -3,6 +3,7 @@ import { useState } from "react";
 
 import { PageHeader } from "@/components/site/PageHeader";
 import { Reveal } from "@/components/site/Reveal";
+import { LazyImage } from "@/components/site/LazyImage";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import { Button } from "@/components/ui/button";
 import { DonateBand, Section, formatDate } from "@/components/site/blocks";
@@ -64,17 +65,16 @@ function Media() {
         <div className="mt-14 grid gap-x-8 gap-y-14 md:grid-cols-2 lg:grid-cols-3">
           {filtered.map((update, index) => (
             <Reveal key={update.id} delay={index * 70} as="article" className="flex flex-col">
-              <div className="overflow-hidden bg-muted">
-                <img
+              <div className="overflow-hidden bg-muted rounded-xs border border-hairline shadow-2xs">
+                <LazyImage
                   src={update.image}
                   alt={update.imageAlt}
-                  loading="lazy"
+                  aspectRatio="aspect-[16/10]"
+                  imagePosition={update.imagePosition || "object-center"}
+                  fitMode="ambient"
+                  zoomOnHover
                   width={1200}
                   height={800}
-                  className={cn(
-                    "aspect-[16/10] w-full object-cover",
-                    update.imagePosition || "object-center",
-                  )}
                 />
               </div>
               <div className="flex flex-1 flex-col pt-5">

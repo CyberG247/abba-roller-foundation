@@ -477,15 +477,24 @@ export function FootballTournamentSection({
                               openLightboxForPhoto(photo, index);
                             }
                           }}
-                          className="relative overflow-hidden h-[260px] xs:h-[320px] sm:h-[380px] md:h-[440px] w-full group cursor-pointer select-none bg-slate-950"
+                          className="relative overflow-hidden h-[300px] xs:h-[350px] sm:h-[400px] md:h-[460px] w-full group cursor-pointer select-none bg-slate-950 flex items-center justify-center"
                           aria-label={`Open photo: ${photo.title}`}
                         >
+                          {/* Ambient blurred backdrop so the frame is completely filled edge-to-edge with the photo colors */}
+                          <img
+                            src={photo.src}
+                            alt=""
+                            aria-hidden="true"
+                            className="absolute inset-0 size-full object-cover blur-2xl opacity-40 scale-110 pointer-events-none select-none"
+                          />
+
+                          {/* Main crisp picture: 100% fully fitted without being zoomed or cropped */}
                           <img
                             src={photo.src}
                             alt={photo.alt}
                             loading="eager"
                             decoding="async"
-                            className="size-full object-cover object-center transition-transform duration-500 group-hover:scale-105 select-none"
+                            className="relative z-10 max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-[1.02] select-none"
                           />
 
                           {/* Top Overlay Badges */}
@@ -764,12 +773,18 @@ export function FootballTournamentSection({
                   <div className="relative aspect-[4/3] overflow-hidden bg-slate-950 flex items-center justify-center">
                     <img
                       src={photo.src}
-                      alt={photo.alt}
-                      loading="eager"
-                      decoding="async"
-                      className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      alt=""
+                      aria-hidden="true"
+                      className="absolute inset-0 size-full object-cover blur-xl opacity-35 scale-110 pointer-events-none select-none"
                     />
-                    <div className="absolute inset-0 bg-slate-950/25 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                    <img
+                      src={photo.src}
+                      alt={photo.alt}
+                      loading="lazy"
+                      decoding="async"
+                      className="relative z-10 max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-105 select-none"
+                    />
+                    <div className="absolute inset-0 bg-slate-950/25 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none z-20">
                       <div className="size-9 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center shadow-md">
                         <Maximize2 className="size-4" />
                       </div>

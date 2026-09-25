@@ -9,6 +9,7 @@ interface LazyImageProps extends ImgHTMLAttributes<HTMLImageElement> {
   imagePosition?: string;
   containerClassName?: string;
   zoomOnHover?: boolean;
+  fitMode?: "cover" | "contain" | "ambient";
 }
 
 export function LazyImage({
@@ -19,6 +20,7 @@ export function LazyImage({
   containerClassName,
   className,
   zoomOnHover = false,
+  fitMode = "cover",
   ...props
 }: LazyImageProps) {
   const [loaded, setLoaded] = useState(false);
@@ -38,7 +40,7 @@ export function LazyImage({
     const observer = new IntersectionObserver(
       (entries) => {
         const [entry] = entries;
-        if (entry.isIntersecting) {
+        if (entry?.isIntersecting) {
           setIsInView(true);
           observer.disconnect();
         }
@@ -53,37 +55,54 @@ export function LazyImage({
   return (
     <div
       ref={containerRef}
-      className={cn("relative overflow-hidden bg-muted/70", aspectRatio, containerClassName)}
+      className={cn(
+        "relative overflow-hidden bg-muted/70",
+        fitMode === "ambient" && "flex items-center justify-center bg-slate-950",
+        aspectRatio,
+        containerClassName,
+      )}
     >
       {/* Shimmer skeleton while not loaded */}
       {!loaded && !hasError && (
         <div
           aria-hidden="true"
-          className="absolute inset-0 animate-pulse bg-gradient-to-r from-muted via-hairline/60 to-muted"
+          className="absolute inset-0 animate-pulse bg-gradient-to-r from-muted via-hairline/60 to-muted z-20"
         />
       )}
 
       {hasError ? (
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-muted text-muted-foreground p-4 text-center">
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-muted text-muted-foreground p-4 text-center z-20">
           <ImageIcon className="size-8 opacity-40 mb-2" />
           <span className="text-xs">Image unavailable</span>
         </div>
       ) : isInView ? (
-        <img
-          src={src}
-          alt={alt}
-          onLoad={() => setLoaded(true)}
-          onError={() => setHasError(true)}
-          loading="lazy"
-          className={cn(
-            "size-full object-cover transition-all duration-700 ease-out",
-            imagePosition,
-            loaded ? "opacity-100 scale-100 blur-0" : "opacity-0 scale-[1.03] blur-xs",
-            zoomOnHover && "group-hover:scale-[1.05]",
-            className,
+        <>
+          {fitMode === "ambient" && (
+            <img
+              src={src}
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 size-full object-cover blur-2xl opacity-40 scale-110 pointer-events-none select-none"
+            />
           )}
-          {...props}
-        />
+          <img
+            src={src}
+            alt={alt}
+            onLoad={() => setLoaded(true)}
+            onError={() => setHasError(true)}
+            loading="lazy"
+            className={cn(
+              fitMode === "ambient"
+                ? "relative z-10 max-h-full max-w-full object-contain transition-all duration-700 ease-out select-none"
+                : "size-full object-cover transition-all duration-700 ease-out",
+              fitMode !== "ambient" && imagePosition,
+              loaded ? "opacity-100 scale-100 blur-0" : "opacity-0 scale-[1.03] blur-xs",
+              zoomOnHover && (fitMode === "ambient" ? "group-hover:scale-[1.02]" : "group-hover:scale-[1.05]"),
+              className,
+            )}
+            {...props}
+          />
+        </>
       ) : null}
     </div>
   );
