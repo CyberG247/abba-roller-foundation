@@ -29,6 +29,7 @@ export const org = {
   description:
     "Abba Roller Foundation (ARF) is a nonprofit dedicated to empowering youth & women through education, skills training, food aid, support.",
   country: "Nigeria",
+  url: "https://arffoundation.org",
   /** Contact details awaiting confirmation from the organisation. */
   email: "abbarollerfoundation@gmail.com",
   phone: CMS_PLACEHOLDER,

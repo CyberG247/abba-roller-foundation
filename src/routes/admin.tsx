@@ -58,6 +58,12 @@ import { downloadLawyerSlip } from "@/lib/generateLawyerSlip";
 import arfLogo from "@/assets/arf-logo-official.png";
 
 export const Route = createFileRoute("/admin")({
+  head: () => ({
+    meta: [
+      { title: "Admin Portal — Abba Roller Foundation" },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   component: AdminDashboardPage,
 });
 

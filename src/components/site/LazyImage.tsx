@@ -97,7 +97,8 @@ export function LazyImage({
                 : "size-full object-cover transition-all duration-700 ease-out",
               fitMode !== "ambient" && imagePosition,
               loaded ? "opacity-100 scale-100 blur-0" : "opacity-0 scale-[1.03] blur-xs",
-              zoomOnHover && (fitMode === "ambient" ? "group-hover:scale-[1.02]" : "group-hover:scale-[1.05]"),
+              zoomOnHover &&
+                (fitMode === "ambient" ? "group-hover:scale-[1.02]" : "group-hover:scale-[1.05]"),
               className,
             )}
             {...props}
