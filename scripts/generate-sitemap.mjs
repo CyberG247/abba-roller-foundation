@@ -12,26 +12,17 @@ const sitemapPath = path.join(publicDir, "sitemap.xml");
 const BASE_URL = (process.env.SITE_URL || "https://arffoundation.org").replace(/\/+$/, "");
 const TODAY = new Date().toISOString().split("T")[0];
 
-// Clean, high-value primary pages for Google indexing
-const coreRoutes = [
+// The 5 most essential high-value pages for the foundation
+const topPages = [
   { path: "/", priority: "1.0", changefreq: "weekly" },
   { path: "/about", priority: "0.9", changefreq: "monthly" },
-  { path: "/founder", priority: "0.9", changefreq: "monthly" },
-  { path: "/work", priority: "0.9", changefreq: "weekly" },
   { path: "/programs", priority: "0.9", changefreq: "weekly" },
-  { path: "/campaigns", priority: "0.9", changefreq: "weekly" },
-  { path: "/stories", priority: "0.9", changefreq: "daily" },
-  { path: "/impact", priority: "0.8", changefreq: "monthly" },
-  { path: "/get-involved", priority: "0.8", changefreq: "monthly" },
-  { path: "/volunteer", priority: "0.8", changefreq: "monthly" },
-  { path: "/membership", priority: "0.8", changefreq: "monthly" },
   { path: "/donate", priority: "0.9", changefreq: "monthly" },
-  { path: "/gallery", priority: "0.8", changefreq: "weekly" },
   { path: "/contact", priority: "0.8", changefreq: "monthly" },
 ];
 
 export function generateSitemap() {
-  const xmlEntries = coreRoutes
+  const xmlEntries = topPages
     .map(
       (entry) => `  <url>
     <loc>${BASE_URL}${entry.path === "/" ? "/" : entry.path}</loc>
@@ -53,9 +44,7 @@ ${xmlEntries}
   }
 
   fs.writeFileSync(sitemapPath, sitemapXml.trim() + "\n", "utf8");
-  console.log(
-    `[sitemap] Generated clean sitemap with ${coreRoutes.length} core pages in ${sitemapPath}`,
-  );
+  console.log(`[sitemap] Generated top ${topPages.length} pages in ${sitemapPath}`);
 }
 
 generateSitemap();
