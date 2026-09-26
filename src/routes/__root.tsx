@@ -93,7 +93,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "author", content: "Abba Roller Foundation" },
       { property: "og:site_name", content: "Abba Roller Foundation" },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://arffoundation.org" },
+      { property: "og:url", content: "https://www.abbarollerfoundation.com.ng" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
@@ -112,11 +112,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "@graph": [
             {
               "@type": "NGO",
-              "@id": "https://arffoundation.org/#organization",
+              "@id": "https://www.abbarollerfoundation.com.ng/#organization",
               name: "Abba Roller Foundation",
               alternateName: "ARF",
-              url: "https://arffoundation.org",
-              logo: "https://arffoundation.org/favicon.png",
+              url: "https://www.abbarollerfoundation.com.ng",
+              logo: "https://www.abbarollerfoundation.com.ng/favicon.png",
               description:
                 "Abba Roller Foundation empowers youth and women in Nigeria through education, skills training, humanitarian support and advocacy.",
               email: "abbarollerfoundation@gmail.com",
@@ -127,11 +127,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
             },
             {
               "@type": "WebSite",
-              "@id": "https://arffoundation.org/#website",
-              url: "https://arffoundation.org",
+              "@id": "https://www.abbarollerfoundation.com.ng/#website",
+              url: "https://www.abbarollerfoundation.com.ng",
               name: "Abba Roller Foundation",
               publisher: {
-                "@id": "https://arffoundation.org/#organization",
+                "@id": "https://www.abbarollerfoundation.com.ng/#organization",
               },
             },
           ],

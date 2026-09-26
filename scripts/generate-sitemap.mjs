@@ -8,8 +8,8 @@ const rootDir = path.resolve(__dirname, "..");
 const publicDir = path.join(rootDir, "public");
 const sitemapPath = path.join(publicDir, "sitemap.xml");
 
-// Default canonical domain
-const BASE_URL = (process.env.SITE_URL || "https://arffoundation.org").replace(/\/+$/, "");
+// Verified live production domain
+const BASE_URL = (process.env.SITE_URL || "https://www.abbarollerfoundation.com.ng").replace(/\/+$/, "");
 const TODAY = new Date().toISOString().split("T")[0];
 
 // The 5 most essential high-value pages for the foundation
@@ -29,7 +29,7 @@ export function generateSitemap() {
     <lastmod>${TODAY}</lastmod>
     <changefreq>${entry.changefreq}</changefreq>
     <priority>${entry.priority}</priority>
-  </url>`,
+  </url>`
     )
     .join("\n");
 
@@ -44,7 +44,7 @@ ${xmlEntries}
   }
 
   fs.writeFileSync(sitemapPath, sitemapXml.trim() + "\n", "utf8");
-  console.log(`[sitemap] Generated top ${topPages.length} pages in ${sitemapPath}`);
+  console.log(`[sitemap] Generated top ${topPages.length} pages for ${BASE_URL} in ${sitemapPath}`);
 }
 
 generateSitemap();

@@ -275,7 +275,7 @@ export async function downloadMembershipCard(member: Member): Promise<void> {
   ctx.font = "10px sans-serif";
   ctx.textAlign = "center";
   ctx.fillText(
-    "This official membership card is issued under the authority of the Abba Roller Foundation. Verified via https://arffoundation.org",
+    "This official membership card is issued under the authority of the Abba Roller Foundation. Verified via https://www.abbarollerfoundation.com.ng",
     width / 2,
     height - 44,
   );

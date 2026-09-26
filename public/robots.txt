@@ -19,5 +19,5 @@ Allow: /
 Disallow: /admin
 
 # Google & Search Engine Sitemap
-Sitemap: https://arffoundation.org/sitemap.xml
+Sitemap: https://www.abbarollerfoundation.com.ng/sitemap.xml
 
