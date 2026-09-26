@@ -86,7 +86,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "Abba Roller Foundation empowers youth and women in Nigeria through education, skills training, humanitarian support and advocacy.",
       },
       { name: "robots", content: "index, follow" },
-      { name: "google-site-verification", content: "google3a8868768f99667c" },
+      {
+        name: "google-site-verification",
+        content: "1DXrK_MfkjeniXR87759wO2GX9TufI5J2OpPNMTXTpI",
+      },
       { name: "author", content: "Abba Roller Foundation" },
       { property: "og:site_name", content: "Abba Roller Foundation" },
       { property: "og:type", content: "website" },
