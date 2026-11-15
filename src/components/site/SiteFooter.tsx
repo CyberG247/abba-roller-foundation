@@ -1,4 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
+import { ExternalLink } from "lucide-react";
 
 import { Logo } from "./Logo";
 import { CMS_PLACEHOLDER, org } from "@/data/site";
@@ -150,6 +151,18 @@ export function SiteFooter() {
               {org.address === CMS_PLACEHOLDER ? "To be confirmed" : org.address}
               {" · "}
               {org.country}
+            </p>
+            <p className="mt-1.5 text-on-dark-muted/80">
+              Crafted &amp; Designed By{" "}
+              <a
+                href="https://www.innovatech-ng.com/"
+                target="_blank"
+                rel="noreferrer noopener"
+                className="inline-flex items-center gap-1 font-semibold text-on-dark underline decoration-brand-red decoration-2 underline-offset-4 hover:text-brand-red-wash transition-colors"
+              >
+                <span>InnovaTech</span>
+                <ExternalLink className="size-3 text-brand-red" />
+              </a>
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2 sm:gap-3 rounded-xs border border-white/10 bg-white/5 px-3 sm:px-3.5 py-2 text-[11px] sm:text-xs">
