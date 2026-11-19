@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useRouterState } from "@tanstack/react-router";
 import { CheckCircle2, Scale, Users2 } from "lucide-react";
 
 import { PageHeader } from "@/components/site/PageHeader";
@@ -44,17 +44,19 @@ const volunteerPerks = [
 ];
 
 function Volunteer() {
-  const [activeTab, setActiveTab] = useState<"general" | "lawyers">("general");
+  const hash = useRouterState({ select: (s) => s.location.hash });
+  const [activeTab, setActiveTab] = useState<"general" | "lawyers">(() =>
+    hash.toLowerCase().includes("lawyer") ? "lawyers" : "general",
+  );
 
-  // Check URL hash on load or change
+  // Sync tab when URL hash changes (e.g. navigating to /volunteer#lawyers-volunteer)
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const hash = window.location.hash.toLowerCase();
-      if (hash.includes("lawyer")) {
-        setActiveTab("lawyers");
-      }
+    if (hash.toLowerCase().includes("lawyer")) {
+      setActiveTab("lawyers");
+    } else if (hash.toLowerCase().includes("general")) {
+      setActiveTab("general");
     }
-  }, []);
+  }, [hash]);
 
   return (
     <>
@@ -87,7 +89,7 @@ function Volunteer() {
       </section>
 
       {/* Tab Navigation Selector */}
-      <section className="py-8 bg-background border-b border-hairline sticky top-16 z-30 backdrop-blur-md bg-background/95">
+      <section className="py-6 bg-background/95 border-b border-hairline sticky top-18 md:top-20 z-30 backdrop-blur-md">
         <div className="shell max-w-4xl mx-auto">
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <button

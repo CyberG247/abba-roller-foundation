@@ -11,7 +11,7 @@ import {
 import type { ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn, formatDate } from "@/lib/utils";
 import { CMS_PLACEHOLDER, type ImpactMetric, type Program, type Story } from "@/data/site";
 import { AnimatedCounter } from "./AnimatedCounter";
 import { LazyImage } from "./LazyImage";
@@ -182,15 +182,6 @@ export function StoryCard({
       </div>
     </Reveal>
   );
-}
-
-export function formatDate(iso: string) {
-  return new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-NG", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    timeZone: "UTC",
-  });
 }
 
 /* ---------------------------------------------------------------- CTA band */

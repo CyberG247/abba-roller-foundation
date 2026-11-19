@@ -1,11 +1,15 @@
 import { useState } from "react";
-import { Mail, MapPin, Phone, Send, CheckCircle2, MessageSquare } from "lucide-react";
+import { Mail, MapPin, Send, CheckCircle2, Copy } from "lucide-react";
+import { toast } from "sonner";
+
 import { Button } from "@/components/ui/button";
 import { Reveal } from "./Reveal";
-import { org } from "@/data/site";
+import { CMS_PLACEHOLDER, org } from "@/data/site";
+import { copyToClipboard } from "@/lib/utils";
 
 export function ContactSection({ id = "contact" }: { id?: string }) {
   const [submitted, setSubmitted] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [formState, setFormState] = useState({
     name: "",
     email: "",
@@ -13,10 +17,35 @@ export function ContactSection({ id = "contact" }: { id?: string }) {
     message: "",
   });
 
+  const buildMailtoHref = () => {
+    const subject = `[${formState.topic}] Message from ${formState.name}`;
+    const body = `Name: ${formState.name}\nEmail: ${formState.email}\nTopic: ${formState.topic}\n\nMessage:\n${formState.message}`;
+    return `mailto:${org.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formState.name || !formState.email || !formState.message) return;
+    if (!formState.name.trim() || !formState.email.trim() || !formState.message.trim()) {
+      toast.error("Please fill in your name, email address, and message.");
+      return;
+    }
     setSubmitted(true);
+    toast.success("Email draft prepared — complete sending via your email app or copy below.");
+    if (typeof window !== "undefined") {
+      window.location.href = buildMailtoHref();
+    }
+  };
+
+  const handleCopyMessage = async () => {
+    const text = `To: ${org.email}\nSubject: [${formState.topic}] Message from ${formState.name}\nFrom: ${formState.name} (${formState.email})\n\n${formState.message}`;
+    const ok = await copyToClipboard(text);
+    if (!ok) {
+      toast.error("Unable to copy automatically.");
+      return;
+    }
+    setCopied(true);
+    toast.success("Message copied to clipboard.");
+    setTimeout(() => setCopied(false), 2500);
   };
 
   return (
@@ -64,40 +93,58 @@ export function ContactSection({ id = "contact" }: { id?: string }) {
                     Jigawa State &amp; Kano State Corridor
                   </p>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Northern Nigeria, Federal Republic of Nigeria
+                    {org.address === CMS_PLACEHOLDER
+                      ? `Northern Nigeria, Federal Republic of ${org.country}`
+                      : org.address}
                   </p>
                 </div>
               </div>
             </div>
           </Reveal>
 
-          {/* Quick Contact Form */}
+          {/* Direct Contact Form with Mailto Handoff */}
           <Reveal delay={120}>
             <div className="rounded-sm border border-hairline bg-background p-6 sm:p-8 shadow-xs">
               {submitted ? (
-                <div className="py-12 text-center">
+                <div className="py-10 text-center">
                   <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-green-wash text-green-deep">
                     <CheckCircle2 className="size-8" />
                   </div>
                   <h3 className="font-display text-2xl font-bold text-ink mt-4">
-                    Message Received
+                    Ready to Send via Email
                   </h3>
                   <p className="mt-2 text-sm text-muted-foreground max-w-md mx-auto">
-                    Thank you for contacting Abba Roller Foundation. A member of our team will
-                    review your message and reply to{" "}
-                    <span className="font-semibold text-ink">{formState.email}</span> shortly.
+                    Your default email client has been prompted with your message to{" "}
+                    <span className="font-semibold text-ink">{org.email}</span>. If your email app
+                    did not open automatically, click below or copy your message.
                   </p>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="mt-6"
-                    onClick={() => {
-                      setSubmitted(false);
-                      setFormState({ name: "", email: "", topic: "General Inquiry", message: "" });
-                    }}
-                  >
-                    Send another message
-                  </Button>
+                  <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+                    <Button asChild variant="default">
+                      <a href={buildMailtoHref()}>
+                        <Mail className="size-4" />
+                        <span>Open Email App</span>
+                      </a>
+                    </Button>
+                    <Button type="button" variant="outline" onClick={handleCopyMessage}>
+                      <Copy className="size-4" />
+                      <span>{copied ? "Copied!" : "Copy Message"}</span>
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => {
+                        setSubmitted(false);
+                        setFormState({
+                          name: "",
+                          email: "",
+                          topic: "General Inquiry",
+                          message: "",
+                        });
+                      }}
+                    >
+                      Write new message
+                    </Button>
+                  </div>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -105,13 +152,13 @@ export function ContactSection({ id = "contact" }: { id?: string }) {
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div>
                       <label
-                        htmlFor="name"
+                        htmlFor="contact-name"
                         className="block text-xs font-bold uppercase tracking-wider text-ink-soft mb-1.5"
                       >
                         Your Full Name *
                       </label>
                       <input
-                        id="name"
+                        id="contact-name"
                         type="text"
                         required
                         value={formState.name}
@@ -122,13 +169,13 @@ export function ContactSection({ id = "contact" }: { id?: string }) {
                     </div>
                     <div>
                       <label
-                        htmlFor="email"
+                        htmlFor="contact-email"
                         className="block text-xs font-bold uppercase tracking-wider text-ink-soft mb-1.5"
                       >
                         Email Address *
                       </label>
                       <input
-                        id="email"
+                        id="contact-email"
                         type="email"
                         required
                         value={formState.email}
@@ -141,13 +188,13 @@ export function ContactSection({ id = "contact" }: { id?: string }) {
 
                   <div>
                     <label
-                      htmlFor="topic"
+                      htmlFor="contact-topic"
                       className="block text-xs font-bold uppercase tracking-wider text-ink-soft mb-1.5"
                     >
                       Subject / Topic
                     </label>
                     <select
-                      id="topic"
+                      id="contact-topic"
                       value={formState.topic}
                       onChange={(e) => setFormState({ ...formState, topic: e.target.value })}
                       className="w-full rounded-xs border border-hairline bg-surface px-3.5 py-2.5 text-sm text-ink outline-none transition-colors focus:border-green-deep focus:bg-background"
@@ -162,13 +209,13 @@ export function ContactSection({ id = "contact" }: { id?: string }) {
 
                   <div>
                     <label
-                      htmlFor="message"
+                      htmlFor="contact-message"
                       className="block text-xs font-bold uppercase tracking-wider text-ink-soft mb-1.5"
                     >
                       Message *
                     </label>
                     <textarea
-                      id="message"
+                      id="contact-message"
                       required
                       rows={4}
                       value={formState.message}
@@ -180,7 +227,7 @@ export function ContactSection({ id = "contact" }: { id?: string }) {
 
                   <Button type="submit" variant="default" size="lg" className="w-full gap-2">
                     <Send className="size-4" />
-                    Submit Message
+                    <span>Compose &amp; Send Email</span>
                   </Button>
                 </form>
               )}

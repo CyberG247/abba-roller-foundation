@@ -6,20 +6,12 @@ import {
   Heart,
   Calendar,
   MapPin,
-  Trophy,
-  Package,
-  Soup,
-  ShieldCheck,
   CheckCircle2,
   ArrowRight,
-  Sparkles,
   ExternalLink,
-  Layers,
-  Award,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Reveal } from "@/components/site/Reveal";
 import { AnimatedCounter } from "@/components/site/AnimatedCounter";
 import { cn } from "@/lib/utils";
 
@@ -29,10 +21,21 @@ import visuallyImpairedSchoolSupplies from "@/assets/visually-impaired-school-du
 import footballTrophyPresentation from "@/assets/football-tournament-trophy-presentation.jpg";
 import footballCashAwards from "@/assets/football-tournament-cash-awards.jpg";
 import ramadanDistributionBox from "@/assets/ramadan-food-packages-10-states.jpg";
-import weeklyFoodMeals from "@/assets/weekly-food-distribution-meals.jpg";
 import weeklyFoodBeneficiaries from "@/assets/weekly-food-distribution-beneficiaries.jpg";
 
+const title = "Our Work & Field Portfolio — Abba Roller Foundation";
+const description =
+  "Explore Abba Roller Foundation's documented volunteering activities and charity outreaches across Jigawa, Kano, and 10 Northern Nigerian states.";
+
 export const Route = createFileRoute("/work")({
+  head: () => ({
+    meta: [
+      { title },
+      { name: "description", content: description },
+      { property: "og:title", content: title },
+      { property: "og:description", content: description },
+    ],
+  }),
   component: OurWorkPage,
 });
 
@@ -41,7 +44,7 @@ type WorkCategory = "all" | "volunteering" | "charity";
 interface WorkProject {
   id: string;
   category: "volunteering" | "charity";
-  subSection: "3a. Volunteering Activities" | "3b. Charity & Outreach";
+  subSection: "Volunteering Activities" | "Charity & Outreach";
   title: string;
   location: string;
   date: string;
@@ -51,16 +54,23 @@ interface WorkProject {
   summary: string;
   impactMetrics: { label: string; value: string }[];
   details: string[];
-  ctaLink?: string;
+  ctaRoute?:
+    | {
+        to: "/stories/$slug";
+        params: { slug: "visually-impaired-school-dutse-jigawa" };
+      }
+    | {
+        to: "/campaigns/$slug";
+        params: { slug: "weekly-community-food-distribution" };
+      };
   ctaText?: string;
 }
 
 const PROJECTS: WorkProject[] = [
-  // 3a. Volunteering Activities
   {
     id: "volunteer-dutse-hostel",
     category: "volunteering",
-    subSection: "3a. Volunteering Activities",
+    subSection: "Volunteering Activities",
     title: "Hostel Care & Dignity Outreach at School for Visually Impaired",
     location: "Dutse, Jigawa State",
     date: "Continuous Welfare Cycle",
@@ -79,13 +89,16 @@ const PROJECTS: WorkProject[] = [
       "Conducted empathetic mentorship dialogues reinforcing confidence and education.",
       "Supervised cafeteria food serving and nutritional meal allocation.",
     ],
-    ctaLink: "/stories/visually-impaired-school-dutse-jigawa",
+    ctaRoute: {
+      to: "/stories/$slug",
+      params: { slug: "visually-impaired-school-dutse-jigawa" },
+    },
     ctaText: "Read Field Story",
   },
   {
     id: "volunteer-weekly-feeding",
     category: "volunteering",
-    subSection: "3a. Volunteering Activities",
+    subSection: "Volunteering Activities",
     title: "Weekly Direct Street Feeding Logistics & Distribution Corps",
     location: "Gumel & Municipalities, Jigawa State",
     date: "Every Weekend (Active Ongoing)",
@@ -104,13 +117,16 @@ const PROJECTS: WorkProject[] = [
       "Zero middlemen: handed directly to children and elderly community members.",
       "Building trust and compassion across neighborhood wards.",
     ],
-    ctaLink: "/campaigns/weekly-community-food-distribution",
+    ctaRoute: {
+      to: "/campaigns/$slug",
+      params: { slug: "weekly-community-food-distribution" },
+    },
     ctaText: "Explore Feeding Initiative",
   },
   {
     id: "volunteer-football-mentorship",
     category: "volunteering",
-    subSection: "3a. Volunteering Activities",
+    subSection: "Volunteering Activities",
     title: "Grassroots Football League Coordination & Youth Marshals",
     location: "Gumel Stadium, Jigawa State",
     date: "Championship Season",
@@ -131,11 +147,10 @@ const PROJECTS: WorkProject[] = [
     ],
   },
 
-  // 3b. Charity & Outreach
   {
     id: "charity-ramadan-relief",
     category: "charity",
-    subSection: "3b. Charity & Outreach",
+    subSection: "Charity & Outreach",
     title: "National Ramadan Fasting Sustenance & Muslim Ummah Relief",
     location: "10 Northwest & Northeast States",
     date: "Annual Holy Month Outreach",
@@ -150,7 +165,7 @@ const PROJECTS: WorkProject[] = [
       { label: "Households Fed", value: "10,000+ People" },
     ],
     details: [
-      "Covering Kano, Jigawa, Kaduna, Katsina, Sokoto, Kebbi, Zamfara, Bauchi, Borno, and Gombe.",
+      "Covering Jigawa, Kano, Yobe, Borno, Kaduna, Katsina, Bauchi, Sokoto, Gombe, and Zamfara.",
       "High-nutrition pantry provisions: grains, sugar, dates, cooking oil, and bottled water.",
       "Dedicated focus on disabled persons, widows, and vulnerable orphans.",
     ],
@@ -158,7 +173,7 @@ const PROJECTS: WorkProject[] = [
   {
     id: "charity-visually-impaired-dutse",
     category: "charity",
-    subSection: "3b. Charity & Outreach",
+    subSection: "Charity & Outreach",
     title: "Multi-Pillar Welfare Intervention for Special Education Students",
     location: "School for the Visually Impaired, Dutse",
     date: "Major Foundation Grant",
@@ -181,7 +196,7 @@ const PROJECTS: WorkProject[] = [
   {
     id: "charity-football-championship",
     category: "charity",
-    subSection: "3b. Charity & Outreach",
+    subSection: "Charity & Outreach",
     title: "ARF Grassroots Football Championship Sponsorship & Team Grants",
     location: "Gumel & Neighboring Communities",
     date: "Annual Tournament",
@@ -212,7 +227,7 @@ function OurWorkPage() {
   return (
     <div className="bg-background text-ink min-h-screen">
       {/* Hero Header */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-green-deep via-green-deep to-slate-950 text-white py-16 md:py-24">
+      <section className="relative overflow-hidden bg-gradient-to-b from-green-deep via-green-deep to-slate-950 text-white pt-28 pb-16 md:pt-36 md:pb-24">
         <div
           aria-hidden
           className="pointer-events-none absolute -top-40 right-0 h-96 w-96 rounded-full bg-brand-red/15 blur-3xl"
@@ -316,7 +331,7 @@ function OurWorkPage() {
                   : "text-ink-soft hover:text-ink",
               )}
             >
-              3a. Volunteering Activities (3)
+              Volunteering Activities (3)
             </button>
 
             <button
@@ -329,7 +344,7 @@ function OurWorkPage() {
                   : "text-ink-soft hover:text-ink",
               )}
             >
-              3b. Charity &amp; Outreach (3)
+              Charity &amp; Outreach (3)
             </button>
           </div>
         </div>
@@ -426,14 +441,14 @@ function OurWorkPage() {
 
               {/* Card Footer Action */}
               <div className="p-5 pt-0">
-                {project.ctaLink ? (
+                {project.ctaRoute ? (
                   <Button
                     asChild
                     variant="outline"
                     size="sm"
                     className="w-full text-xs font-bold gap-1.5"
                   >
-                    <Link to={project.ctaLink}>
+                    <Link to={project.ctaRoute.to} params={project.ctaRoute.params}>
                       <span>{project.ctaText || "Learn More"}</span>
                       <ArrowRight className="size-3.5" />
                     </Link>

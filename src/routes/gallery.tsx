@@ -1,38 +1,26 @@
 import { useState, useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import {
-  Image,
-  Filter,
-  Maximize2,
-  ChevronLeft,
-  ChevronRight,
-  Download,
-  Calendar,
-  MapPin,
-  Sparkles,
-  Trophy,
-  Heart,
-  Package,
-  Soup,
-  Eye,
-  X,
-} from "lucide-react";
+import { Image, Maximize2, ChevronLeft, ChevronRight, MapPin } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-
-// Tournaments
-import { tournamentGallery } from "@/components/site/FootballTournamentSection";
-// Dutse
-import { dutseSchoolGallery } from "@/components/site/VisuallyImpairedSchoolSection";
-// Ramadan
-import { ramadanGallery } from "@/components/site/RamadanSupportSection";
-// Weekly feeding
+import { dutseSchoolGallery, ramadanGallery, tournamentGallery } from "@/data/galleries";
 import weeklyFoodMeals from "@/assets/weekly-food-distribution-meals.jpg";
 import weeklyFoodBeneficiaries from "@/assets/weekly-food-distribution-beneficiaries.jpg";
 
+const title = "Official Photographic Field Gallery — Abba Roller Foundation";
+const description =
+  "High-resolution photographic archive of Abba Roller Foundation humanitarian missions, special education support, grassroots football, and weekly feeding.";
+
 export const Route = createFileRoute("/gallery")({
+  head: () => ({
+    meta: [
+      { title },
+      { name: "description", content: description },
+      { property: "og:title", content: title },
+      { property: "og:description", content: description },
+    ],
+  }),
   component: GalleryPage,
 });
 
@@ -134,35 +122,53 @@ function GalleryPage() {
   };
 
   const nextPhoto = () => {
-    const nextIdx = (activeIndex + 1) % filteredPhotos.length;
-    setActiveIndex(nextIdx);
-    const photo = filteredPhotos[nextIdx];
-    if (photo) setActivePhoto(photo);
+    setActiveIndex((prev) => {
+      const nextIdx = (prev + 1) % filteredPhotos.length;
+      const photo = filteredPhotos[nextIdx];
+      if (photo) setActivePhoto(photo);
+      return nextIdx;
+    });
   };
 
   const prevPhoto = () => {
-    const prevIdx = (activeIndex - 1 + filteredPhotos.length) % filteredPhotos.length;
-    setActiveIndex(prevIdx);
-    const photo = filteredPhotos[prevIdx];
-    if (photo) setActivePhoto(photo);
+    setActiveIndex((prev) => {
+      const prevIdx = (prev - 1 + filteredPhotos.length) % filteredPhotos.length;
+      const photo = filteredPhotos[prevIdx];
+      if (photo) setActivePhoto(photo);
+      return prevIdx;
+    });
   };
 
   // Keyboard navigation
   useEffect(() => {
     if (!activePhoto) return;
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowLeft") prevPhoto();
-      if (e.key === "ArrowRight") nextPhoto();
+      if (e.key === "ArrowLeft") {
+        setActiveIndex((prev) => {
+          const prevIdx = (prev - 1 + filteredPhotos.length) % filteredPhotos.length;
+          const photo = filteredPhotos[prevIdx];
+          if (photo) setActivePhoto(photo);
+          return prevIdx;
+        });
+      }
+      if (e.key === "ArrowRight") {
+        setActiveIndex((prev) => {
+          const nextIdx = (prev + 1) % filteredPhotos.length;
+          const photo = filteredPhotos[nextIdx];
+          if (photo) setActivePhoto(photo);
+          return nextIdx;
+        });
+      }
       if (e.key === "Escape") setActivePhoto(null);
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [activePhoto, activeIndex, filteredPhotos]);
+  }, [activePhoto, filteredPhotos]);
 
   return (
     <div className="bg-background text-ink min-h-screen">
       {/* Header Banner */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-green-deep via-green-deep to-slate-950 text-white py-16 md:py-24">
+      <section className="relative overflow-hidden bg-gradient-to-b from-green-deep via-green-deep to-slate-950 text-white pt-28 pb-16 md:pt-36 md:pb-24">
         <div
           aria-hidden
           className="pointer-events-none absolute -top-40 right-0 h-96 w-96 rounded-full bg-amber-500/15 blur-3xl"

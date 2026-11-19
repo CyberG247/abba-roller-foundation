@@ -3,14 +3,14 @@ import arfLogo from "@/assets/arf-logo-official.png";
 export interface LawyerSlipData {
   refNumber: string;
   fullName: string;
-  lawFirm?: string;
+  lawFirm?: string | undefined;
   email: string;
   university: string;
   phone: string;
   callToBarYear: string;
   casesWon: string | number;
-  jurisdictionState?: string;
-  practiceAreas?: string[];
+  jurisdictionState?: string | undefined;
+  practiceAreas?: string[] | undefined;
   submissionDate: string;
 }
 

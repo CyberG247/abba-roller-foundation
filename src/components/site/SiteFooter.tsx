@@ -4,36 +4,73 @@ import { ExternalLink } from "lucide-react";
 import { Logo } from "./Logo";
 import { CMS_PLACEHOLDER, org } from "@/data/site";
 
-const sectionMap: Record<string, string> = {
-  "/about": "about",
-  "/founder": "founder",
-  "/programs": "programs",
-  "/campaigns/weekly-community-food-distribution": "food-distribution",
-  "/campaigns/ramadan-food-support-10-states": "ramadan-support",
-  "/media": "media",
-  "/impact": "impact",
-  "/stories": "stories",
-  "/contact": "contact",
-  "/donate": "donate",
-  "/partners": "partners",
-  "/get-involved": "get-involved",
-};
+type FooterLink =
+  | {
+      label: string;
+      to:
+        | "/"
+        | "/about"
+        | "/work"
+        | "/founder"
+        | "/gallery"
+        | "/media"
+        | "/impact"
+        | "/contact"
+        | "/membership"
+        | "/volunteer"
+        | "/donate"
+        | "/admin"
+        | "/partners"
+        | "/campaigns"
+        | "/get-involved"
+        | "/privacy"
+        | "/terms"
+        | "/accessibility";
+      hash?: string;
+      homeSectionId?: string;
+    }
+  | {
+      label: string;
+      to: "/campaigns/$slug";
+      params: { slug: string };
+      homeSectionId?: string;
+    };
 
-const columns = [
+const columns: readonly { heading: string; links: readonly FooterLink[] }[] = [
   {
     heading: "Organisation",
     links: [
-      { label: "About", to: "/about" },
+      { label: "About", to: "/about", homeSectionId: "about" },
       { label: "Our Work", to: "/work" },
-      { label: "Founder's Desk", to: "/founder" },
+      { label: "Founder's Desk", to: "/founder", homeSectionId: "founder" },
       { label: "Photo Gallery", to: "/gallery" },
-      { label: "Weekly Feeding", to: "/campaigns/weekly-community-food-distribution" },
-      { label: "Ramadan Relief", to: "/campaigns/ramadan-food-support-10-states" },
-      { label: "Dutse School Outreach", to: "#dutse-outreach" },
-      { label: "Football Championship", to: "#football-tournament" },
-      { label: "Media & Updates", to: "/media" },
-      { label: "Impact", to: "/impact" },
-      { label: "Contact", to: "/contact" },
+      {
+        label: "Weekly Feeding",
+        to: "/campaigns/$slug",
+        params: { slug: "weekly-community-food-distribution" },
+        homeSectionId: "food-distribution",
+      },
+      {
+        label: "Ramadan Relief",
+        to: "/campaigns/$slug",
+        params: { slug: "ramadan-food-support-10-states" },
+        homeSectionId: "ramadan-support",
+      },
+      {
+        label: "Dutse School Outreach",
+        to: "/",
+        hash: "dutse-outreach",
+        homeSectionId: "dutse-outreach",
+      },
+      {
+        label: "Football Championship",
+        to: "/",
+        hash: "football-tournament",
+        homeSectionId: "football-tournament",
+      },
+      { label: "Media & Updates", to: "/media", homeSectionId: "media" },
+      { label: "Impact", to: "/impact", homeSectionId: "impact" },
+      { label: "Contact", to: "/contact", homeSectionId: "contact" },
     ],
   },
   {
@@ -41,12 +78,12 @@ const columns = [
     links: [
       { label: "Become a Member", to: "/membership" },
       { label: "Volunteer Application", to: "/volunteer" },
-      { label: "Lawyers Pro Bono Corps", to: "/volunteer#lawyers-volunteer" },
-      { label: "Donate", to: "/donate" },
+      { label: "Lawyers Pro Bono Corps", to: "/volunteer", hash: "lawyers-volunteer" },
+      { label: "Donate", to: "/donate", homeSectionId: "donate" },
       { label: "Admin Portal", to: "/admin" },
-      { label: "Partner With Us", to: "/partners" },
+      { label: "Partner With Us", to: "/partners", homeSectionId: "partners" },
       { label: "Campaigns", to: "/campaigns" },
-      { label: "Get Involved", to: "/get-involved" },
+      { label: "Get Involved", to: "/get-involved", homeSectionId: "get-involved" },
     ],
   },
   {
@@ -57,21 +94,18 @@ const columns = [
       { label: "Accessibility Statement", to: "/accessibility" },
     ],
   },
-] as const;
+];
 
 export function SiteFooter() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isHome = pathname === "/";
 
-  const handleLinkClick = (to: string, e: React.MouseEvent) => {
-    if (isHome && sectionMap[to]) {
+  const handleHomeScroll = (targetId: string, e: React.MouseEvent) => {
+    const element = document.getElementById(targetId);
+    if (element) {
       e.preventDefault();
-      const targetId = sectionMap[to];
-      const element = document.getElementById(targetId);
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
-        window.history.replaceState(null, "", `#${targetId}`);
-      }
+      element.scrollIntoView({ behavior: "smooth" });
+      window.history.replaceState(null, "", `#${targetId}`);
     }
   };
 
@@ -118,17 +152,29 @@ export function SiteFooter() {
               <h2 className="eyebrow text-on-dark">{column.heading}</h2>
               <ul className="mt-5 space-y-3 text-sm">
                 {column.links.map((link) => (
-                  <li key={link.to}>
-                    {isHome && sectionMap[link.to] ? (
+                  <li key={link.label}>
+                    {isHome && link.homeSectionId ? (
                       <a
-                        href={`#${sectionMap[link.to]}`}
-                        onClick={(e) => handleLinkClick(link.to, e)}
+                        href={`#${link.homeSectionId}`}
+                        onClick={(e) => handleHomeScroll(link.homeSectionId!, e)}
                         className="transition-colors hover:text-on-dark cursor-pointer"
                       >
                         {link.label}
                       </a>
+                    ) : "params" in link ? (
+                      <Link
+                        to={link.to}
+                        params={link.params}
+                        className="transition-colors hover:text-on-dark"
+                      >
+                        {link.label}
+                      </Link>
                     ) : (
-                      <Link to={link.to} className="transition-colors hover:text-on-dark">
+                      <Link
+                        to={link.to}
+                        {...(link.hash ? { hash: link.hash } : {})}
+                        className="transition-colors hover:text-on-dark"
+                      >
                         {link.label}
                       </Link>
                     )}
@@ -167,7 +213,9 @@ export function SiteFooter() {
           </div>
           <div className="flex flex-wrap items-center gap-2 sm:gap-3 rounded-xs border border-white/10 bg-white/5 px-3 sm:px-3.5 py-2 text-[11px] sm:text-xs">
             <span className="font-semibold text-on-dark">Official Account:</span>
-            <span className="font-mono font-bold text-white">POLARIS BANK · 4092448499</span>
+            <span className="font-mono font-bold text-white">
+              {org.bankDetails.bankName} · {org.bankDetails.accountNumber}
+            </span>
             <span className="rounded-full bg-brand-red px-2 py-0.5 text-[9px] sm:text-[10px] font-extrabold text-white">
               VERIFIED
             </span>

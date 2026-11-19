@@ -1,16 +1,31 @@
-import { motion, type HTMLMotionProps, useReducedMotion } from "framer-motion";
-import { type ElementType, type ReactNode } from "react";
+import { motion, useReducedMotion } from "framer-motion";
+import { type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 export type RevealVariant = "up" | "down" | "left" | "right" | "scale" | "fade";
 
+type RevealTag = "div" | "section" | "article" | "p" | "h1" | "h2" | "h3" | "span" | "li";
+
+const motionComponents = {
+  div: motion.div,
+  section: motion.section,
+  article: motion.article,
+  p: motion.p,
+  h1: motion.h1,
+  h2: motion.h2,
+  h3: motion.h3,
+  span: motion.span,
+  li: motion.li,
+} as const;
+
 export type RevealProps = {
   children: ReactNode;
   className?: string;
+  id?: string;
   delay?: number;
   direction?: RevealVariant;
   duration?: number;
-  as?: ElementType;
+  as?: RevealTag;
   once?: boolean;
   amount?: number | "some" | "all";
 };
@@ -54,6 +69,7 @@ const getVariants = (direction: RevealVariant) => {
 export function Reveal({
   children,
   className,
+  id,
   delay = 0,
   direction = "up",
   duration = 0.65,
@@ -64,14 +80,20 @@ export function Reveal({
   const shouldReduceMotion = useReducedMotion();
   const variants = getVariants(direction);
 
-  const MotionTag = motion[Tag as keyof typeof motion] || motion.div;
-
   if (shouldReduceMotion) {
-    return <div className={className}>{children}</div>;
+    const PlainTag = Tag;
+    return (
+      <PlainTag id={id} className={className}>
+        {children}
+      </PlainTag>
+    );
   }
+
+  const MotionTag = motionComponents[Tag] ?? motion.div;
 
   return (
     <MotionTag
+      id={id}
       initial="hidden"
       whileInView="visible"
       viewport={{ once, amount }}

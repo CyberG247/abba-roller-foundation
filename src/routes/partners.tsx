@@ -3,8 +3,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/site/PageHeader";
 import { Reveal } from "@/components/site/Reveal";
 import { DonateBand, Section } from "@/components/site/blocks";
-import { PartnersMarquee, partners } from "@/components/site/PartnersMarquee";
-import { org } from "@/data/site";
+import { PartnersMarquee } from "@/components/site/PartnersMarquee";
+import { org, partners } from "@/data/site";
 import { ExternalLink, Handshake, Sparkles } from "lucide-react";
 
 const title = "Partner With Us — Abba Roller Foundation";

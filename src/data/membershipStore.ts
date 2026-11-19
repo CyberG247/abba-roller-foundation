@@ -1,3 +1,5 @@
+import { exportRecordsToCsv, getTodayIsoDate } from "@/lib/utils";
+
 export type MembershipTier =
   "Standard Member" | "Youth Ambassador" | "Volunteer Corps" | "Executive Supporter" | "Patron";
 
@@ -5,16 +7,16 @@ export interface Member {
   id: string;
   fullName: string;
   email: string;
-  phone?: string;
+  phone?: string | undefined;
   state: string;
   lga: string;
-  gender?: "Male" | "Female" | "Prefer not to say" | "";
-  occupation?: string;
+  gender?: "Male" | "Female" | "Prefer not to say" | "" | undefined;
+  occupation?: string | undefined;
   tier: MembershipTier;
   joinedDate: string;
   status: "Active" | "Verified" | "Honorary";
-  avatarSeed?: string;
-  photoUrl?: string;
+  avatarSeed?: string | undefined;
+  photoUrl?: string | undefined;
 }
 
 export const INITIAL_MEMBERS: Member[] = [
@@ -207,7 +209,7 @@ export function saveMemberToStorage(
   const member: Member = {
     ...newMember,
     id,
-    joinedDate: new Date().toISOString().split("T")[0],
+    joinedDate: getTodayIsoDate(),
     status: "Active",
   };
 
@@ -222,6 +224,32 @@ export function saveMemberToStorage(
   }
 
   return member;
+}
+
+export function updateMemberStatus(id: string, status: Member["status"]): Member[] {
+  const updated = loadMembersFromStorage().map((m) => (m.id === id ? { ...m, status } : m));
+  if (typeof window !== "undefined") {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      window.dispatchEvent(new Event("arf_members_updated"));
+    } catch {
+      // ignore
+    }
+  }
+  return updated;
+}
+
+export function deleteMemberFromStorage(id: string): Member[] {
+  const updated = loadMembersFromStorage().filter((m) => m.id !== id);
+  if (typeof window !== "undefined") {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      window.dispatchEvent(new Event("arf_members_updated"));
+    } catch {
+      // ignore
+    }
+  }
+  return updated;
 }
 
 export function exportMembersToCsv(members: Member[]): void {
@@ -240,28 +268,18 @@ export function exportMembersToCsv(members: Member[]): void {
   ];
 
   const rows = members.map((m) => [
-    `"${m.id}"`,
-    `"${m.fullName.replace(/"/g, '""')}"`,
-    `"${m.email.replace(/"/g, '""')}"`,
-    `"${(m.phone || "").replace(/"/g, '""')}"`,
-    `"${m.state.replace(/"/g, '""')}"`,
-    `"${m.lga.replace(/"/g, '""')}"`,
-    `"${(m.gender || "Not specified").replace(/"/g, '""')}"`,
-    `"${(m.occupation || "Not specified").replace(/"/g, '""')}"`,
-    `"${m.tier.replace(/"/g, '""')}"`,
-    `"${m.joinedDate}"`,
-    `"${m.status}"`,
+    m.id,
+    m.fullName,
+    m.email,
+    m.phone || "",
+    m.state,
+    m.lga,
+    m.gender || "Not specified",
+    m.occupation || "Not specified",
+    m.tier,
+    m.joinedDate,
+    m.status,
   ]);
 
-  const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\r\n");
-
-  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.setAttribute("href", url);
-  link.setAttribute("download", `ARF_Members_Export_${new Date().toISOString().split("T")[0]}.csv`);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+  exportRecordsToCsv(`ARF_Members_Export_${getTodayIsoDate()}.csv`, headers, rows);
 }

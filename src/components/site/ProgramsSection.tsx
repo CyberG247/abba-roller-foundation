@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, ChevronRight, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 import { Reveal } from "./Reveal";
-import { SectionHeading } from "./SectionHeading";
 import { ProgramCard } from "./blocks";
 import { Button } from "@/components/ui/button";
-import { campaigns, programs, type Program } from "@/data/site";
+import { campaigns, programs } from "@/data/site";
 import { LazyImage } from "./LazyImage";
 import { cn } from "@/lib/utils";
 
@@ -20,7 +19,7 @@ const filterCategories = [
 
 export function ProgramsSection({ id = "programs" }: { id?: string }) {
   const [selectedFilter, setSelectedFilter] = useState("all");
-  const campaign = campaigns[0];
+  const campaign = campaigns.find((c) => c.slug === "pad-up-nigerian-girls") ?? campaigns[0];
 
   const filteredPrograms =
     selectedFilter === "all" ? programs : programs.filter((p) => p.icon === selectedFilter);

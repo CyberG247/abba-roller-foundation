@@ -1,10 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowDown, ArrowRight, Heart, Sparkles, Users, Award, ShieldCheck } from "lucide-react";
+import { ArrowRight, Heart, Users } from "lucide-react";
 
 import heroGirls from "@/assets/hero-girls.jpg";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/site/Reveal";
-import { SectionHeading } from "@/components/site/SectionHeading";
 import { LazyImage } from "@/components/site/LazyImage";
 import { AnimatedCounter } from "@/components/site/AnimatedCounter";
 import { FloatingActions } from "@/components/site/FloatingActions";
@@ -23,8 +22,8 @@ import { VolunteerSection } from "@/components/site/VolunteerSection";
 import { LawyersVolunteerSection } from "@/components/site/LawyersVolunteerSection";
 import { DonationSection } from "@/components/site/DonationSection";
 import { ContactSection } from "@/components/site/ContactSection";
-import { StoryCard, StatList } from "@/components/site/blocks";
-import { impactMetrics, org, stories } from "@/data/site";
+import { StoryCard } from "@/components/site/blocks";
+import { org, stories } from "@/data/site";
 
 const title = "Abba Roller Foundation — Empowering youth and women in Nigeria";
 const description = org.description;

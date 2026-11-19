@@ -1,4 +1,4 @@
-import { useState, useId, useRef } from "react";
+import { useState, useRef } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Users,
@@ -7,7 +7,6 @@ import {
   Award,
   Download,
   Printer,
-  Sparkles,
   MapPin,
   Mail,
   Phone,
@@ -15,9 +14,6 @@ import {
   Briefcase,
   IdCard,
   Building,
-  Heart,
-  ExternalLink,
-  ChevronRight,
   ArrowRight,
   Camera,
   UploadCloud,
@@ -35,13 +31,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Reveal } from "@/components/site/Reveal";
 import { ALL_STATES, getLgasForState } from "@/data/nigeriaStatesLgas";
 import { saveMemberToStorage, type Member, type MembershipTier } from "@/data/membershipStore";
 import { downloadMembershipCard } from "@/lib/generateMembershipSlip";
+import { compressPassportPhoto } from "@/lib/utils";
 import arfLogo from "@/assets/arf-logo-official.png";
 
+const title = "Become a Member — Abba Roller Foundation";
+const description =
+  "Register as an official citizen member of Abba Roller Foundation across all 36 states and FCT Abuja, and download your digital membership ID card.";
+
 export const Route = createFileRoute("/membership")({
+  head: () => ({
+    meta: [
+      { title },
+      { name: "description", content: description },
+      { property: "og:title", content: title },
+      { property: "og:description", content: description },
+    ],
+  }),
   component: MembershipPage,
 });
 
@@ -128,7 +136,7 @@ function MembershipPage() {
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -137,11 +145,12 @@ function MembershipPage() {
       return;
     }
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setPhotoPreview(reader.result as string);
-    };
-    reader.readAsDataURL(file);
+    try {
+      const compressed = await compressPassportPhoto(file);
+      setPhotoPreview(compressed);
+    } catch {
+      toast.error("Could not process image. Please choose a valid PNG or JPG photo.");
+    }
   };
 
   const removePhoto = () => {
@@ -225,7 +234,7 @@ function MembershipPage() {
   return (
     <div className="bg-background text-ink min-h-screen">
       {/* Hero Banner */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-green-deep via-green-deep to-slate-950 text-white py-16 md:py-24">
+      <section className="relative overflow-hidden bg-gradient-to-b from-green-deep via-green-deep to-slate-950 text-white pt-28 pb-16 md:pt-36 md:pb-24">
         <div
           aria-hidden
           className="pointer-events-none absolute -top-40 right-0 h-96 w-96 rounded-full bg-brand-red/15 blur-3xl"

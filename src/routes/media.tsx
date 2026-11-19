@@ -6,8 +6,8 @@ import { Reveal } from "@/components/site/Reveal";
 import { LazyImage } from "@/components/site/LazyImage";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import { Button } from "@/components/ui/button";
-import { DonateBand, Section, formatDate } from "@/components/site/blocks";
-import { cn } from "@/lib/utils";
+import { DonateBand, Section } from "@/components/site/blocks";
+import { cn, formatDate } from "@/lib/utils";
 import { CMS_PLACEHOLDER, updateCategories, updates } from "@/data/site";
 
 const title = "Media & Updates — Abba Roller Foundation";

@@ -19,6 +19,9 @@ import weeklyFoodBeneficiaries from "@/assets/weekly-food-distribution-beneficia
 import ramadanFoodPackages from "@/assets/ramadan-food-packages-10-states.jpg";
 import visuallyImpairedSchoolDutse1 from "@/assets/visually-impaired-school-dutse-1.jpg";
 import footballTournamentTrophyPresentation from "@/assets/football-tournament-trophy-presentation.jpg";
+import partnerRenewedHope from "@/assets/partner-renewed-hope.jpg";
+import partnerJigawaTso from "@/assets/partner-jigawa-tso.jpg";
+import partnerInnovatech from "@/assets/partner-innovatech.png";
 
 export const CMS_PLACEHOLDER = "—" as const;
 
@@ -27,7 +30,7 @@ export const org = {
   shortName: "ARF",
   tagline: "Empowering youth and women. Strengthening communities.",
   description:
-    "Abba Roller Foundation (ARF) is a nonprofit dedicated to empowering youth & women through education, skills training, food aid, support.",
+    "Abba Roller Foundation (ARF) is a nonprofit dedicated to empowering youth and women through education, skills training, food aid, and community support.",
   country: "Nigeria",
   url: "https://www.abbarollerfoundation.com.ng",
   /** Contact details awaiting confirmation from the organisation. */
@@ -1003,3 +1006,106 @@ export const founder = {
     "Cross-Cultural Team Management",
   ],
 };
+
+/* ----------------------------------------------------------- giving & partners */
+
+export type DonationTier = {
+  amount: string;
+  numeric: number;
+  impact: string;
+  tag: string;
+};
+
+export const donationTiers: DonationTier[] = [
+  {
+    amount: "5,000",
+    numeric: 5000,
+    impact:
+      "Supplies sanitary pad packs & menstrual hygiene education for 5 schoolgirls in rural Jigawa.",
+    tag: "Essential Care",
+  },
+  {
+    amount: "10,000",
+    numeric: 10000,
+    impact:
+      "Provides 10 menstrual health kits and educational workbooks for students in rural LGAs.",
+    tag: "Popular",
+  },
+  {
+    amount: "25,000",
+    numeric: 25000,
+    impact:
+      "Settles emergency medical bills and prescription medicine for indigent hospital patients.",
+    tag: "Healthcare Relief",
+  },
+  {
+    amount: "50,000",
+    numeric: 50000,
+    impact:
+      "Provides bulk staple food supplies and nutrition relief for a vulnerable household or custodial inmates.",
+    tag: "Food Security",
+  },
+  {
+    amount: "100,000",
+    numeric: 100000,
+    impact:
+      "Supplies seed micro-grant capital to restore small petty trade for a female breadwinner.",
+    tag: "Empowerment",
+  },
+];
+
+export const donationAllocations = [
+  {
+    title: "Menstrual Health & Dignity",
+    body: "Sanitary products distributed alongside educational sessions so girls in Jigawa and Kano do not miss classes.",
+  },
+  {
+    title: "Skills & Vocational Training",
+    body: "Materials, tailoring cohorts, toolkits and ongoing mentorship for young people and women.",
+  },
+  {
+    title: "Humanitarian & Food Security",
+    body: "Food staples and household support for vulnerable families and custodial centres.",
+  },
+  {
+    title: "Emergency Medical Relief",
+    body: "Immediate hospital bill clearance for indigent patients at Gumel General Hospital and regional clinics.",
+  },
+] as const;
+
+export type Partner = {
+  name: string;
+  category: string;
+  logo: string;
+  badge: string;
+  description: string;
+  url?: string | undefined;
+};
+
+export const partners: Partner[] = [
+  {
+    name: "Renewed Hope Partners",
+    category: "Strategic National Development Initiative",
+    logo: partnerRenewedHope,
+    badge: "Strategic Partner",
+    description:
+      "Collaborating on nationwide social welfare, food security, and community empowerment initiatives across Northern Nigeria.",
+  },
+  {
+    name: "Jigawa Tinubu Support Organization",
+    category: "Civic Leadership & Community Outreach",
+    logo: partnerJigawaTso,
+    badge: "Civic & Outreach Partner",
+    description:
+      "Partnering on grassroots community mobilization, youth development, and verified humanitarian outreaches across Jigawa State.",
+  },
+  {
+    name: "InnovaTech",
+    category: "Digital Technology & Web Innovation",
+    logo: partnerInnovatech,
+    badge: "Technology Partner",
+    description:
+      "Providing digital infrastructure, technical innovation, and digital empowerment solutions to amplify Foundation impact.",
+    url: "https://www.innovatech-ng.com/",
+  },
+];

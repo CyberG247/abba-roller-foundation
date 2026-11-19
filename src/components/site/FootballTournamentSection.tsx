@@ -44,136 +44,7 @@ import { Reveal } from "./Reveal";
 import { LazyImage } from "./LazyImage";
 import { AnimatedCounter } from "./AnimatedCounter";
 import { cn } from "@/lib/utils";
-
-// Football Tournament Assets
-import footballTournamentTrophyPresentation from "@/assets/football-tournament-trophy-presentation.jpg";
-import footballTournamentTrophyHandoverCrowd from "@/assets/football-tournament-trophy-handover-crowd.jpg";
-import footballTournamentFounderSpeech from "@/assets/football-tournament-founder-speech.jpg";
-import footballTournamentCeremonialKickoffTable from "@/assets/football-tournament-ceremonial-kickoff-table.jpg";
-import footballTournamentPitchInspectionYellow from "@/assets/football-tournament-pitch-inspection-yellow.jpg";
-import footballTournamentPitchInspectionRed from "@/assets/football-tournament-pitch-inspection-red.jpg";
-import footballTournamentCashAwardsCloseup from "@/assets/football-tournament-cash-awards-closeup.jpg";
-import footballTournamentCashAwards from "@/assets/football-tournament-cash-awards.jpg";
-import footballTournamentSpectatorStandsGroup from "@/assets/football-tournament-spectator-stands-group.jpg";
-import footballTournamentVipSpectatorsFounder from "@/assets/football-tournament-vip-spectators-founder.jpg";
-import footballTournamentDelegatesDiscussion from "@/assets/football-tournament-delegates-discussion.jpg";
-
-export interface TournamentPhoto {
-  id: string;
-  src: string;
-  alt: string;
-  title: string;
-  category: string;
-  caption: string;
-  isMainHeadImage?: boolean;
-}
-
-/**
- * Authentic tournament gallery collection for the Abba Roller Foundation
- * Grassroots Football Championship.
- */
-export const tournamentGallery: TournamentPhoto[] = [
-  {
-    id: "football-trophy-presentation",
-    src: footballTournamentTrophyPresentation,
-    alt: "Hon. Usman Aminu Usman presenting the golden championship trophy and brand new team jerseys to team captains",
-    title: "Championship Trophy & Kit Presentation",
-    category: "Championship & Honors",
-    caption:
-      "Founder & Chairman Hon. Usman Aminu Usman presenting the coveted Golden Tournament Cup alongside complete sets of new team jerseys to the championship finalists.",
-    isMainHeadImage: true,
-  },
-  {
-    id: "football-trophy-handover-crowd",
-    src: footballTournamentTrophyHandoverCrowd,
-    alt: "Ecstatic grand finale moment with golden championship cup held up high surrounded by team captains, officials, and fans",
-    title: "Golden Trophy Raised on the Podium",
-    category: "Championship & Honors",
-    caption:
-      "Ecstatic grand finale moment as the gleaming Golden Championship Trophy is held high amidst cheering fans, players, and foundation officials.",
-  },
-  {
-    id: "football-ceremonial-kickoff-table",
-    src: footballTournamentCeremonialKickoffTable,
-    alt: "Ceremonial match ball, golden trophy, and team kits on the presentation table with handshake between founder and dignitaries",
-    title: "Ceremonial Kickoff & Match Ball Handover",
-    category: "Ceremony & Leadership",
-    caption:
-      "Dignitaries, community elders, and Founder Hon. Usman Aminu Usman gathered around the official match presentation table with the official match ball, trophy, and team kits.",
-  },
-  {
-    id: "football-founder-speech",
-    src: footballTournamentFounderSpeech,
-    alt: "Hon. Usman Aminu Usman addressing players, officials, and spectators with a microphone",
-    title: "Keynote Address by Founder",
-    category: "Ceremony & Leadership",
-    caption:
-      "Hon. Usman Aminu Usman addressing youth, community elders, and spectators, emphasizing unity, discipline, athletic ambition, and peaceful coexistence through football.",
-  },
-  {
-    id: "football-spectator-stands-group",
-    src: footballTournamentSpectatorStandsGroup,
-    alt: "Celebratory grand group photo on the stadium pavilion featuring Founder Hon. Usman Aminu Usman, women community leaders, youth ambassadors in ARF caps, and enthusiastic young football fans",
-    title: "Community & ARF Delegation in the Stands",
-    category: "Community & Fans",
-    caption:
-      "Celebratory group portrait in the stadium pavilion featuring Founder Hon. Usman Aminu Usman, women community leaders, youth ambassadors in ARF caps, and enthusiastic young football fans.",
-  },
-  {
-    id: "football-vip-spectators-founder",
-    src: footballTournamentVipSpectatorsFounder,
-    alt: "Founder Hon. Usman Aminu Usman seated alongside community elders and distinguished guests, closely observing the match from the main pavilion",
-    title: "Matchday Observation from the VIP Pavilion",
-    category: "Community & Fans",
-    caption:
-      "Founder Hon. Usman Aminu Usman seated alongside community elders and distinguished guests, closely observing the high-intensity tournament match from the main pavilion.",
-  },
-  {
-    id: "football-pitch-inspection-yellow",
-    src: footballTournamentPitchInspectionYellow,
-    alt: "Hon. Usman Aminu Usman shaking hands with players of KAFC Dandidibabs FC Gumel on the football pitch",
-    title: "Pre-Match Inspection: KAFC Dandidibabs FC Gumel",
-    category: "Pitch Inspection & Teams",
-    caption:
-      "Founder Hon. Usman Aminu Usman walking the pitch and shaking hands with players of KAFC Dandidibabs FC Gumel before kickoff, encouraging fair play and teamwork.",
-  },
-  {
-    id: "football-pitch-inspection-red",
-    src: footballTournamentPitchInspectionRed,
-    alt: "Hon. Usman Aminu Usman shaking hands with the red kit squad lined up before kickoff",
-    title: "Pre-Match Inspection: Red Warriors",
-    category: "Pitch Inspection & Teams",
-    caption:
-      "Pre-game team inspection on the turf: Hon. Usman Aminu Usman congratulating squad players and urging them to showcase raw talent with sportsmanship.",
-  },
-  {
-    id: "football-cash-awards-closeup",
-    src: footballTournamentCashAwardsCloseup,
-    alt: "Close-up of Founder Hon. Usman Aminu Usman presenting official sealed Abba Roller Foundation cash prize envelope to standout athlete",
-    title: "ARF Cash Prize Envelope Handover",
-    category: "Tournament Cash Awards",
-    caption:
-      "Founder Hon. Usman Aminu Usman directly presenting an official sealed Abba Roller Foundation cash prize envelope to a standout athlete, fueling grassroots athletic development.",
-  },
-  {
-    id: "football-cash-awards",
-    src: footballTournamentCashAwards,
-    alt: "Hon. Usman Aminu Usman presenting cash prize envelopes and rewards to standout players and winning team captains",
-    title: "Tournament Merit & MVP Cash Grants",
-    category: "Tournament Cash Awards",
-    caption:
-      "Direct cash prize envelopes handed over to standout footballers, MVPs, and winning team delegates to celebrate their dedication and support grassroots sports.",
-  },
-  {
-    id: "football-delegates-discussion",
-    src: footballTournamentDelegatesDiscussion,
-    alt: "Founder Hon. Usman Aminu Usman engaging in consultations with tournament organizers, team managers, and ARF youth coordinators",
-    title: "Stakeholder Dialogue & Youth Leadership",
-    category: "Ceremony & Leadership",
-    caption:
-      "Founder Hon. Usman Aminu Usman engaging in active consultations with tournament organizers, team managers, and ARF youth coordinators to plan future youth sports leagues.",
-  },
-];
+import { tournamentGallery, type TournamentPhoto } from "@/data/galleries";
 
 // Breakdown of tournament impact pillars
 const tournamentPillars = [
@@ -294,27 +165,47 @@ export function FootballTournamentSection({
   };
 
   const goToPrevPhoto = () => {
-    const newIdx = (selectedPhotoIndex - 1 + tournamentGallery.length) % tournamentGallery.length;
-    setSelectedPhotoIndex(newIdx);
-    setSelectedPhoto(tournamentGallery[newIdx]);
+    setSelectedPhotoIndex((prev) => {
+      const newIdx = (prev - 1 + tournamentGallery.length) % tournamentGallery.length;
+      const photo = tournamentGallery[newIdx];
+      if (photo) setSelectedPhoto(photo);
+      return newIdx;
+    });
   };
 
   const goToNextPhoto = () => {
-    const newIdx = (selectedPhotoIndex + 1) % tournamentGallery.length;
-    setSelectedPhotoIndex(newIdx);
-    setSelectedPhoto(tournamentGallery[newIdx]);
+    setSelectedPhotoIndex((prev) => {
+      const newIdx = (prev + 1) % tournamentGallery.length;
+      const photo = tournamentGallery[newIdx];
+      if (photo) setSelectedPhoto(photo);
+      return newIdx;
+    });
   };
 
   // Keyboard navigation for lightbox
   useEffect(() => {
     if (!lightboxOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowLeft") goToPrevPhoto();
-      if (e.key === "ArrowRight") goToNextPhoto();
+      if (e.key === "ArrowLeft") {
+        setSelectedPhotoIndex((prev) => {
+          const newIdx = (prev - 1 + tournamentGallery.length) % tournamentGallery.length;
+          const photo = tournamentGallery[newIdx];
+          if (photo) setSelectedPhoto(photo);
+          return newIdx;
+        });
+      }
+      if (e.key === "ArrowRight") {
+        setSelectedPhotoIndex((prev) => {
+          const newIdx = (prev + 1) % tournamentGallery.length;
+          const photo = tournamentGallery[newIdx];
+          if (photo) setSelectedPhoto(photo);
+          return newIdx;
+        });
+      }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [lightboxOpen, selectedPhotoIndex]);
+  }, [lightboxOpen]);
 
   return (
     <section

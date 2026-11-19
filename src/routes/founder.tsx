@@ -44,7 +44,7 @@ function Founder() {
   return (
     <>
       <PageHeader
-        eyebrow="Leadership &amp; Vision"
+        eyebrow="Leadership & Vision"
         title={founder.name}
         lede={`${founder.role} · Popularly known as ${founder.alias}`}
         crumbs={[{ label: "Leadership", to: "/about" }, { label: "Founder's Desk" }]}
@@ -195,7 +195,7 @@ function Founder() {
         <div className="max-w-4xl mx-auto">
           <SectionHeading
             eyebrow="Academic Excellence"
-            title="Educational Background &amp; Qualifications"
+            title="Educational Background & Qualifications"
             lede="Grounded in premier British business education and international management scholarship from Birmingham City University, United Kingdom."
           />
 
@@ -267,7 +267,7 @@ function Founder() {
         <div className="max-w-4xl mx-auto">
           <SectionHeading
             eyebrow="Career Journey"
-            title="Professional Experience &amp; Leadership Track Record"
+            title="Professional Experience & Leadership Track Record"
             lede="Over 8 years of entrepreneurial, cross-border commercial, technology platform, and non-profit executive leadership."
           />
 
@@ -326,7 +326,7 @@ function Founder() {
         <div className="max-w-4xl mx-auto">
           <SectionHeading
             eyebrow="Competencies"
-            title="Executive Skills &amp; Domain Expertise"
+            title="Executive Skills & Domain Expertise"
             lede="A synthesis of commercial acumen, cross-border logistics, technology innovation, and community development."
           />
 
@@ -354,7 +354,7 @@ function Founder() {
         <div className="max-w-4xl mx-auto">
           <SectionHeading
             eyebrow="Recognition"
-            title="Honors, Certifications &amp; Distinctions"
+            title="Honors, Certifications & Distinctions"
             lede="Recognized for exceptional leadership, extracurricular commitment, and commercial milestone achievement."
           />
 

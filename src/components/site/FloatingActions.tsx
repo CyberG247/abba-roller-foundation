@@ -1,13 +1,10 @@
 import { useEffect, useState } from "react";
 import confetti from "canvas-confetti";
 import { ArrowUp, Building2, Check, Copy, Heart, X } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
-const BANK_DETAILS = {
-  bankName: "POLARIS BANK",
-  accountName: "ABBA ROLLER FOUNDATION",
-  accountNumber: "4092448499",
-};
+import { org } from "@/data/site";
+import { copyToClipboard } from "@/lib/utils";
 
 export function FloatingActions() {
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -42,10 +39,15 @@ export function FloatingActions() {
     }
   };
 
-  const handleCopyAccount = (e: React.MouseEvent) => {
+  const handleCopyAccount = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    navigator.clipboard.writeText(BANK_DETAILS.accountNumber);
+    const ok = await copyToClipboard(org.bankDetails.accountNumber);
+    if (!ok) {
+      toast.error("Unable to copy automatically. Please copy the account number manually.");
+      return;
+    }
     setCopied(true);
+    toast.success("Official Polaris Bank account number copied.");
     try {
       confetti({
         particleCount: 50,
@@ -88,15 +90,17 @@ export function FloatingActions() {
           <div className="mt-2.5 space-y-1 text-xs">
             <div className="flex justify-between text-muted-foreground">
               <span>Bank:</span>
-              <strong className="text-ink font-bold">{BANK_DETAILS.bankName}</strong>
+              <strong className="text-ink font-bold">{org.bankDetails.bankName}</strong>
             </div>
             <div className="flex justify-between text-muted-foreground">
               <span>Name:</span>
-              <strong className="text-ink font-bold text-[11px]">{BANK_DETAILS.accountName}</strong>
+              <strong className="text-ink font-bold text-[11px]">
+                {org.bankDetails.accountName}
+              </strong>
             </div>
             <div className="mt-2 flex items-center justify-between rounded-xs bg-green-wash p-2 font-mono">
               <span className="font-extrabold text-sm text-green-deep tracking-wider">
-                {BANK_DETAILS.accountNumber}
+                {org.bankDetails.accountNumber}
               </span>
               <button
                 type="button"

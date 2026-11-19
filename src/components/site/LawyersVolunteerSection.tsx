@@ -36,9 +36,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Reveal } from "@/components/site/Reveal";
-import { downloadLawyerSlip, LawyerSlipData } from "@/lib/generateLawyerSlip";
+import { downloadLawyerSlip, type LawyerSlipData } from "@/lib/generateLawyerSlip";
 import { saveLawyerVolunteer } from "@/data/lawyersStore";
-import { NIGERIAN_STATES } from "@/components/site/VolunteerSection";
+import { NIGERIAN_STATES } from "@/data/volunteerOptions";
 
 // Generate years 2026 down to 1970 for Call to Bar
 const CALL_TO_BAR_YEARS = Array.from({ length: 57 }, (_, i) => String(2026 - i));
@@ -494,6 +494,7 @@ export function LawyersVolunteerSection({ id = "lawyers-volunteer" }: { id?: str
                     <button
                       type="button"
                       key={spec}
+                      aria-pressed={checked}
                       onClick={() => toggleSpecialty(spec)}
                       className={`text-left text-xs p-3 rounded-md border transition-all flex items-start gap-2.5 ${
                         checked

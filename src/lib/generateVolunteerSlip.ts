@@ -9,12 +9,12 @@ export interface VolunteerSlipData {
   ageGroup: string;
   state: string;
   lga: string;
-  address?: string;
+  address?: string | undefined;
   profession: string;
   activity: string;
-  secondaryActivities?: string[];
+  secondaryActivities?: string[] | undefined;
   availability: string;
-  photoUrl?: string | null;
+  photoUrl?: string | null | undefined;
   submissionDate: string;
 }
 

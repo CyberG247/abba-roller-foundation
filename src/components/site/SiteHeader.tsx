@@ -3,19 +3,24 @@ import { Heart, Menu, X, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Logo } from "./Logo";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-const navItems = [
+type NavItem = {
+  label: string;
+  sectionId?: string;
+  to: "/" | "/about" | "/work" | "/founder" | "/membership" | "/gallery" | "/media" | "/volunteer";
+};
+
+const navItems: readonly NavItem[] = [
   { label: "Home", sectionId: "hero", to: "/" },
   { label: "About", sectionId: "about", to: "/about" },
-  { label: "Our Work", sectionId: "work", to: "/work" },
+  { label: "Our Work", to: "/work" },
   { label: "Founder's Desk", sectionId: "founder", to: "/founder" },
-  { label: "Membership", sectionId: "membership", to: "/membership" },
-  { label: "Gallery", sectionId: "gallery", to: "/gallery" },
+  { label: "Membership", to: "/membership" },
+  { label: "Gallery", to: "/gallery" },
   { label: "Media & News", sectionId: "media", to: "/media" },
   { label: "Volunteer", sectionId: "volunteer", to: "/volunteer" },
-] as const;
+];
 
 export function SiteHeader() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -33,11 +38,11 @@ export function SiteHeader() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Scrollspy observer for single-page sections
+  // Scrollspy observer strictly for sections that exist on the homepage
   useEffect(() => {
     if (!isHome) return;
 
-    const sections = navItems.map((item) => item.sectionId);
+    const sectionIds = navItems.map((item) => item.sectionId).filter((id): id is string => !!id);
     const observerCallback: IntersectionObserverCallback = (entries) => {
       const visible = entries.filter((e) => e.isIntersecting);
       if (visible.length > 0) {
@@ -53,7 +58,7 @@ export function SiteHeader() {
       threshold: [0, 0.2, 0.5],
     });
 
-    sections.forEach((id) => {
+    sectionIds.forEach((id) => {
       const el = document.getElementById(id);
       if (el) observer.observe(el);
     });
@@ -68,17 +73,17 @@ export function SiteHeader() {
     };
   }, [open]);
 
-  const scrollToSection = (sectionId: string, e?: React.MouseEvent) => {
-    if (isHome) {
-      if (e) e.preventDefault();
+  const scrollToSection = (sectionId: string, e: React.MouseEvent) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      e.preventDefault();
       setOpen(false);
-      const element = document.getElementById(sectionId);
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
-        window.history.replaceState(null, "", `#${sectionId}`);
-      } else if (sectionId === "hero") {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }
+      element.scrollIntoView({ behavior: "smooth" });
+      window.history.replaceState(null, "", `#${sectionId}`);
+    } else if (sectionId === "hero") {
+      e.preventDefault();
+      setOpen(false);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
@@ -109,32 +114,46 @@ export function SiteHeader() {
               <ul className="flex items-center gap-4 2xl:gap-6">
                 {navItems.map((item) => {
                   const active = isHome
-                    ? activeSection === item.sectionId
-                    : pathname.startsWith(item.to);
+                    ? Boolean(item.sectionId && activeSection === item.sectionId)
+                    : item.to === "/"
+                      ? pathname === "/"
+                      : pathname.startsWith(item.to);
+
+                  const linkClass = cn(
+                    "relative text-xs 2xl:text-sm font-semibold transition-all py-1 cursor-pointer whitespace-nowrap",
+                    solid
+                      ? active
+                        ? "text-green-deep font-bold"
+                        : "text-ink-soft hover:text-green-deep"
+                      : active
+                        ? "text-on-dark font-bold"
+                        : "text-on-dark/80 hover:text-on-dark",
+                  );
+
+                  const activeIndicator = active && (
+                    <span
+                      aria-hidden
+                      className="absolute -bottom-1.5 left-0 h-0.5 w-full bg-brand-red rounded-full"
+                    />
+                  );
+
                   return (
-                    <li key={item.sectionId}>
-                      <a
-                        href={isHome ? `#${item.sectionId}` : item.to}
-                        onClick={(e) => scrollToSection(item.sectionId, e)}
-                        className={cn(
-                          "relative text-xs 2xl:text-sm font-semibold transition-all py-1 cursor-pointer whitespace-nowrap",
-                          solid
-                            ? active
-                              ? "text-green-deep font-bold"
-                              : "text-ink-soft hover:text-green-deep"
-                            : active
-                              ? "text-on-dark font-bold"
-                              : "text-on-dark/80 hover:text-on-dark",
-                        )}
-                      >
-                        {item.label}
-                        {active && (
-                          <span
-                            aria-hidden
-                            className="absolute -bottom-1.5 left-0 h-0.5 w-full bg-brand-red rounded-full"
-                          />
-                        )}
-                      </a>
+                    <li key={item.label}>
+                      {isHome && item.sectionId ? (
+                        <a
+                          href={`#${item.sectionId}`}
+                          onClick={(e) => scrollToSection(item.sectionId!, e)}
+                          className={linkClass}
+                        >
+                          {item.label}
+                          {activeIndicator}
+                        </a>
+                      ) : (
+                        <Link to={item.to} className={linkClass}>
+                          {item.label}
+                          {activeIndicator}
+                        </Link>
+                      )}
                     </li>
                   );
                 })}
@@ -154,14 +173,24 @@ export function SiteHeader() {
               <span>Become a Member</span>
             </Link>
 
-            <a
-              href={isHome ? "#donate" : "/donate"}
-              onClick={(e) => scrollToSection("donate", e)}
-              className="btn-shine hidden sm:inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-brand-red via-brand-red to-brand-red-bright px-4 lg:px-5 py-2 text-xs font-bold text-white shadow-md shadow-brand-red/25 ring-1 ring-white/30 transition-all duration-300 hover:shadow-lg hover:shadow-brand-red/40 hover:scale-105 active:scale-95 cursor-pointer whitespace-nowrap"
-            >
-              <Heart className="size-3.5 fill-white animate-pulse" />
-              <span>Donate</span>
-            </a>
+            {isHome ? (
+              <a
+                href="#donate"
+                onClick={(e) => scrollToSection("donate", e)}
+                className="btn-shine hidden sm:inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-brand-red via-brand-red to-brand-red-bright px-4 lg:px-5 py-2 text-xs font-bold text-white shadow-md shadow-brand-red/25 ring-1 ring-white/30 transition-all duration-300 hover:shadow-lg hover:shadow-brand-red/40 hover:scale-105 active:scale-95 cursor-pointer whitespace-nowrap"
+              >
+                <Heart className="size-3.5 fill-white animate-pulse" />
+                <span>Donate</span>
+              </a>
+            ) : (
+              <Link
+                to="/donate"
+                className="btn-shine hidden sm:inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-brand-red via-brand-red to-brand-red-bright px-4 lg:px-5 py-2 text-xs font-bold text-white shadow-md shadow-brand-red/25 ring-1 ring-white/30 transition-all duration-300 hover:shadow-lg hover:shadow-brand-red/40 hover:scale-105 active:scale-95 cursor-pointer whitespace-nowrap"
+              >
+                <Heart className="size-3.5 fill-white animate-pulse" />
+                <span>Donate</span>
+              </Link>
+            )}
 
             <button
               type="button"
@@ -201,28 +230,55 @@ export function SiteHeader() {
         </div>
         <nav aria-label="Mobile" className="shell relative mt-4 pb-12">
           <ul className="divide-y divide-on-dark/10 border-y border-on-dark/10">
-            {navItems.map((item) => (
-              <li key={item.sectionId}>
-                <a
-                  href={isHome ? `#${item.sectionId}` : item.to}
-                  onClick={(e) => scrollToSection(item.sectionId, e)}
-                  className="flex items-center justify-between py-4 font-display text-xl font-bold text-on-dark hover:text-brand-red-wash transition-colors"
-                >
-                  <span>{item.label}</span>
-                  {activeSection === item.sectionId && (
-                    <span className="size-2 rounded-full bg-brand-red" />
+            {navItems.map((item) => {
+              const active = isHome
+                ? Boolean(item.sectionId && activeSection === item.sectionId)
+                : item.to === "/"
+                  ? pathname === "/"
+                  : pathname.startsWith(item.to);
+
+              return (
+                <li key={item.label}>
+                  {isHome && item.sectionId ? (
+                    <a
+                      href={`#${item.sectionId}`}
+                      onClick={(e) => scrollToSection(item.sectionId!, e)}
+                      className="flex items-center justify-between py-4 font-display text-xl font-bold text-on-dark hover:text-brand-red-wash transition-colors"
+                    >
+                      <span>{item.label}</span>
+                      {active && <span className="size-2 rounded-full bg-brand-red" />}
+                    </a>
+                  ) : (
+                    <Link
+                      to={item.to}
+                      onClick={() => setOpen(false)}
+                      className="flex items-center justify-between py-4 font-display text-xl font-bold text-on-dark hover:text-brand-red-wash transition-colors"
+                    >
+                      <span>{item.label}</span>
+                      {active && <span className="size-2 rounded-full bg-brand-red" />}
+                    </Link>
                   )}
-                </a>
-              </li>
-            ))}
+                </li>
+              );
+            })}
             <li>
-              <a
-                href={isHome ? "#contact" : "/contact"}
-                onClick={(e) => scrollToSection("contact", e)}
-                className="block py-4 font-display text-xl font-bold text-on-dark"
-              >
-                Contact
-              </a>
+              {isHome ? (
+                <a
+                  href="#contact"
+                  onClick={(e) => scrollToSection("contact", e)}
+                  className="block py-4 font-display text-xl font-bold text-on-dark"
+                >
+                  Contact
+                </a>
+              ) : (
+                <Link
+                  to="/contact"
+                  onClick={() => setOpen(false)}
+                  className="block py-4 font-display text-xl font-bold text-on-dark"
+                >
+                  Contact
+                </Link>
+              )}
             </li>
           </ul>
           <div className="mt-8 flex flex-col gap-3">
@@ -235,14 +291,25 @@ export function SiteHeader() {
               <span>Become a Member</span>
             </Link>
 
-            <a
-              href={isHome ? "#donate" : "/donate"}
-              onClick={(e) => scrollToSection("donate", e)}
-              className="btn-shine flex w-full items-center justify-center gap-2.5 rounded-sm bg-gradient-to-r from-brand-red via-brand-red to-brand-red-bright py-4 text-base font-extrabold text-white shadow-lift ring-1 ring-white/30 transition-all active:scale-[0.99] cursor-pointer"
-            >
-              <Heart className="size-4.5 fill-white animate-pulse" />
-              <span>Donate Now</span>
-            </a>
+            {isHome ? (
+              <a
+                href="#donate"
+                onClick={(e) => scrollToSection("donate", e)}
+                className="btn-shine flex w-full items-center justify-center gap-2.5 rounded-sm bg-gradient-to-r from-brand-red via-brand-red to-brand-red-bright py-4 text-base font-extrabold text-white shadow-lift ring-1 ring-white/30 transition-all active:scale-[0.99] cursor-pointer"
+              >
+                <Heart className="size-4.5 fill-white animate-pulse" />
+                <span>Donate Now</span>
+              </a>
+            ) : (
+              <Link
+                to="/donate"
+                onClick={() => setOpen(false)}
+                className="btn-shine flex w-full items-center justify-center gap-2.5 rounded-sm bg-gradient-to-r from-brand-red via-brand-red to-brand-red-bright py-4 text-base font-extrabold text-white shadow-lift ring-1 ring-white/30 transition-all active:scale-[0.99] cursor-pointer"
+              >
+                <Heart className="size-4.5 fill-white animate-pulse" />
+                <span>Donate Now</span>
+              </Link>
+            )}
           </div>
         </nav>
       </div>

@@ -1,26 +1,14 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import confetti from "canvas-confetti";
-import {
-  ArrowLeft,
-  ArrowRight,
-  Building2,
-  Check,
-  CheckCircle2,
-  Copy,
-  Heart,
-  HelpCircle,
-  MessageCircle,
-  ShieldCheck,
-  Sparkles,
-} from "lucide-react";
+import { Copy, Heart, Mail, ShieldCheck } from "lucide-react";
+import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/site/PageHeader";
 import { Reveal } from "@/components/site/Reveal";
 import { Section } from "@/components/site/blocks";
-import { org } from "@/data/site";
-import { cn } from "@/lib/utils";
+import { CMS_PLACEHOLDER, donationAllocations, donationTiers, org } from "@/data/site";
+import { cn, copyToClipboard } from "@/lib/utils";
 
 const title = "Donate & Complete Support — Abba Roller Foundation";
 const description =
@@ -38,78 +26,28 @@ export const Route = createFileRoute("/donate")({
   component: DonatePage,
 });
 
-const tiers = [
-  {
-    amount: "5,000",
-    numeric: 5000,
-    impact: "Supplies sanitary pad packs & menstrual hygiene education for 5 schoolgirls.",
-    tag: "Essential Care",
-  },
-  {
-    amount: "10,000",
-    numeric: 10000,
-    impact:
-      "Provides 10 menstrual health kits and educational workbooks for students in rural LGAs.",
-    tag: "Popular",
-  },
-  {
-    amount: "25,000",
-    numeric: 25000,
-    impact:
-      "Settles emergency medical bills and prescription medicine for indigent hospital patients.",
-    tag: "Healthcare Relief",
-  },
-  {
-    amount: "50,000",
-    numeric: 50000,
-    impact:
-      "Provides bulk staple food supplies and nutrition relief for a vulnerable household or custodial inmates.",
-    tag: "Food Security",
-  },
-  {
-    amount: "100,000",
-    numeric: 100000,
-    impact:
-      "Supplies seed micro-grant capital to restore small petty trade for a female breadwinner.",
-    tag: "Empowerment",
-  },
-];
-
-const BANK_DETAILS = {
-  bankName: "POLARIS BANK",
-  accountName: "ABBA ROLLER FOUNDATION",
-  accountNumber: "4092448499",
-  accountType: "Corporate / Nonprofit Account",
-};
-
-const allocations = [
-  {
-    title: "Menstrual Health & Dignity",
-    body: "Sanitary products distributed alongside educational sessions so girls in Jigawa and Kano do not miss classes.",
-  },
-  {
-    title: "Skills & Vocational Training",
-    body: "Materials, tailoring Cohorts, toolkits and ongoing mentorship for young people and women.",
-  },
-  {
-    title: "Humanitarian & Food Security",
-    body: "Food staples and household support for vulnerable families and custodial centres.",
-  },
-  {
-    title: "Emergency Medical Relief",
-    body: "Immediate hospital bill clearance for indigent patients at Gumel General Hospital and regional clinics.",
-  },
-];
-
 function DonatePage() {
   const [selectedTier, setSelectedTier] = useState<number>(10000);
   const [customAmount, setCustomAmount] = useState<string>("");
   const [copiedAccount, setCopiedAccount] = useState(false);
   const [copiedRef, setCopiedRef] = useState(false);
+  const [copiedReceipt, setCopiedReceipt] = useState(false);
+  const [refSuffix] = useState<number>(() => Math.floor(1000 + Math.random() * 9000));
 
-  const activeAmount = customAmount ? parseInt(customAmount, 10) || selectedTier : selectedTier;
-  const activeTier = tiers.find((t) => t.numeric === selectedTier) || tiers[1];
-  const refCode = `ARF-${activeAmount.toString().slice(0, 4)}-${Math.floor(1000 + Math.random() * 9000)}`;
+  const parsedCustom = customAmount ? parseInt(customAmount, 10) : 0;
+  const hasCustom = Boolean(customAmount && parsedCustom > 0);
+  const activeAmount = hasCustom ? parsedCustom : selectedTier;
+
+  const matchedTier = donationTiers.find((t) => t.numeric === selectedTier) ?? donationTiers[1]!;
+
+  const impactDescription = hasCustom
+    ? `Custom contribution of ₦${activeAmount.toLocaleString()} supporting priority ARF food relief, menstrual health kits, and emergency medical aid.`
+    : matchedTier.impact;
+
+  const refCode = useMemo(
+    () => `ARF-${activeAmount.toString().slice(0, 4)}-${refSuffix}`,
+    [activeAmount, refSuffix],
+  );
 
   const triggerCelebration = () => {
     try {
@@ -124,22 +62,45 @@ function DonatePage() {
     }
   };
 
-  const handleCopyAccount = () => {
-    navigator.clipboard.writeText(BANK_DETAILS.accountNumber);
+  const handleCopyAccount = async () => {
+    const ok = await copyToClipboard(org.bankDetails.accountNumber);
+    if (!ok) {
+      toast.error("Please copy the account number manually.");
+      return;
+    }
     setCopiedAccount(true);
+    toast.success("Official Polaris Bank account number copied.");
     triggerCelebration();
     setTimeout(() => setCopiedAccount(false), 2500);
   };
 
-  const handleCopyRef = () => {
-    navigator.clipboard.writeText(refCode);
+  const handleCopyRef = async () => {
+    const ok = await copyToClipboard(refCode);
+    if (!ok) return;
     setCopiedRef(true);
+    toast.success("Payment reference copied.");
     setTimeout(() => setCopiedRef(false), 2500);
   };
 
-  const whatsappMessage = encodeURIComponent(
-    `Hello Abba Roller Foundation,\n\nI have completed my donation of ₦${activeAmount.toLocaleString()} to support your community programmes.\n\nReference: ${refCode}\nPurpose: ${activeTier.impact}`,
-  );
+  const confirmationPlainText = `Hello Abba Roller Foundation,\n\nI have completed my donation of ₦${activeAmount.toLocaleString()} to support your community programmes.\n\nBank: ${org.bankDetails.bankName}\nAccount: ${org.bankDetails.accountNumber}\nReference: ${refCode}\nPurpose: ${impactDescription}`;
+
+  const handleCopyConfirmation = async () => {
+    const ok = await copyToClipboard(confirmationPlainText);
+    if (!ok) {
+      toast.error("Unable to copy confirmation text.");
+      return;
+    }
+    setCopiedReceipt(true);
+    toast.success(`Transfer summary copied — you can send it to ${org.email}.`);
+    setTimeout(() => setCopiedReceipt(false), 3000);
+  };
+
+  const mailtoHref = `mailto:${org.email}?subject=${encodeURIComponent(
+    `Donation Receipt - ₦${activeAmount.toLocaleString()} (${refCode})`,
+  )}&body=${encodeURIComponent(confirmationPlainText)}`;
+
+  const rawPhone: string = org.phone;
+  const phoneDigits = rawPhone !== CMS_PLACEHOLDER ? rawPhone.replace(/[^\d]/g, "") : "";
 
   return (
     <>
@@ -147,7 +108,7 @@ function DonatePage() {
         eyebrow="Official Giving Portal"
         title="Complete Your Support"
         lede="Your gift is deployed directly to community programmes across Northern Nigeria — verified on the ground with open reporting."
-        crumbs={[{ label: "Home", to: "/" }, { label: "Donate" }]}
+        crumbs={[{ label: "Donate" }]}
       />
 
       <Section>
@@ -164,7 +125,7 @@ function DonatePage() {
 
             {/* Tiers Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {tiers.map((tier) => (
+              {donationTiers.map((tier) => (
                 <button
                   key={tier.numeric}
                   type="button"
@@ -204,8 +165,8 @@ function DonatePage() {
                 <input
                   id="custom-donate-amount"
                   type="number"
-                  min={1000}
-                  step={1000}
+                  min={500}
+                  step={500}
                   placeholder="e.g. 250000"
                   value={customAmount}
                   onChange={(e) => setCustomAmount(e.target.value)}
@@ -225,7 +186,7 @@ function DonatePage() {
                     Your Impact Outcome
                   </span>
                   <p className="mt-1 text-sm font-semibold text-ink leading-relaxed">
-                    {activeTier.impact}
+                    {impactDescription}
                   </p>
                 </div>
               </div>
@@ -248,7 +209,7 @@ function DonatePage() {
                     Bank
                   </span>
                   <span className="font-display text-sm font-extrabold text-ink">
-                    {BANK_DETAILS.bankName}
+                    {org.bankDetails.bankName}
                   </span>
                 </div>
 
@@ -257,7 +218,7 @@ function DonatePage() {
                     Account Name
                   </span>
                   <span className="font-display text-sm font-extrabold text-ink">
-                    {BANK_DETAILS.accountName}
+                    {org.bankDetails.accountName}
                   </span>
                 </div>
 
@@ -267,7 +228,7 @@ function DonatePage() {
                   </span>
                   <div className="flex items-center gap-2">
                     <span className="font-mono text-lg font-black text-green-deep">
-                      {BANK_DETAILS.accountNumber}
+                      {org.bankDetails.accountNumber}
                     </span>
                     <button
                       type="button"
@@ -299,21 +260,36 @@ function DonatePage() {
               {/* Instant Notification Buttons */}
               <div className="space-y-3 pt-3">
                 <a
-                  href={`https://wa.me/2348000000000?text=${whatsappMessage}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-shine group flex w-full items-center justify-center gap-2.5 rounded-sm bg-[#25D366] px-5 py-4 text-sm font-extrabold text-white shadow-md transition-all hover:bg-[#1EBE5D] hover:shadow-lg active:scale-[0.99]"
+                  href={mailtoHref}
+                  className="btn-shine group flex w-full items-center justify-center gap-2.5 rounded-sm bg-green-deep px-5 py-4 text-sm font-extrabold text-white shadow-md transition-all hover:bg-green-mid hover:shadow-lg active:scale-[0.99]"
                 >
-                  <MessageCircle className="size-5 fill-white" />
-                  <span>Notify / Confirm on WhatsApp</span>
-                </a>
-
-                <a
-                  href={`mailto:${org.email}?subject=Donation%20Receipt%20-%20₦${activeAmount.toLocaleString()}&body=Hello%20Abba%20Roller%20Foundation,%0A%0AI%20have%20transferred%20₦${activeAmount.toLocaleString()}%20with%20reference%20${refCode}.%0A%0APlease%20confirm%20receipt.%0A%0AThank%20you!`}
-                  className="flex w-full items-center justify-center gap-2 rounded-sm border border-hairline bg-background px-5 py-3.5 text-sm font-bold text-ink transition-colors hover:bg-muted"
-                >
+                  <Mail className="size-5" />
                   <span>Email Proof of Transfer ({org.email})</span>
                 </a>
+
+                {phoneDigits && (
+                  <a
+                    href={`https://wa.me/${phoneDigits}?text=${encodeURIComponent(confirmationPlainText)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex w-full items-center justify-center gap-2 rounded-sm bg-[#25D366] px-5 py-3.5 text-sm font-extrabold text-white shadow-sm transition-all hover:bg-[#1EBE5D]"
+                  >
+                    <span>Notify / Confirm on WhatsApp</span>
+                  </a>
+                )}
+
+                <button
+                  type="button"
+                  onClick={handleCopyConfirmation}
+                  className="flex w-full items-center justify-center gap-2 rounded-sm border border-hairline bg-background px-5 py-3.5 text-sm font-bold text-ink transition-colors hover:bg-muted cursor-pointer"
+                >
+                  <Copy className="size-4" />
+                  <span>
+                    {copiedReceipt
+                      ? "Confirmation Summary Copied!"
+                      : "Copy Transfer Confirmation Summary"}
+                  </span>
+                </button>
               </div>
             </div>
           </Reveal>
@@ -326,7 +302,7 @@ function DonatePage() {
             >
               <h3 className="font-display text-xl font-bold text-ink">Where your gift goes</h3>
               <div className="mt-6 divide-y divide-hairline border-y border-hairline">
-                {allocations.map((item) => (
+                {donationAllocations.map((item) => (
                   <article key={item.title} className="py-4.5">
                     <h4 className="font-display text-sm font-bold text-ink">{item.title}</h4>
                     <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
@@ -359,7 +335,7 @@ function DonatePage() {
                     to="/"
                     className="inline-flex items-center gap-2 text-xs font-bold text-on-dark underline decoration-brand-red decoration-2 underline-offset-4 hover:text-brand-red-wash"
                   >
-                    ← Back to Single-Page Home
+                    ← Back to Home
                   </Link>
                 </div>
               </div>

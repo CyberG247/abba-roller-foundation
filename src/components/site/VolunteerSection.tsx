@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import { Link, useRouterState } from "@tanstack/react-router";
 import confetti from "canvas-confetti";
 import {
   Users2,
@@ -13,12 +14,9 @@ import {
   Award,
   Sparkles,
   ArrowRight,
-  FileCheck2,
   AlertCircle,
   Loader2,
   Briefcase,
-  MapPin,
-  Calendar,
   X,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -27,7 +25,6 @@ import arfLogo from "@/assets/arf-logo-official.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -35,162 +32,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Reveal } from "./Reveal";
-import { org } from "@/data/site";
-import { downloadVolunteerSlip, VolunteerSlipData } from "@/lib/generateVolunteerSlip";
-
-export const PHILANTHROPIC_ACTIVITIES = [
-  {
-    id: "weekly-food",
-    name: "Weekly Community Food Distribution",
-    detail:
-      "Distributing 250+ hot, balanced cooked meals to street children & vulnerable families weekly",
-    category: "Nutrition & Food Aid",
-  },
-  {
-    id: "ramadan-relief",
-    name: "Ramadan Multi-State Humanitarian Food Relief",
-    detail:
-      "Packaging and multi-state logistics for 1,500 wholesome food package pieces across 10 states",
-    category: "Seasonal Relief",
-  },
-  {
-    id: "pad-up-girls",
-    name: "Pad Up Nigerian Girls (Menstrual Health & Dignity)",
-    detail: "School sensitisation, menstrual hygiene education & sanitary supplies distribution",
-    category: "Girl-Child Advocacy",
-  },
-  {
-    id: "visually-impaired-outreach",
-    name: "Special Needs & Visually Impaired School Outreach",
-    detail:
-      "Hostel living support, food, hygiene packs, detergents & sports kits for special pupils",
-    category: "Special Education & Welfare",
-  },
-  {
-    id: "youth-sports",
-    name: "Grassroots Youth & Sports Development (Peace Cup)",
-    detail:
-      "Grassroots football tournaments, kit donation, athletic mentorship & youth anti-vice drives",
-    category: "Youth Empowerment",
-  },
-  {
-    id: "hospital-medical-relief",
-    name: "Hospital Medical Bill Relief & Sanitation Interventions",
-    detail: "Defraying clinical costs for indigent patients and donating hospital hygiene supplies",
-    category: "Healthcare Assistance",
-  },
-  {
-    id: "custodial-centre-support",
-    name: "Custodial Centre & Inmate Humanitarian Aid",
-    detail:
-      "Donating staple foodstuffs and personal welfare items to Nigerian Correctional Service inmates",
-    category: "Vulnerable Demographics",
-  },
-  {
-    id: "women-empowerment",
-    name: "Women & Widows Economic Empowerment & Trade Grants",
-    detail: "Financial relief, petty trade support, mentorship and small business grants for women",
-    category: "Livelihood & Trade",
-  },
-  {
-    id: "vocational-skills",
-    name: "Vocational Skills Training & Capacity Development",
-    detail:
-      "Practical instruction in tailoring, crafts, computer literacy and community entrepreneurship",
-    category: "Skills & Education",
-  },
-  {
-    id: "logistics-warehouse",
-    name: "Field Logistics, Relief Packaging & Handover Coordination",
-    detail:
-      "Supply chain sorting, warehouse stock safety, transport and orderly community handovers",
-    category: "Field Operations",
-  },
-  {
-    id: "media-documentation",
-    name: "Media, Photography, Videography & Storytelling",
-    detail:
-      "Capturing authentic field reports, beneficiary stories and transparent public documentation",
-    category: "Communications",
-  },
-  {
-    id: "emergency-relief",
-    name: "Disaster & Emergency Household Relief Response",
-    detail: "Rapid mobilization of essentials during unexpected community crises and hardship",
-    category: "Emergency Aid",
-  },
-  {
-    id: "general-volunteer",
-    name: "General Humanitarian Mobilization (Deploy Where Most Needed)",
-    detail: "Flexible deployment across all foundation campaigns based on operational priority",
-    category: "All-Round Support",
-  },
-] as const;
-
-export const PROFESSIONS = [
-  "Accountant / Auditor / Financial Analyst",
-  "Medical Doctor / Physician",
-  "Nurse / Midwife / Community Health Worker",
-  "Pharmacist / Medical Lab Scientist",
-  "Teacher / Lecturer / Education Specialist",
-  "Software Engineer / IT & Web Specialist",
-  "Journalist / Media & Public Relations Officer",
-  "Graphic Designer / UI Designer",
-  "Photographer / Videographer / Content Creator",
-  "Social Worker / Counselor / Sociologist",
-  "Logistics / Procurement & Supply Chain Specialist",
-  "Civil Servant / Public Administrator",
-  "Business Administrator / Project Manager",
-  "Entrepreneur / Merchant / Business Owner",
-  "Student / NYSC Youth Corps Member",
-  "Artisan / Skilled Craftsman (Tailor, Electrician, Carpenter, Plumber)",
-  "Sports Coach / Athlete / Physical Trainer",
-  "Community Leader / Clergy / Religious Scholar",
-  "Other Profession",
-] as const;
-
-export const NIGERIAN_STATES = [
-  "Jigawa",
-  "Kano",
-  "Kaduna",
-  "Katsina",
-  "Borno",
-  "Yobe",
-  "Bauchi",
-  "Sokoto",
-  "Gombe",
-  "Zamfara",
-  "FCT Abuja",
-  "Lagos",
-  "Adamawa",
-  "Kebbi",
-  "Niger",
-  "Plateau",
-  "Taraba",
-  "Benue",
-  "Kogi",
-  "Kwara",
-  "Nasarawa",
-  "Other Nigerian State",
-] as const;
-
-export const AVAILABILITY_OPTIONS = [
-  "Weekends Only (Saturdays & Sundays)",
-  "Weekdays (Flexible / Part-time)",
-  "Full-time / Dedicated Campaign Corridors",
-  "Emergency & Rapid Call-out Availability",
-  "Remote / Digital Contribution (Communications & Admin)",
-] as const;
+import { downloadVolunteerSlip, type VolunteerSlipData } from "@/lib/generateVolunteerSlip";
+import { compressPassportPhoto, copyToClipboard } from "@/lib/utils";
+import {
+  AVAILABILITY_OPTIONS,
+  NIGERIAN_STATES,
+  PHILANTHROPIC_ACTIVITIES,
+  PROFESSIONS,
+} from "@/data/volunteerOptions";
+import { saveVolunteerToStorage } from "@/data/volunteersStore";
 
 export function VolunteerSection({ id = "volunteer" }: { id?: string }) {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isHome = pathname === "/";
+
   // Form fields
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -203,7 +60,7 @@ export function VolunteerSection({ id = "volunteer" }: { id?: string }) {
   const [profession, setProfession] = useState("");
   const [customProfession, setCustomProfession] = useState("");
   const [activity, setActivity] = useState("");
-  const [availability, setAvailability] = useState(AVAILABILITY_OPTIONS[0]);
+  const [availability, setAvailability] = useState<string>(AVAILABILITY_OPTIONS[0]);
   const [motivation, setMotivation] = useState("");
   const [pledge, setPledge] = useState(false);
 
@@ -220,8 +77,8 @@ export function VolunteerSection({ id = "volunteer" }: { id?: string }) {
   const [isSlipOpen, setIsSlipOpen] = useState(false);
   const [downloading, setDownloading] = useState(false);
 
-  // Photo handler
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Photo handler with compression
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -230,11 +87,12 @@ export function VolunteerSection({ id = "volunteer" }: { id?: string }) {
       return;
     }
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setPhotoPreview(reader.result as string);
-    };
-    reader.readAsDataURL(file);
+    try {
+      const compressed = await compressPassportPhoto(file);
+      setPhotoPreview(compressed);
+    } catch {
+      toast.error("Could not process image. Please choose a valid PNG or JPG photo.");
+    }
   };
 
   const removePhoto = () => {
@@ -324,17 +182,22 @@ export function VolunteerSection({ id = "volunteer" }: { id?: string }) {
         submissionDate: formattedDate,
       };
 
-      setSlipData(generatedSlip);
+      const savedRecord = saveVolunteerToStorage(generatedSlip);
+      setSlipData(savedRecord);
       setSubmitting(false);
       setIsSlipOpen(true);
 
       // Trigger celebration
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ["#0B3D2E", "#C62828", "#145A43", "#F59E0B"],
-      });
+      try {
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ["#0B3D2E", "#C62828", "#145A43", "#F59E0B"],
+        });
+      } catch {
+        // ignore confetti error
+      }
 
       toast.success("Application Received! Your Volunteer Acknowledgement Slip is ready.");
     }, 600);
@@ -358,10 +221,12 @@ export function VolunteerSection({ id = "volunteer" }: { id?: string }) {
     window.print();
   };
 
-  const copyRefNumber = () => {
+  const copyRefNumber = async () => {
     if (!slipData) return;
-    navigator.clipboard.writeText(slipData.refNumber);
-    toast.success(`Reference ${slipData.refNumber} copied to clipboard!`);
+    const ok = await copyToClipboard(slipData.refNumber);
+    if (ok) {
+      toast.success(`Reference ${slipData.refNumber} copied to clipboard!`);
+    }
   };
 
   return (
@@ -546,9 +411,9 @@ export function VolunteerSection({ id = "volunteer" }: { id?: string }) {
                       <Button
                         type="button"
                         variant="outline"
-                        size="xs"
+                        size="sm"
                         onClick={() => fileInputRef.current?.click()}
-                        className="text-[11px] h-7"
+                        className="text-[11px] h-8"
                       >
                         <Upload className="size-3 mr-1" />
                         {photoPreview ? "Change Photo" : "Select Photo"}
@@ -711,7 +576,7 @@ export function VolunteerSection({ id = "volunteer" }: { id?: string }) {
                     3
                   </span>
                   <h4 className="font-display font-bold text-ink text-base sm:text-lg">
-                    Profession &amp; Background (Dropdown)
+                    Profession &amp; Background
                   </h4>
                 </div>
 
@@ -733,14 +598,24 @@ export function VolunteerSection({ id = "volunteer" }: { id?: string }) {
                       </SelectContent>
                     </Select>
                     <p className="mt-1.5 text-[11px] text-muted-foreground">
-                      ⚖️ <strong>Are you a Lawyer or Legal Practitioner?</strong> Please apply
-                      through our dedicated{" "}
-                      <a
-                        href="#lawyers-volunteer"
-                        className="text-emerald-700 dark:text-emerald-400 font-bold underline hover:text-emerald-800"
-                      >
-                        Lawyers Volunteer Section
-                      </a>{" "}
+                      <strong>Are you a Lawyer or Legal Practitioner?</strong> Please apply through
+                      our dedicated{" "}
+                      {isHome ? (
+                        <a
+                          href="#lawyers-volunteer"
+                          className="text-green-deep font-bold underline hover:text-green-mid"
+                        >
+                          Lawyers Volunteer Section
+                        </a>
+                      ) : (
+                        <Link
+                          to="/volunteer"
+                          hash="lawyers-volunteer"
+                          className="text-green-deep font-bold underline hover:text-green-mid"
+                        >
+                          Lawyers Volunteer Section
+                        </Link>
+                      )}{" "}
                       to win a case for the less privileged.
                     </p>
                     <span className="text-[11px] text-muted-foreground mt-1 block">
@@ -773,7 +648,7 @@ export function VolunteerSection({ id = "volunteer" }: { id?: string }) {
                     4
                   </span>
                   <h4 className="font-display font-bold text-ink text-base sm:text-lg">
-                    Philanthropic Activity Selection (Dropdown)
+                    Preferred Philanthropic Programme
                   </h4>
                 </div>
 

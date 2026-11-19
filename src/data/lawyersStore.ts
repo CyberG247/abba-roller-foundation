@@ -1,14 +1,16 @@
+import { exportRecordsToCsv, getTodayIsoDate } from "@/lib/utils";
+
 export interface LawyerVolunteer {
   id: string;
   fullName: string;
-  lawFirm?: string;
+  lawFirm?: string | undefined;
   email: string;
   university: string;
   phone: string;
   callToBarYear: string;
   casesWon: number;
-  jurisdictionState?: string;
-  practiceAreas?: string[];
+  jurisdictionState?: string | undefined;
+  practiceAreas?: string[] | undefined;
   submissionDate: string;
   status: "Verified Advocate" | "Under Review" | "Active Pro Bono";
 }
@@ -78,8 +80,8 @@ export function saveLawyerVolunteer(
   const randomSuffix = Math.floor(1000 + Math.random() * 9000);
   const newLawyer: LawyerVolunteer = {
     ...lawyer,
-    id: `ARF-BAR-2026-${randomSuffix}`,
-    submissionDate: new Date().toISOString().split("T")[0],
+    id: `ARF-BAR-${new Date().getFullYear()}-${randomSuffix}`,
+    submissionDate: getTodayIsoDate(),
     status: "Active Pro Bono",
   };
 
@@ -87,9 +89,71 @@ export function saveLawyerVolunteer(
   if (typeof window !== "undefined") {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      window.dispatchEvent(new Event("arf_members_updated"));
     } catch {
       // ignore localStorage quota errors
     }
   }
   return newLawyer;
+}
+
+export function updateLawyerStatus(
+  id: string,
+  status: LawyerVolunteer["status"],
+): LawyerVolunteer[] {
+  const updated = getLawyersList().map((l) => (l.id === id ? { ...l, status } : l));
+  if (typeof window !== "undefined") {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      window.dispatchEvent(new Event("arf_members_updated"));
+    } catch {
+      // ignore
+    }
+  }
+  return updated;
+}
+
+export function deleteLawyerFromStorage(id: string): LawyerVolunteer[] {
+  const updated = getLawyersList().filter((l) => l.id !== id);
+  if (typeof window !== "undefined") {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      window.dispatchEvent(new Event("arf_members_updated"));
+    } catch {
+      // ignore
+    }
+  }
+  return updated;
+}
+
+export function exportLawyersToCsv(lawyers: LawyerVolunteer[]): void {
+  const headers = [
+    "Bar Advocate ID",
+    "Full Name",
+    "Law Firm",
+    "Email",
+    "Phone",
+    "University (LL.B)",
+    "Call to Bar Year",
+    "Cases Won",
+    "Jurisdiction State",
+    "Enrollment Date",
+    "Status",
+  ];
+
+  const rows = lawyers.map((l) => [
+    l.id,
+    l.fullName,
+    l.lawFirm || "",
+    l.email,
+    l.phone || "",
+    l.university || "",
+    l.callToBarYear,
+    l.casesWon,
+    l.jurisdictionState || "",
+    l.submissionDate,
+    l.status,
+  ]);
+
+  exportRecordsToCsv(`ARF-Lawyers-Pro-Bono-Directory-${getTodayIsoDate()}.csv`, headers, rows);
 }

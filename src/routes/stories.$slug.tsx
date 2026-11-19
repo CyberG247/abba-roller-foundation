@@ -1,13 +1,12 @@
 import { createFileRoute, notFound, Link } from "@tanstack/react-router";
-import { Trophy, Eye, ExternalLink, Camera } from "lucide-react";
+import { Trophy, Eye, ExternalLink } from "lucide-react";
 
 import { PageHeader } from "@/components/site/PageHeader";
 import { Reveal } from "@/components/site/Reveal";
-import { DonateBand, Section, formatDate } from "@/components/site/blocks";
-import { cn } from "@/lib/utils";
+import { DonateBand, Section } from "@/components/site/blocks";
+import { cn, formatDate } from "@/lib/utils";
 import { stories } from "@/data/site";
-import { tournamentGallery } from "@/components/site/FootballTournamentSection";
-import { dutseSchoolGallery } from "@/components/site/VisuallyImpairedSchoolSection";
+import { dutseSchoolGallery, tournamentGallery } from "@/data/galleries";
 
 export const Route = createFileRoute("/stories/$slug")({
   loader: ({ params }) => {
@@ -104,7 +103,8 @@ function StoryDetail() {
                   </h3>
                 </div>
                 <Link
-                  to="/#football-tournament"
+                  to="/"
+                  hash="football-tournament"
                   className="text-xs font-bold text-brand-red hover:underline inline-flex items-center gap-1"
                 >
                   <span>Interactive Section</span>
@@ -153,7 +153,8 @@ function StoryDetail() {
                   </h3>
                 </div>
                 <Link
-                  to="/#dutse-outreach"
+                  to="/"
+                  hash="dutse-outreach"
                   className="text-xs font-bold text-green-deep hover:underline inline-flex items-center gap-1"
                 >
                   <span>Interactive Section</span>

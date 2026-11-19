@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, Calendar, MapPin, Tag } from "lucide-react";
+import { ArrowRight, MapPin } from "lucide-react";
 import { Reveal } from "./Reveal";
 import { LazyImage } from "./LazyImage";
 import { Button } from "@/components/ui/button";
-import { formatDate } from "./blocks";
 import { CMS_PLACEHOLDER, updateCategories, updates } from "@/data/site";
-import { cn } from "@/lib/utils";
+import { cn, formatDate } from "@/lib/utils";
 
 export function MediaSection({ id = "media" }: { id?: string }) {
   const [activeCategory, setActiveCategory] = useState<string>("All");

@@ -2,20 +2,19 @@ import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import {
   ArrowRight,
-  CheckCircle2,
   Heart,
   HeartHandshake,
   Soup,
-  Sparkles,
   Utensils,
   ShieldCheck,
   Calendar,
   Users,
-  Eye,
   Info,
+  Maximize2,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Reveal } from "./Reveal";
 import { LazyImage } from "./LazyImage";
 import { AnimatedCounter } from "./AnimatedCounter";
@@ -54,13 +53,14 @@ const mealHighlights = [
   },
 ];
 
-const galleryImages = [
+const [beneficiariesPhoto, mealsPhoto] = [
   {
     src: weeklyFoodBeneficiaries,
     alt: "Children and youths happily holding fresh takeout meals during ARF weekly food distribution",
     caption: "Joyful community beneficiaries receiving fresh takeaway meal packs",
     tag: "Beneficiaries Outreach",
     aspect: "aspect-[4/5] sm:aspect-[4/3] lg:aspect-[4/5]",
+    imagePosition: "object-[center_25%]",
   },
   {
     src: weeklyFoodMeals,
@@ -69,11 +69,15 @@ const galleryImages = [
       "Hygienically packaged balanced meals featuring fresh salad & whole fish, fried/jollof rice & chicken",
     tag: "Nutritional Preparation",
     aspect: "aspect-[4/5] sm:aspect-[4/3] lg:aspect-[4/5]",
+    imagePosition: "object-center",
   },
-];
+] as const;
 
 export function FoodDistributionSection({ id = "food-distribution" }: { id?: string }) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+
+  const selectedPhoto = activeImageIndex === 0 ? beneficiariesPhoto : mealsPhoto;
 
   return (
     <section
@@ -191,67 +195,51 @@ export function FoodDistributionSection({ id = "food-distribution" }: { id?: str
           {/* Left Column: Interactive Dual Photo Visual Showcase (7 cols) */}
           <Reveal className="lg:col-span-7 flex flex-col gap-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Photo 1: Beneficiaries */}
-              <div
-                className={cn(
-                  "group relative overflow-hidden rounded-sm border transition-all duration-300 bg-muted cursor-pointer shadow-xs",
-                  activeImageIndex === 0
-                    ? "border-green-deep ring-2 ring-green-deep/20"
-                    : "border-hairline hover:border-green-mid",
-                )}
-                onClick={() => setActiveImageIndex(0)}
-              >
-                <div className="overflow-hidden">
-                  <LazyImage
-                    src={galleryImages[0].src}
-                    alt={galleryImages[0].alt}
-                    aspectRatio="aspect-[3/4]"
-                    zoomOnHover
-                    width={1000}
-                    height={1333}
-                    imagePosition="object-[center_25%]"
-                  />
-                </div>
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent p-4 text-white">
-                  <span className="inline-block rounded-full bg-brand-red px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider">
-                    {galleryImages[0].tag}
-                  </span>
-                  <p className="mt-1 text-xs font-medium leading-snug line-clamp-2 text-white/95">
-                    {galleryImages[0].caption}
-                  </p>
-                </div>
-              </div>
-
-              {/* Photo 2: Prepared Meal Packs */}
-              <div
-                className={cn(
-                  "group relative overflow-hidden rounded-sm border transition-all duration-300 bg-muted cursor-pointer shadow-xs",
-                  activeImageIndex === 1
-                    ? "border-green-deep ring-2 ring-green-deep/20"
-                    : "border-hairline hover:border-green-mid",
-                )}
-                onClick={() => setActiveImageIndex(1)}
-              >
-                <div className="overflow-hidden">
-                  <LazyImage
-                    src={galleryImages[1].src}
-                    alt={galleryImages[1].alt}
-                    aspectRatio="aspect-[3/4]"
-                    zoomOnHover
-                    width={1000}
-                    height={1333}
-                    imagePosition="object-center"
-                  />
-                </div>
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent p-4 text-white">
-                  <span className="inline-block rounded-full bg-green-mid px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider">
-                    {galleryImages[1].tag}
-                  </span>
-                  <p className="mt-1 text-xs font-medium leading-snug line-clamp-2 text-white/95">
-                    {galleryImages[1].caption}
-                  </p>
-                </div>
-              </div>
+              {[beneficiariesPhoto, mealsPhoto].map((photo, idx) => (
+                <button
+                  key={photo.tag}
+                  type="button"
+                  onClick={() => {
+                    setActiveImageIndex(idx);
+                    setLightboxOpen(true);
+                  }}
+                  className={cn(
+                    "group relative overflow-hidden rounded-sm border transition-all duration-300 bg-muted cursor-pointer shadow-xs text-left",
+                    activeImageIndex === idx
+                      ? "border-green-deep ring-2 ring-green-deep/20"
+                      : "border-hairline hover:border-green-mid",
+                  )}
+                  aria-label={`Inspect photo: ${photo.tag}`}
+                >
+                  <div className="overflow-hidden">
+                    <LazyImage
+                      src={photo.src}
+                      alt={photo.alt}
+                      aspectRatio="aspect-[3/4]"
+                      zoomOnHover
+                      width={1000}
+                      height={1333}
+                      imagePosition={photo.imagePosition}
+                    />
+                  </div>
+                  <div className="absolute top-3 right-3 rounded-full bg-black/60 p-2 text-white opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-xs">
+                    <Maximize2 className="size-3.5" />
+                  </div>
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent p-4 text-white">
+                    <span
+                      className={cn(
+                        "inline-block rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider",
+                        idx === 0 ? "bg-brand-red" : "bg-green-mid",
+                      )}
+                    >
+                      {photo.tag}
+                    </span>
+                    <p className="mt-1 text-xs font-medium leading-snug line-clamp-2 text-white/95">
+                      {photo.caption}
+                    </p>
+                  </div>
+                </button>
+              ))}
             </div>
 
             {/* Field Note Quote Strip */}
@@ -336,6 +324,23 @@ export function FoodDistributionSection({ id = "food-distribution" }: { id?: str
           </Reveal>
         </div>
       </div>
+
+      {/* Lightbox Dialog */}
+      <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
+        <DialogContent className="w-[calc(100vw-1.5rem)] sm:max-w-3xl max-h-[90vh] overflow-y-auto bg-background/98 border-hairline p-4 sm:p-6 backdrop-blur-xl rounded-md">
+          <div className="relative overflow-hidden rounded-xs bg-black flex items-center justify-center max-h-[70vh]">
+            <img
+              src={selectedPhoto.src}
+              alt={selectedPhoto.alt}
+              className="max-h-[65vh] w-auto max-w-full object-contain"
+            />
+          </div>
+          <div className="mt-4">
+            <span className="text-xs text-green-deep font-bold block">{selectedPhoto.tag}</span>
+            <p className="text-sm text-ink-soft mt-1">{selectedPhoto.caption}</p>
+          </div>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }

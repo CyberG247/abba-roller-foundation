@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import confetti from "canvas-confetti";
 import {
@@ -6,75 +6,43 @@ import {
   ArrowRight,
   Building2,
   Check,
-  CheckCircle2,
   Copy,
   ExternalLink,
   Heart,
-  MessageCircle,
-  QrCode,
+  Mail,
   ShieldCheck,
   Sparkles,
-  Wallet,
 } from "lucide-react";
+import { toast } from "sonner";
+
 import { Button } from "@/components/ui/button";
 import { Reveal } from "./Reveal";
-import { org } from "@/data/site";
-import { cn } from "@/lib/utils";
-
-const tiers = [
-  {
-    amount: "5,000",
-    numeric: 5000,
-    impact:
-      "Supplies sanitary pad packs & menstrual hygiene education for 5 schoolgirls in rural Jigawa.",
-    tag: "Essential Care",
-  },
-  {
-    amount: "10,000",
-    numeric: 10000,
-    impact: "Provides 10 menstrual health kits and educational workbooks for students.",
-    tag: "Popular",
-  },
-  {
-    amount: "25,000",
-    numeric: 25000,
-    impact:
-      "Settles emergency medical bills and prescription medicine for indigent hospital patients.",
-    tag: "Healthcare Relief",
-  },
-  {
-    amount: "50,000",
-    numeric: 50000,
-    impact:
-      "Provides bulk staple food supplies and nutrition relief for a vulnerable household or custodial inmates.",
-    tag: "Food Security",
-  },
-  {
-    amount: "100,000",
-    numeric: 100000,
-    impact:
-      "Supplies seed micro-grant capital to restore small petty trade for a female breadwinner.",
-    tag: "Empowerment",
-  },
-];
-
-const BANK_DETAILS = {
-  bankName: "POLARIS BANK",
-  accountName: "ABBA ROLLER FOUNDATION",
-  accountNumber: "4092448499",
-  accountType: "Corporate / Nonprofit Account",
-};
+import { CMS_PLACEHOLDER, donationTiers, org } from "@/data/site";
+import { cn, copyToClipboard } from "@/lib/utils";
 
 export function DonationSection({ id = "donate" }: { id?: string }) {
   const [selectedTier, setSelectedTier] = useState<number>(10000);
   const [customAmount, setCustomAmount] = useState<string>("");
   const [copiedAccount, setCopiedAccount] = useState(false);
   const [copiedRef, setCopiedRef] = useState(false);
+  const [copiedReceipt, setCopiedReceipt] = useState(false);
   const [step, setStep] = useState<"select" | "complete">("select");
+  const [refSuffix] = useState<number>(() => Math.floor(1000 + Math.random() * 9000));
 
-  const activeAmount = customAmount ? parseInt(customAmount, 10) || selectedTier : selectedTier;
-  const activeTier = tiers.find((t) => t.numeric === selectedTier) || tiers[1];
-  const refCode = `ARF-${activeAmount.toString().slice(0, 4)}-${Math.floor(1000 + Math.random() * 9000)}`;
+  const parsedCustom = customAmount ? parseInt(customAmount, 10) : 0;
+  const hasCustom = Boolean(customAmount && parsedCustom > 0);
+  const activeAmount = hasCustom ? parsedCustom : selectedTier;
+
+  const matchedTier = donationTiers.find((t) => t.numeric === selectedTier) ?? donationTiers[1]!;
+
+  const impactDescription = hasCustom
+    ? `Custom contribution of ₦${activeAmount.toLocaleString()} supporting priority ARF food relief, menstrual health kits, and emergency medical aid.`
+    : matchedTier.impact;
+
+  const refCode = useMemo(
+    () => `ARF-${activeAmount.toString().slice(0, 4)}-${refSuffix}`,
+    [activeAmount, refSuffix],
+  );
 
   const triggerCelebration = () => {
     try {
@@ -89,27 +57,54 @@ export function DonationSection({ id = "donate" }: { id?: string }) {
     }
   };
 
-  const handleCopyAccount = () => {
-    navigator.clipboard.writeText(BANK_DETAILS.accountNumber);
+  const handleCopyAccount = async () => {
+    const ok = await copyToClipboard(org.bankDetails.accountNumber);
+    if (!ok) {
+      toast.error("Please copy the account number manually.");
+      return;
+    }
     setCopiedAccount(true);
+    toast.success("Account number copied to clipboard.");
     triggerCelebration();
     setTimeout(() => setCopiedAccount(false), 2500);
   };
 
-  const handleCopyRef = (text: string) => {
-    navigator.clipboard.writeText(text);
+  const handleCopyRef = async () => {
+    const ok = await copyToClipboard(refCode);
+    if (!ok) return;
     setCopiedRef(true);
+    toast.success("Payment reference copied.");
     setTimeout(() => setCopiedRef(false), 2500);
   };
 
   const handleProceed = () => {
+    if (hasCustom && activeAmount < 500) {
+      toast.error("Minimum custom contribution is ₦500.");
+      return;
+    }
     setStep("complete");
     triggerCelebration();
   };
 
-  const whatsappMessage = encodeURIComponent(
-    `Hello Abba Roller Foundation,\n\nI would like to complete my donation of ₦${activeAmount.toLocaleString()} to support your community programmes.\n\nReference: ${refCode}\nPurpose: ${activeTier.impact}`,
-  );
+  const confirmationPlainText = `Hello Abba Roller Foundation,\n\nI have completed a transfer of ₦${activeAmount.toLocaleString()} to support your community programmes.\n\nBank: ${org.bankDetails.bankName}\nAccount: ${org.bankDetails.accountNumber}\nReference: ${refCode}\nPurpose: ${impactDescription}`;
+
+  const handleCopyConfirmation = async () => {
+    const ok = await copyToClipboard(confirmationPlainText);
+    if (!ok) {
+      toast.error("Unable to copy confirmation text.");
+      return;
+    }
+    setCopiedReceipt(true);
+    toast.success(`Transfer summary copied — you can email it to ${org.email}.`);
+    setTimeout(() => setCopiedReceipt(false), 3000);
+  };
+
+  const mailtoHref = `mailto:${org.email}?subject=${encodeURIComponent(
+    `Donation Receipt - ₦${activeAmount.toLocaleString()} (${refCode})`,
+  )}&body=${encodeURIComponent(confirmationPlainText)}`;
+
+  const rawPhone: string = org.phone;
+  const phoneDigits = rawPhone !== CMS_PLACEHOLDER ? rawPhone.replace(/[^\d]/g, "") : "";
 
   return (
     <section
@@ -168,24 +163,25 @@ export function DonationSection({ id = "donate" }: { id?: string }) {
                   </h3>
                 </div>
                 <span className="rounded-full bg-green-wash/20 px-2.5 py-0.5 text-[11px] font-semibold text-on-dark">
-                  Verified FBN
+                  Verified Account
                 </span>
               </div>
               <div className="mt-4 grid gap-2 text-sm text-on-dark-muted">
                 <p>
-                  <strong className="text-on-dark">Bank:</strong> {BANK_DETAILS.bankName}
+                  <strong className="text-on-dark">Bank:</strong> {org.bankDetails.bankName}
                 </p>
                 <p>
-                  <strong className="text-on-dark">Account Name:</strong> {BANK_DETAILS.accountName}
+                  <strong className="text-on-dark">Account Name:</strong>{" "}
+                  {org.bankDetails.accountName}
                 </p>
                 <div className="mt-1 flex flex-wrap items-center justify-between gap-2 rounded-xs bg-black/20 p-3 font-mono">
                   <span className="text-base font-bold text-on-dark tracking-wider">
-                    {BANK_DETAILS.accountNumber}
+                    {org.bankDetails.accountNumber}
                   </span>
                   <button
                     type="button"
                     onClick={handleCopyAccount}
-                    className="inline-flex items-center gap-1.5 rounded-xs bg-white/20 px-3 py-1 text-xs font-sans font-bold text-on-dark transition-colors hover:bg-white/30"
+                    className="inline-flex items-center gap-1.5 rounded-xs bg-white/20 px-3 py-1 text-xs font-sans font-bold text-on-dark transition-colors hover:bg-white/30 cursor-pointer"
                   >
                     {copiedAccount ? (
                       <>
@@ -221,7 +217,7 @@ export function DonationSection({ id = "donate" }: { id?: string }) {
 
                   {/* Tiers Grid */}
                   <div className="mt-5 sm:mt-6 grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-2.5">
-                    {tiers.map((tier) => (
+                    {donationTiers.map((tier) => (
                       <button
                         key={tier.numeric}
                         type="button"
@@ -263,8 +259,8 @@ export function DonationSection({ id = "donate" }: { id?: string }) {
                       <input
                         id="custom-amount"
                         type="number"
-                        min={1000}
-                        step={1000}
+                        min={500}
+                        step={500}
                         placeholder="e.g. 150000"
                         value={customAmount}
                         onChange={(e) => setCustomAmount(e.target.value)}
@@ -284,7 +280,7 @@ export function DonationSection({ id = "donate" }: { id?: string }) {
                           Verified Impact Outcome
                         </span>
                         <p className="mt-1 text-xs sm:text-sm leading-relaxed font-semibold text-ink">
-                          {activeTier.impact}
+                          {impactDescription}
                         </p>
                       </div>
                     </div>
@@ -338,8 +334,8 @@ export function DonationSection({ id = "donate" }: { id?: string }) {
                       Complete Your Support
                     </h3>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      Transfer directly to the Foundation's official account below or confirm via
-                      WhatsApp.
+                      Transfer directly to the Foundation&apos;s official account below, then notify
+                      us by email for immediate receipt confirmation.
                     </p>
                   </div>
 
@@ -350,7 +346,7 @@ export function DonationSection({ id = "donate" }: { id?: string }) {
                         Bank Name
                       </span>
                       <span className="font-display text-sm font-extrabold text-ink">
-                        {BANK_DETAILS.bankName}
+                        {org.bankDetails.bankName}
                       </span>
                     </div>
 
@@ -359,7 +355,7 @@ export function DonationSection({ id = "donate" }: { id?: string }) {
                         Account Name
                       </span>
                       <span className="font-display text-sm font-extrabold text-ink">
-                        {BANK_DETAILS.accountName}
+                        {org.bankDetails.accountName}
                       </span>
                     </div>
 
@@ -369,7 +365,7 @@ export function DonationSection({ id = "donate" }: { id?: string }) {
                       </span>
                       <div className="flex items-center gap-2">
                         <span className="font-mono text-base font-black text-green-deep">
-                          {BANK_DETAILS.accountNumber}
+                          {org.bankDetails.accountNumber}
                         </span>
                         <button
                           type="button"
@@ -389,7 +385,7 @@ export function DonationSection({ id = "donate" }: { id?: string }) {
                         <span className="font-mono text-xs font-bold text-ink">{refCode}</span>
                         <button
                           type="button"
-                          onClick={() => handleCopyRef(refCode)}
+                          onClick={handleCopyRef}
                           className="text-[11px] font-semibold text-green-deep underline hover:text-green-mid cursor-pointer"
                         >
                           {copiedRef ? "Copied!" : "Copy ref"}
@@ -401,21 +397,36 @@ export function DonationSection({ id = "donate" }: { id?: string }) {
                   {/* Immediate Confirmation Buttons */}
                   <div className="space-y-3 pt-2">
                     <a
-                      href={`https://wa.me/2348000000000?text=${whatsappMessage}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group flex w-full items-center justify-center gap-2.5 rounded-sm bg-[#25D366] px-5 py-3.5 text-sm font-extrabold text-white shadow-md transition-all hover:bg-[#1EBE5D] hover:shadow-lg active:scale-[0.99]"
+                      href={mailtoHref}
+                      className="btn-shine group flex w-full items-center justify-center gap-2.5 rounded-sm bg-green-deep px-5 py-3.5 text-sm font-extrabold text-white shadow-md transition-all hover:bg-green-mid hover:shadow-lg active:scale-[0.99]"
                     >
-                      <MessageCircle className="size-4.5 fill-white" />
-                      <span>Confirm Donation on WhatsApp</span>
+                      <Mail className="size-4.5" />
+                      <span>Send Proof of Transfer ({org.email})</span>
                     </a>
 
-                    <a
-                      href={`mailto:${org.email}?subject=Donation%20Receipt%20-%20₦${activeAmount.toLocaleString()}&body=Hello%20Abba%20Roller%20Foundation,%0A%0AI%20have%20transferred%20₦${activeAmount.toLocaleString()}%20with%20reference%20${refCode}.%0A%0APlease%20confirm%20receipt.%0A%0AThank%20you!`}
-                      className="flex w-full items-center justify-center gap-2 rounded-sm border border-hairline bg-surface px-5 py-3 text-sm font-bold text-ink transition-colors hover:bg-muted"
+                    {phoneDigits && (
+                      <a
+                        href={`https://wa.me/${phoneDigits}?text=${encodeURIComponent(confirmationPlainText)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex w-full items-center justify-center gap-2 rounded-sm bg-[#25D366] px-5 py-3 text-sm font-extrabold text-white shadow-sm transition-all hover:bg-[#1EBE5D]"
+                      >
+                        <span>Confirm Donation on WhatsApp</span>
+                      </a>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={handleCopyConfirmation}
+                      className="flex w-full items-center justify-center gap-2 rounded-sm border border-hairline bg-surface px-5 py-3 text-sm font-bold text-ink transition-colors hover:bg-muted cursor-pointer"
                     >
-                      <span>Send Payment Notification via Email</span>
-                    </a>
+                      <Copy className="size-4" />
+                      <span>
+                        {copiedReceipt
+                          ? "Confirmation Summary Copied!"
+                          : "Copy Transfer Confirmation Message"}
+                      </span>
+                    </button>
 
                     <Button
                       asChild

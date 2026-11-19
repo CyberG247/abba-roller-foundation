@@ -46,187 +46,7 @@ import { Reveal } from "./Reveal";
 import { LazyImage } from "./LazyImage";
 import { AnimatedCounter } from "./AnimatedCounter";
 import { cn } from "@/lib/utils";
-
-// Assets
-import visuallyImpairedSchoolDutse1 from "@/assets/visually-impaired-school-dutse-1.jpg";
-import visuallyImpairedSchoolDutseSignboard from "@/assets/visually-impaired-school-dutse-signboard.jpg";
-import visuallyImpairedSchoolDutseMealsQueue from "@/assets/visually-impaired-school-dutse-meals-queue.jpg";
-import visuallyImpairedSchoolDutseFounderHandover from "@/assets/visually-impaired-school-dutse-founder-handover.jpg";
-import visuallyImpairedSchoolDutseTeamDistribution from "@/assets/visually-impaired-school-dutse-team-distribution.jpg";
-import visuallyImpairedSchoolDutseStudentsJerseys from "@/assets/visually-impaired-school-dutse-students-jerseys.jpg";
-import visuallyImpairedSchoolDutseGroupOfficial from "@/assets/visually-impaired-school-dutse-group-official.jpg";
-import visuallyImpairedSchoolDutseHandoverProvisions from "@/assets/visually-impaired-school-dutse-handover-provisions.jpg";
-import visuallyImpairedSchoolDutseSuppliesDisplay from "@/assets/visually-impaired-school-dutse-supplies-display.jpg";
-import visuallyImpairedSchoolDutseHostelDormitory from "@/assets/visually-impaired-school-dutse-hostel-dormitory.jpg";
-import visuallyImpairedSchoolDutseStudentsAssembly from "@/assets/visually-impaired-school-dutse-students-assembly.jpg";
-import visuallyImpairedSchoolDutseFemaleStudents from "@/assets/visually-impaired-school-dutse-female-students.jpg";
-import visuallyImpairedSchoolDutseHandoverYellow from "@/assets/visually-impaired-school-dutse-handover-yellow.jpg";
-import visuallyImpairedSchoolDutseStudentsSmiles from "@/assets/visually-impaired-school-dutse-students-smiles.jpg";
-import visuallyImpairedSchoolDutseSchoolLeadership from "@/assets/visually-impaired-school-dutse-school-leadership.jpg";
-import visuallyImpairedSchoolDutseGroupPresentation from "@/assets/visually-impaired-school-dutse-group-presentation.jpg";
-
-export interface GalleryPhoto {
-  id: string;
-  src: string;
-  alt: string;
-  title: string;
-  category: string;
-  caption: string;
-  aspectRatio?: string;
-  isMainHeadImage?: boolean;
-}
-
-/**
- * Complete authentic gallery images for the Visually Impaired School in Dutse.
- * The attached photo is established as the main head image (index 0).
- */
-export const dutseSchoolGallery: GalleryPhoto[] = [
-  {
-    id: "dutse-main-head-image",
-    src: visuallyImpairedSchoolDutse1,
-    alt: "Young visually impaired student resting thoughtfully in the hostel dormitory at the Visually Impaired School in Dutse, Jigawa State",
-    title: "Hostel Welfare Visit",
-    category: "Primary Documentation",
-    caption:
-      "A young visually impaired student in the school hostel in Dutse, Jigawa State. ARF's outreach reached right into the residential dormitories to ensure every child received direct personal care.",
-    isMainHeadImage: true,
-  },
-  {
-    id: "dutse-female-students-hostel",
-    src: visuallyImpairedSchoolDutseFemaleStudents,
-    alt: "Two young visually impaired female students sitting together in their residential dormitory room in Dutse",
-    title: "Female Students in Hostel",
-    category: "Pad Up & Dormitory Care",
-    caption:
-      "Visually impaired female pupils sitting in their residential hostel room. ARF's Pad Up initiative provided sanitary pads, toiletries, and personal hygiene kits to support the girls' health and dignity.",
-  },
-  {
-    id: "dutse-signboard-official",
-    src: visuallyImpairedSchoolDutseSignboard,
-    alt: "Visually impaired students holding cooked meals in front of the Jigawa State School for the Visually Impaired signboard in Limawa, Dutse",
-    title: "Official School Signboard",
-    category: "Official Verification",
-    caption:
-      "Pupils holding freshly prepared meal packs in front of the official signboard: 'JIGAWA STATE SCHOOL FOR THE VISUALLY IMPAIRED, Motto: Education is light for All, Address: Limawa, Dutse, Jigawa State.'",
-  },
-  {
-    id: "dutse-handover-provisions",
-    src: visuallyImpairedSchoolDutseHandoverProvisions,
-    alt: "Hon. Usman Aminu Usman presenting laundry detergent packs, washing buckets, and hot meals to a student",
-    title: "Detergents & Care Handover",
-    category: "Hygiene Handover",
-    caption:
-      "Founder & Chairman Hon. Usman Aminu Usman (Abba Roller) personally presenting branded detergent packs, washing buckets, bowls, and hot meal packs to a female student.",
-  },
-  {
-    id: "dutse-handover-yellow",
-    src: visuallyImpairedSchoolDutseHandoverYellow,
-    alt: "Hon. Usman Aminu Usman presenting relief buckets and takeaway meals to a student in a yellow hijab",
-    title: "Dignified Welfare Handover",
-    category: "Personal Handover",
-    caption:
-      "Direct handover of personal care provisions: Founder Hon. Usman Aminu Usman presenting relief supplies, washing basins, and hot meals to a visually impaired female pupil in yellow attire.",
-  },
-  {
-    id: "dutse-supplies-display",
-    src: visuallyImpairedSchoolDutseSuppliesDisplay,
-    alt: "Comprehensive relief materials display featuring sanitary pads, soaps, toothpaste, detergents, food containers, and buckets",
-    title: "Complete Relief Consignment",
-    category: "Provisions Inventory",
-    caption:
-      "Exemplary consignment of relief provisions: Pad Up sanitary pads, cartons of beauty and antibacterial soaps, Pepsodent toothpaste, washing detergents, wash basins, buckets, and freshly prepared hot meals.",
-  },
-  {
-    id: "dutse-meals-queue",
-    src: visuallyImpairedSchoolDutseMealsQueue,
-    alt: "Four visually impaired students standing in line holding fresh takeaway food containers",
-    title: "Hot Meals for Students",
-    category: "Nutritional Relief",
-    caption:
-      "Visually impaired students holding wholesome, freshly cooked hot takeaway meals delivered directly to their residential hostel.",
-  },
-  {
-    id: "dutse-founder-handover",
-    src: visuallyImpairedSchoolDutseFounderHandover,
-    alt: "Hon. Usman Aminu Usman handing over takeaway meals to students in front of the Foundation banner",
-    title: "Direct Leadership Handover",
-    category: "Food Distribution",
-    caption:
-      "Hon. Usman Aminu Usman distributing nutritious meals directly into the hands of visually impaired pupils without intermediaries.",
-  },
-  {
-    id: "dutse-group-official",
-    src: visuallyImpairedSchoolDutseGroupOfficial,
-    alt: "Complete group photo with school teachers, principal, Foundation leadership, and visually impaired students",
-    title: "School Community Commemoration",
-    category: "Delegation Group",
-    caption:
-      "ARF leadership, school administrators, teachers, and pupils gathering in front of the school signboard with their welfare buckets, care packages, and meal packs.",
-  },
-  {
-    id: "dutse-students-smiles",
-    src: visuallyImpairedSchoolDutseStudentsSmiles,
-    alt: "Hon. Usman Aminu Usman alongside visually impaired pupils wearing Abba Roller Foundation jerseys holding meals and welfare buckets",
-    title: "Founder With Pupils & Meals",
-    category: "Youth Empowerment",
-    caption:
-      "Hon. Usman Aminu Usman surrounded by smiling students wearing custom ARF jerseys, receiving hot nutritious meal packs, washing buckets, and daily care provisions.",
-  },
-  {
-    id: "dutse-school-leadership",
-    src: visuallyImpairedSchoolDutseSchoolLeadership,
-    alt: "Hon. Usman Aminu Usman in consultation with school administrators and staff at Jigawa State School for the Visually Impaired",
-    title: "School Leadership Engagement",
-    category: "Institutional Partnership",
-    caption:
-      "Founder & Chairman Hon. Usman Aminu Usman engaging with the school leadership and teachers at the school grounds in Limawa, Dutse, reaffirming sustained foundation support.",
-  },
-  {
-    id: "dutse-group-presentation",
-    src: visuallyImpairedSchoolDutseGroupPresentation,
-    alt: "Comprehensive delegation photograph with school pupils, educators, and ARF leadership displaying relief supplies and care bags",
-    title: "Outreach Mission Presentation",
-    category: "Delegation Group",
-    caption:
-      "A joyful moment with pupils, teachers, and the Abba Roller Foundation team presenting customized welfare packages, food containers, and hygiene supplies.",
-  },
-  {
-    id: "dutse-students-jerseys",
-    src: visuallyImpairedSchoolDutseStudentsJerseys,
-    alt: "Senior visually impaired students wearing custom Abba Roller Foundation sports jerseys with relief buckets",
-    title: "Student Welfare & Custom Kits",
-    category: "Youth Empowerment",
-    caption:
-      "Senior students at the school wearing customized Abba Roller Foundation jerseys, with individual washing buckets and care provisions.",
-  },
-  {
-    id: "dutse-team-distribution",
-    src: visuallyImpairedSchoolDutseTeamDistribution,
-    alt: "ARF team members and Founder distributing meal packs to pupils",
-    title: "Coordinated Relief Team",
-    category: "Grassroots Access",
-    caption:
-      "The Foundation team on-site at the school, coordinating meal distribution and personal welfare checks for students.",
-  },
-  {
-    id: "dutse-hostel-dormitory",
-    src: visuallyImpairedSchoolDutseHostelDormitory,
-    alt: "A visually impaired student resting safely in a residential dormitory bunk bed equipped with mosquito netting",
-    title: "Hostel Living & Dormitory Care",
-    category: "Hostel Welfare",
-    caption:
-      "Inside the residential dormitory quarters in Dutse. ARF’s intervention provides hygiene products, cleaning agents, and living essentials to safeguard daily living conditions.",
-  },
-  {
-    id: "dutse-students-assembly",
-    src: visuallyImpairedSchoolDutseStudentsAssembly,
-    alt: "Students assembled in the school compound during the foundation's welfare visit",
-    title: "School Compound Assembly",
-    category: "Community Fellowship",
-    caption:
-      "Dozens of pupils gathered in the school grounds during the Foundation’s outreach in Dutse, Jigawa State.",
-  },
-];
+import { dutseSchoolGallery, type GalleryPhoto } from "@/data/galleries";
 
 // Detailed breakdown of provisions benefited by the school
 const benefitedCategories = [
@@ -338,27 +158,47 @@ export function VisuallyImpairedSchoolSection({ id = "dutse-outreach" }: { id?: 
   };
 
   const goToPrevPhoto = () => {
-    const newIdx = (selectedPhotoIndex - 1 + dutseSchoolGallery.length) % dutseSchoolGallery.length;
-    setSelectedPhotoIndex(newIdx);
-    setActiveGalleryModalImage(dutseSchoolGallery[newIdx]);
+    setSelectedPhotoIndex((prev) => {
+      const newIdx = (prev - 1 + dutseSchoolGallery.length) % dutseSchoolGallery.length;
+      const photo = dutseSchoolGallery[newIdx];
+      if (photo) setActiveGalleryModalImage(photo);
+      return newIdx;
+    });
   };
 
   const goToNextPhoto = () => {
-    const newIdx = (selectedPhotoIndex + 1) % dutseSchoolGallery.length;
-    setSelectedPhotoIndex(newIdx);
-    setActiveGalleryModalImage(dutseSchoolGallery[newIdx]);
+    setSelectedPhotoIndex((prev) => {
+      const newIdx = (prev + 1) % dutseSchoolGallery.length;
+      const photo = dutseSchoolGallery[newIdx];
+      if (photo) setActiveGalleryModalImage(photo);
+      return newIdx;
+    });
   };
 
   // Keyboard navigation for lightbox
   useEffect(() => {
     if (!lightboxOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowLeft") goToPrevPhoto();
-      if (e.key === "ArrowRight") goToNextPhoto();
+      if (e.key === "ArrowLeft") {
+        setSelectedPhotoIndex((prev) => {
+          const newIdx = (prev - 1 + dutseSchoolGallery.length) % dutseSchoolGallery.length;
+          const photo = dutseSchoolGallery[newIdx];
+          if (photo) setActiveGalleryModalImage(photo);
+          return newIdx;
+        });
+      }
+      if (e.key === "ArrowRight") {
+        setSelectedPhotoIndex((prev) => {
+          const newIdx = (prev + 1) % dutseSchoolGallery.length;
+          const photo = dutseSchoolGallery[newIdx];
+          if (photo) setActiveGalleryModalImage(photo);
+          return newIdx;
+        });
+      }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [lightboxOpen, selectedPhotoIndex]);
+  }, [lightboxOpen]);
 
   return (
     <section
