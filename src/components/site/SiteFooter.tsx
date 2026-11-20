@@ -1,114 +1,11 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { ExternalLink } from "lucide-react";
 
 import { Logo } from "./Logo";
+import { FOOTER_COLUMNS } from "@/data/navigation";
 import { CMS_PLACEHOLDER, org } from "@/data/site";
 
-type FooterLink =
-  | {
-      label: string;
-      to:
-        | "/"
-        | "/about"
-        | "/work"
-        | "/founder"
-        | "/gallery"
-        | "/media"
-        | "/impact"
-        | "/contact"
-        | "/membership"
-        | "/volunteer"
-        | "/donate"
-        | "/admin"
-        | "/partners"
-        | "/campaigns"
-        | "/get-involved"
-        | "/privacy"
-        | "/terms"
-        | "/accessibility";
-      hash?: string;
-      homeSectionId?: string;
-    }
-  | {
-      label: string;
-      to: "/campaigns/$slug";
-      params: { slug: string };
-      homeSectionId?: string;
-    };
-
-const columns: readonly { heading: string; links: readonly FooterLink[] }[] = [
-  {
-    heading: "Organisation",
-    links: [
-      { label: "About", to: "/about", homeSectionId: "about" },
-      { label: "Our Work", to: "/work" },
-      { label: "Founder's Desk", to: "/founder", homeSectionId: "founder" },
-      { label: "Photo Gallery", to: "/gallery" },
-      {
-        label: "Weekly Feeding",
-        to: "/campaigns/$slug",
-        params: { slug: "weekly-community-food-distribution" },
-        homeSectionId: "food-distribution",
-      },
-      {
-        label: "Ramadan Relief",
-        to: "/campaigns/$slug",
-        params: { slug: "ramadan-food-support-10-states" },
-        homeSectionId: "ramadan-support",
-      },
-      {
-        label: "Dutse School Outreach",
-        to: "/",
-        hash: "dutse-outreach",
-        homeSectionId: "dutse-outreach",
-      },
-      {
-        label: "Football Championship",
-        to: "/",
-        hash: "football-tournament",
-        homeSectionId: "football-tournament",
-      },
-      { label: "Media & Updates", to: "/media", homeSectionId: "media" },
-      { label: "Impact", to: "/impact", homeSectionId: "impact" },
-      { label: "Contact", to: "/contact", homeSectionId: "contact" },
-    ],
-  },
-  {
-    heading: "Get Involved",
-    links: [
-      { label: "Become a Member", to: "/membership" },
-      { label: "Volunteer Application", to: "/volunteer" },
-      { label: "Lawyers Pro Bono Corps", to: "/volunteer", hash: "lawyers-volunteer" },
-      { label: "Donate", to: "/donate", homeSectionId: "donate" },
-      { label: "Admin Portal", to: "/admin" },
-      { label: "Partner With Us", to: "/partners", homeSectionId: "partners" },
-      { label: "Campaigns", to: "/campaigns" },
-      { label: "Get Involved", to: "/get-involved", homeSectionId: "get-involved" },
-    ],
-  },
-  {
-    heading: "Legal",
-    links: [
-      { label: "Privacy Policy", to: "/privacy" },
-      { label: "Terms of Use", to: "/terms" },
-      { label: "Accessibility Statement", to: "/accessibility" },
-    ],
-  },
-];
-
 export function SiteFooter() {
-  const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const isHome = pathname === "/";
-
-  const handleHomeScroll = (targetId: string, e: React.MouseEvent) => {
-    const element = document.getElementById(targetId);
-    if (element) {
-      e.preventDefault();
-      element.scrollIntoView({ behavior: "smooth" });
-      window.history.replaceState(null, "", `#${targetId}`);
-    }
-  };
-
   return (
     <footer className="relative overflow-hidden bg-ink text-on-dark-muted">
       <div aria-hidden className="h-1 w-full bg-brand-red" />
@@ -146,26 +43,18 @@ export function SiteFooter() {
           )}
         </div>
 
-        <div className="grid gap-8 grid-cols-2 sm:grid-cols-3">
-          {columns.map((column) => (
+        <div className="grid grid-cols-2 gap-8 sm:grid-cols-3">
+          {FOOTER_COLUMNS.map((column) => (
             <nav key={column.heading} aria-label={column.heading}>
               <h2 className="eyebrow text-on-dark">{column.heading}</h2>
-              <ul className="mt-5 space-y-3 text-sm">
+              <ul className="mt-5 space-y-2.5 text-sm">
                 {column.links.map((link) => (
                   <li key={link.label}>
-                    {isHome && link.homeSectionId ? (
-                      <a
-                        href={`#${link.homeSectionId}`}
-                        onClick={(e) => handleHomeScroll(link.homeSectionId!, e)}
-                        className="transition-colors hover:text-on-dark cursor-pointer"
-                      >
-                        {link.label}
-                      </a>
-                    ) : "params" in link ? (
+                    {"params" in link ? (
                       <Link
                         to={link.to}
                         params={link.params}
-                        className="transition-colors hover:text-on-dark"
+                        className="inline-flex min-h-8 items-center transition-colors hover:text-on-dark"
                       >
                         {link.label}
                       </Link>
@@ -173,7 +62,7 @@ export function SiteFooter() {
                       <Link
                         to={link.to}
                         {...(link.hash ? { hash: link.hash } : {})}
-                        className="transition-colors hover:text-on-dark"
+                        className="inline-flex min-h-8 items-center transition-colors hover:text-on-dark"
                       >
                         {link.label}
                       </Link>
@@ -204,19 +93,19 @@ export function SiteFooter() {
                 href="https://www.innovatech-ng.com/"
                 target="_blank"
                 rel="noreferrer noopener"
-                className="inline-flex items-center gap-1 font-semibold text-on-dark underline decoration-brand-red decoration-2 underline-offset-4 hover:text-brand-red-wash transition-colors"
+                className="inline-flex items-center gap-1 font-semibold text-on-dark underline decoration-brand-red decoration-2 underline-offset-4 transition-colors hover:text-brand-red-wash"
               >
                 <span>InnovaTech</span>
                 <ExternalLink className="size-3 text-brand-red" />
               </a>
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3 rounded-xs border border-white/10 bg-white/5 px-3 sm:px-3.5 py-2 text-[11px] sm:text-xs">
+          <div className="flex flex-wrap items-center gap-2 rounded-xs border border-white/10 bg-white/5 px-3 py-2 text-[11px] sm:gap-3 sm:px-3.5 sm:text-xs">
             <span className="font-semibold text-on-dark">Official Account:</span>
             <span className="font-mono font-bold text-white">
               {org.bankDetails.bankName} · {org.bankDetails.accountNumber}
             </span>
-            <span className="rounded-full bg-brand-red px-2 py-0.5 text-[9px] sm:text-[10px] font-extrabold text-white">
+            <span className="rounded-full bg-brand-red px-2 py-0.5 text-[9px] font-extrabold text-white sm:text-[10px]">
               VERIFIED
             </span>
           </div>

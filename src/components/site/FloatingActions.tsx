@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import confetti from "canvas-confetti";
 import { ArrowUp, Building2, Check, Copy, Heart, X } from "lucide-react";
 import { toast } from "sonner";
@@ -30,13 +31,6 @@ export function FloatingActions() {
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const scrollToDonate = () => {
-    const el = document.getElementById("donate") || document.getElementById("get-involved");
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth" });
-    }
   };
 
   const handleCopyAccount = async (e: React.MouseEvent) => {
@@ -123,16 +117,13 @@ export function FloatingActions() {
           </div>
 
           <div className="mt-3 flex gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                setShowBankCard(false);
-                scrollToDonate();
-              }}
-              className="w-full rounded-xs bg-brand-red py-1.5 text-center text-[11px] font-extrabold text-white transition-all hover:bg-brand-red-bright shadow-2xs cursor-pointer"
+            <Link
+              to="/donate"
+              onClick={() => setShowBankCard(false)}
+              className="flex min-h-11 w-full items-center justify-center rounded-xs bg-brand-red py-2 text-center text-xs font-extrabold text-white shadow-2xs transition-all hover:bg-brand-red-bright"
             >
               Calculate Impact &amp; Donate →
-            </button>
+            </Link>
           </div>
         </div>
       )}
@@ -143,30 +134,29 @@ export function FloatingActions() {
           type="button"
           onClick={() => setShowBankCard(!showBankCard)}
           aria-label="Show quick bank transfer details"
-          className="flex size-10 sm:size-11 items-center justify-center rounded-full bg-green-deep text-white shadow-lift transition-all hover:bg-green-mid hover:scale-105 active:scale-95 cursor-pointer ring-2 ring-white/30"
+          className="flex size-11 cursor-pointer items-center justify-center rounded-full bg-green-deep text-white shadow-lift ring-2 ring-white/30 transition-all hover:scale-105 hover:bg-green-mid active:scale-95"
           title="Quick Polaris Bank Details"
         >
-          <Building2 className="size-4 sm:size-4.5" />
+          <Building2 className="size-4.5" />
         </button>
 
         {/* Quick Donate Floating Pill */}
-        <button
-          type="button"
-          onClick={scrollToDonate}
-          aria-label="Quick donate"
-          className="btn-shine group flex items-center gap-1.5 sm:gap-2 rounded-full bg-gradient-to-r from-brand-red via-brand-red to-brand-red-bright px-3.5 sm:px-4.5 py-2 sm:py-2.5 text-xs font-extrabold text-white shadow-lift shadow-brand-red/30 ring-1 ring-white/30 transition-all hover:shadow-lg hover:shadow-brand-red/45 hover:scale-105 active:scale-95 cursor-pointer"
+        <Link
+          to="/donate"
+          aria-label="Go to official donation portal"
+          className="btn-shine group flex min-h-11 items-center gap-1.5 rounded-full bg-gradient-to-r from-brand-red via-brand-red to-brand-red-bright px-4 py-2 text-xs font-extrabold text-white shadow-lift shadow-brand-red/30 ring-1 ring-white/30 transition-all hover:scale-105 hover:shadow-lg hover:shadow-brand-red/45 active:scale-95 sm:gap-2 sm:px-5"
         >
-          <Heart className="size-3.5 fill-white transition-transform group-hover:scale-120 animate-pulse" />
+          <Heart className="size-3.5 fill-white animate-pulse transition-transform group-hover:scale-120" />
           <span className="hidden sm:inline">Support ARF</span>
           <span className="sm:hidden">Donate</span>
-        </button>
+        </Link>
 
         {/* Back to top with Circular Scroll Progress */}
         <button
           type="button"
           onClick={scrollToTop}
           aria-label="Scroll back to top"
-          className="group relative flex size-10 sm:size-11 items-center justify-center rounded-full bg-background/95 text-ink shadow-lift backdrop-blur-md transition-all hover:border-green-deep hover:scale-110 active:scale-95 border border-hairline"
+          className="group relative flex size-11 cursor-pointer items-center justify-center rounded-full border border-hairline bg-background/95 text-ink shadow-lift backdrop-blur-md transition-all hover:scale-110 hover:border-green-deep active:scale-95"
         >
           <svg className="absolute inset-0 size-full -rotate-90" viewBox="0 0 44 44">
             <circle

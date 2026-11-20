@@ -1,1731 +1,678 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  Award,
-  Briefcase,
-  Building2,
-  Calendar,
-  Download,
+  Bell,
+  ChevronLeft,
+  ChevronRight,
   ExternalLink,
-  Eye,
-  FileSpreadsheet,
-  GraduationCap,
+  Gavel,
+  Globe,
   HeartHandshake,
-  Info,
-  Mail,
-  MapPin,
-  Phone,
+  LayoutDashboard,
+  LayoutTemplate,
+  Lock,
+  Menu,
   Plus,
   Scale,
   Search,
   ShieldCheck,
-  Trash2,
-  Upload,
-  User,
   Users,
 } from "lucide-react";
 import { toast } from "sonner";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+
+import { CmsBuilderView } from "@/components/admin/CmsBuilderView";
+import { CommandCenterView, type AdminModuleTab } from "@/components/admin/CommandCenterView";
+import { CommunityChaptersView } from "@/components/admin/CommunityChaptersView";
+import { GovernanceAuditView } from "@/components/admin/GovernanceAuditView";
+import { LegalAidAdminView } from "@/components/admin/LegalAidAdminView";
+import { ReliefPortalView } from "@/components/admin/ReliefPortalView";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { loadCmsPages, type CmsPage } from "@/data/admin/cmsStore";
 import {
-  deleteLawyerFromStorage,
-  exportLawyersToCsv,
-  getLawyersList,
-  type LawyerVolunteer,
-  updateLawyerStatus,
-} from "@/data/lawyersStore";
+  loadBatches,
+  loadBeneficiaries,
+  loadChapterCoordination,
+  loadLegalCases,
+  updateBeneficiaryStatus,
+  type BeneficiaryRecord,
+  type ChapterCoordinationRecord,
+  type DisbursementBatch,
+  type LegalCaseRecord,
+} from "@/data/admin/operationsStore";
 import {
-  deleteMemberFromStorage,
-  exportMembersToCsv,
-  loadMembersFromStorage,
-  type Member,
-  type MembershipTier,
-  saveMemberToStorage,
-  updateMemberStatus,
-} from "@/data/membershipStore";
-import { ALL_STATES, getLgasForState } from "@/data/nigeriaStatesLgas";
-import {
-  deleteVolunteerFromStorage,
-  loadVolunteersFromStorage,
-  updateVolunteerStatus,
-  type VolunteerRecord,
-} from "@/data/volunteersStore";
-import { downloadLawyerSlip } from "@/lib/generateLawyerSlip";
-import { downloadMembershipCard } from "@/lib/generateMembershipSlip";
-import { downloadVolunteerSlip } from "@/lib/generateVolunteerSlip";
-import { compressPassportPhoto, exportRecordsToCsv, formatDate } from "@/lib/utils";
+  appendAuditLog,
+  getRoleProfile,
+  hasPermission,
+  loadAuditLogs,
+  ROLE_PROFILES,
+  type AdminRole,
+  type AuditLogEntry,
+} from "@/data/admin/rbac";
+import { getLawyersList, type LawyerVolunteer } from "@/data/lawyersStore";
+import { loadMembersFromStorage, updateMemberStatus, type Member } from "@/data/membershipStore";
+import { loadVolunteersFromStorage, type VolunteerRecord } from "@/data/volunteersStore";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
     meta: [
       {
-        title: "Admin Registry Console — Abba Roller Foundation",
+        title: "ARF Executive Command & Headless CMS — Abba Roller Foundation",
       },
       {
         name: "description",
         content:
-          "Internal registry console for managing Abba Roller Foundation members, volunteers, and pro bono legal advocates.",
+          "Enterprise operational dashboard, multi-channel relief portal, pro bono legal aid matching engine, and no-code headless CMS for Abba Roller Foundation.",
       },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
-  component: AdminPortalPage,
+  component: AdminDashboardShell,
 });
 
-type RegistryTab = "members" | "volunteers" | "lawyers";
-
-interface PendingDelete {
-  type: RegistryTab;
-  id: string;
-  name: string;
+interface SidebarSection {
+  groupLabel: string;
+  items: {
+    id: AdminModuleTab;
+    label: string;
+    icon: React.ComponentType<{ className?: string }>;
+  }[];
 }
 
-const MEMBERSHIP_TIERS: MembershipTier[] = [
-  "Standard Member",
-  "Youth Ambassador",
-  "Volunteer Corps",
-  "Executive Supporter",
-  "Patron",
+const SIDEBAR_SECTIONS: readonly SidebarSection[] = [
+  {
+    groupLabel: "Overview",
+    items: [{ id: "command", label: "Command Center", icon: LayoutDashboard }],
+  },
+  {
+    groupLabel: "Website CMS",
+    items: [
+      { id: "cms-pages", label: "Page & Block Builder", icon: LayoutTemplate },
+      { id: "cms-media", label: "Navigation & Media", icon: Globe },
+    ],
+  },
+  {
+    groupLabel: "Operations",
+    items: [
+      { id: "relief", label: "Relief & Beneficiaries", icon: HeartHandshake },
+      { id: "legal", label: "Pro Bono Legal Aid", icon: Scale },
+    ],
+  },
+  {
+    groupLabel: "Community",
+    items: [{ id: "community", label: "Members & Chapters", icon: Users }],
+  },
+  {
+    groupLabel: "System Settings",
+    items: [{ id: "governance", label: "RBAC & Audit Log", icon: ShieldCheck }],
+  },
 ];
 
-const MEMBER_STATUSES: Member["status"][] = ["Active", "Verified", "Honorary"];
+const MODULE_META: Record<AdminModuleTab, { title: string; subtitle: string }> = {
+  command: {
+    title: "Executive Command Center",
+    subtitle: "National relief disbursement throughput, legal case pipeline & approval queues",
+  },
+  "cms-pages": {
+    title: "Headless CMS & No-Code Page Builder",
+    subtitle: "Create, preview, schedule, and roll back decoupled public website pages",
+  },
+  "cms-media": {
+    title: "Navigation Schema & Media Library",
+    subtitle: "Reorder public menus, toggle page visibility, and manage S3/R2 video & photo assets",
+  },
+  relief: {
+    title: "Beneficiaries & Multi-Channel Relief Portal",
+    subtitle: "NDPR-masked NIN verification, vulnerability cohorts & proof-of-delivery batches",
+  },
+  legal: {
+    title: "Pro Bono Legal Aid & NBA Case Engine",
+    subtitle:
+      "Inmate & indigent intake, Bar enrollment verification & milestone courtroom tracking",
+  },
+  community: {
+    title: "Nationwide Membership & State Chapters",
+    subtitle: "36-state + FCT member onboarding, regional coordinators & volunteer rosters",
+  },
+  governance: {
+    title: "RBAC Matrix, NDPR Controls & Audit Trail",
+    subtitle: "5-role least-privilege access governance and immutable operational logs",
+  },
+};
 
-const VOLUNTEER_STATUSES: VolunteerRecord["status"][] = [
-  "Pending Briefing",
-  "Verified Volunteer",
-  "Deployed",
-];
+function AdminDashboardShell() {
+  const [activeModule, setActiveModule] = useState<AdminModuleTab>("command");
+  const [activeRole, setActiveRole] = useState<AdminRole>("SUPER_ADMIN");
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-const LAWYER_STATUSES: LawyerVolunteer["status"][] = [
-  "Active Pro Bono",
-  "Verified Advocate",
-  "Under Review",
-];
-
-const selectClassName =
-  "h-9 rounded-md border border-input bg-background px-3 py-1 text-sm text-foreground shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
-
-function getStatusBadgeClass(status: string): string {
-  switch (status) {
-    case "Verified":
-    case "Verified Volunteer":
-    case "Verified Advocate":
-    case "Deployed":
-      return "border-emerald-200 bg-emerald-50 text-emerald-800";
-    case "Honorary":
-    case "Active Pro Bono":
-      return "border-amber-200 bg-amber-50 text-amber-800";
-    case "Under Review":
-    case "Pending Briefing":
-      return "border-slate-200 bg-slate-100 text-slate-700";
-    default:
-      return "border-sky-200 bg-sky-50 text-sky-800";
-  }
-}
-
-function getInitials(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return "AR";
-  const first = parts[0]?.charAt(0) ?? "";
-  const second = parts.length > 1 ? (parts[parts.length - 1]?.charAt(0) ?? "") : "";
-  return `${first}${second}`.toUpperCase() || "AR";
-}
-
-function AdminPortalPage() {
-  const [activeTab, setActiveTab] = useState<RegistryTab>("members");
-
+  // Live state synchronized across stores
   const [members, setMembers] = useState<Member[]>([]);
   const [volunteers, setVolunteers] = useState<VolunteerRecord[]>([]);
   const [lawyers, setLawyers] = useState<LawyerVolunteer[]>([]);
+  const [beneficiaries, setBeneficiaries] = useState<BeneficiaryRecord[]>([]);
+  const [batches, setBatches] = useState<DisbursementBatch[]>([]);
+  const [legalCases, setLegalCases] = useState<LegalCaseRecord[]>([]);
+  const [chapters, setChapters] = useState<ChapterCoordinationRecord[]>([]);
+  const [cmsPages, setCmsPages] = useState<CmsPage[]>([]);
+  const [auditLogs, setAuditLogs] = useState<AuditLogEntry[]>([]);
 
-  // Filters & search
-  const [searchQuery, setSearchQuery] = useState("");
-  const [memberTierFilter, setMemberTierFilter] = useState<string>("all");
-  const [memberStatusFilter, setMemberStatusFilter] = useState<string>("all");
-  const [volunteerStatusFilter, setVolunteerStatusFilter] = useState<string>("all");
-  const [lawyerStatusFilter, setLawyerStatusFilter] = useState<string>("all");
+  // Global search
+  const [globalSearch, setGlobalSearch] = useState("");
+  const [searchFocused, setSearchFocused] = useState(false);
+  const searchWrapperRef = useRef<HTMLDivElement>(null);
 
-  // Detail & action dialogs
-  const [selectedMember, setSelectedMember] = useState<Member | null>(null);
-  const [selectedVolunteer, setSelectedVolunteer] = useState<VolunteerRecord | null>(null);
-  const [selectedLawyer, setSelectedLawyer] = useState<LawyerVolunteer | null>(null);
-  const [pendingDelete, setPendingDelete] = useState<PendingDelete | null>(null);
-
-  // Add Member modal state
-  const [isAddMemberOpen, setIsAddMemberOpen] = useState(false);
-  const [newFullName, setNewFullName] = useState("");
-  const [newEmail, setNewEmail] = useState("");
-  const [newPhone, setNewPhone] = useState("");
-  const [newState, setNewState] = useState("Kano");
-  const [newLga, setNewLga] = useState("");
-  const [newGender, setNewGender] = useState<"Male" | "Female" | "Prefer not to say">(
-    "Prefer not to say",
-  );
-  const [newOccupation, setNewOccupation] = useState("");
-  const [newTier, setNewTier] = useState<MembershipTier>("Standard Member");
-  const [newPhotoUrl, setNewPhotoUrl] = useState<string>("");
-  const [isSavingMember, setIsSavingMember] = useState(false);
-
-  const syncAllRegistries = useCallback(() => {
+  const syncAllStores = useCallback(() => {
     setMembers(loadMembersFromStorage());
     setVolunteers(loadVolunteersFromStorage());
     setLawyers(getLawyersList());
+    setBeneficiaries(loadBeneficiaries());
+    setBatches(loadBatches());
+    setLegalCases(loadLegalCases());
+    setChapters(loadChapterCoordination());
+    setCmsPages(loadCmsPages());
+    setAuditLogs(loadAuditLogs());
   }, []);
 
   useEffect(() => {
-    syncAllRegistries();
-    const handleUpdate = () => syncAllRegistries();
-    window.addEventListener("arf_members_updated", handleUpdate);
-    window.addEventListener("storage", handleUpdate);
+    syncAllStores();
+    const handleEvent = () => syncAllStores();
+    window.addEventListener("arf_members_updated", handleEvent);
+    window.addEventListener("arf_cms_updated", handleEvent);
+    window.addEventListener("arf_admin_updated", handleEvent);
+    window.addEventListener("storage", handleEvent);
     return () => {
-      window.removeEventListener("arf_members_updated", handleUpdate);
-      window.removeEventListener("storage", handleUpdate);
+      window.removeEventListener("arf_members_updated", handleEvent);
+      window.removeEventListener("arf_cms_updated", handleEvent);
+      window.removeEventListener("arf_admin_updated", handleEvent);
+      window.removeEventListener("storage", handleEvent);
     };
-  }, [syncAllRegistries]);
-
-  const availableLgas = useMemo(() => getLgasForState(newState), [newState]);
+  }, [syncAllStores]);
 
   useEffect(() => {
-    if (availableLgas.length > 0 && !availableLgas.includes(newLga)) {
-      setNewLga(availableLgas[0] ?? "");
-    }
-  }, [availableLgas, newLga]);
-
-  // Derived filtered views
-  const filteredMembers = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    return members.filter((m) => {
-      if (memberTierFilter !== "all" && m.tier !== memberTierFilter) {
-        return false;
+    const onPointerDown = (e: MouseEvent) => {
+      if (searchWrapperRef.current && !searchWrapperRef.current.contains(e.target as Node)) {
+        setSearchFocused(false);
       }
-      if (memberStatusFilter !== "all" && m.status !== memberStatusFilter) {
-        return false;
-      }
-      if (!q) return true;
-      return (
-        m.fullName.toLowerCase().includes(q) ||
-        m.id.toLowerCase().includes(q) ||
-        m.email.toLowerCase().includes(q) ||
-        m.state.toLowerCase().includes(q) ||
-        m.lga.toLowerCase().includes(q)
-      );
-    });
-  }, [members, memberTierFilter, memberStatusFilter, searchQuery]);
-
-  const filteredVolunteers = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    return volunteers.filter((v) => {
-      if (volunteerStatusFilter !== "all" && v.status !== volunteerStatusFilter) {
-        return false;
-      }
-      if (!q) return true;
-      return (
-        v.fullName.toLowerCase().includes(q) ||
-        v.refNumber.toLowerCase().includes(q) ||
-        v.email.toLowerCase().includes(q) ||
-        v.state.toLowerCase().includes(q) ||
-        v.lga.toLowerCase().includes(q) ||
-        v.profession.toLowerCase().includes(q)
-      );
-    });
-  }, [volunteers, volunteerStatusFilter, searchQuery]);
-
-  const filteredLawyers = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    return lawyers.filter((l) => {
-      if (lawyerStatusFilter !== "all" && l.status !== lawyerStatusFilter) {
-        return false;
-      }
-      if (!q) return true;
-      return (
-        l.fullName.toLowerCase().includes(q) ||
-        l.id.toLowerCase().includes(q) ||
-        l.email.toLowerCase().includes(q) ||
-        l.university.toLowerCase().includes(q) ||
-        (l.lawFirm ?? "").toLowerCase().includes(q)
-      );
-    });
-  }, [lawyers, lawyerStatusFilter, searchQuery]);
-
-  // Aggregate metrics
-  const kpis = useMemo(() => {
-    const verifiedMembers = members.filter(
-      (m) => m.status === "Verified" || m.status === "Honorary",
-    ).length;
-    const totalCasesWon = lawyers.reduce(
-      (acc, l) => acc + (Number.isFinite(l.casesWon) ? l.casesWon : 0),
-      0,
-    );
-    const statesSet = new Set<string>();
-    for (const m of members) {
-      if (m.state) statesSet.add(m.state.trim());
-    }
-    for (const v of volunteers) {
-      if (v.state) statesSet.add(v.state.trim());
-    }
-    return {
-      totalMembers: members.length,
-      verifiedMembers,
-      totalVolunteers: volunteers.length,
-      deployedVolunteers: volunteers.filter(
-        (v) => v.status === "Deployed" || v.status === "Verified Volunteer",
-      ).length,
-      totalLawyers: lawyers.length,
-      totalCasesWon,
-      statesCovered: statesSet.size,
     };
-  }, [members, volunteers, lawyers]);
+    document.addEventListener("mousedown", onPointerDown);
+    return () => document.removeEventListener("mousedown", onPointerDown);
+  }, []);
 
-  const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      toast.error("Please select a valid image file (PNG, JPG, or WebP).");
+  const roleProfile = getRoleProfile(activeRole);
+
+  const pendingCounts = useMemo(() => {
+    const pendingMembers = members.filter((m) => m.status === "Active").length;
+    const pendingRelief = beneficiaries.filter(
+      (b) => b.status === "Applied" || b.status === "Under Verification",
+    ).length;
+    const urgentLegal = legalCases.filter(
+      (c) => (c.isInmate || c.priority === "Urgent") && c.milestone !== "Resolved / Acquitted",
+    ).length;
+    return {
+      pendingMembers,
+      pendingRelief,
+      urgentLegal,
+      total: pendingMembers + pendingRelief + urgentLegal,
+    };
+  }, [members, beneficiaries, legalCases]);
+
+  const globalResults = useMemo(() => {
+    const q = globalSearch.trim().toLowerCase();
+    if (q.length < 2) return [];
+    const results: { label: string; meta: string; module: AdminModuleTab }[] = [];
+
+    for (const p of cmsPages) {
+      if (p.title.toLowerCase().includes(q) || p.slug.toLowerCase().includes(q)) {
+        results.push({ label: p.title, meta: `CMS Page · ${p.status}`, module: "cms-pages" });
+      }
+    }
+    for (const b of beneficiaries) {
+      if (b.fullName.toLowerCase().includes(q) || b.id.toLowerCase().includes(q)) {
+        results.push({
+          label: b.fullName,
+          meta: `Beneficiary · ${b.state} (${b.vulnerabilityClass})`,
+          module: "relief",
+        });
+      }
+    }
+    for (const c of legalCases) {
+      if (c.caseTitle.toLowerCase().includes(q) || c.id.toLowerCase().includes(q)) {
+        results.push({
+          label: c.caseTitle,
+          meta: `Legal Case · ${c.milestone}`,
+          module: "legal",
+        });
+      }
+    }
+    for (const m of members) {
+      if (m.fullName.toLowerCase().includes(q) || m.id.toLowerCase().includes(q)) {
+        results.push({
+          label: m.fullName,
+          meta: `Member · ${m.state} (${m.id})`,
+          module: "community",
+        });
+      }
+    }
+    for (const l of lawyers) {
+      if (l.fullName.toLowerCase().includes(q) || (l.nbaNumber ?? "").toLowerCase().includes(q)) {
+        results.push({
+          label: l.fullName,
+          meta: `Attorney · ${l.nbaNumber ?? l.id}`,
+          module: "legal",
+        });
+      }
+    }
+    return results.slice(0, 8);
+  }, [globalSearch, cmsPages, beneficiaries, legalCases, members, lawyers]);
+
+  const handleQuickApproveMember = (id: string) => {
+    if (!hasPermission(activeRole, "members:manage")) {
+      toast.error("Active RBAC role lacks member verification permission.");
       return;
     }
-    try {
-      const compressed = await compressPassportPhoto(file);
-      setNewPhotoUrl(compressed);
-      toast.success("Passport photo optimized and attached.");
-    } catch {
-      toast.error("Could not process image file. Please try another photo.");
-    }
+    updateMemberStatus(id, "Verified");
+    appendAuditLog({
+      role: activeRole,
+      action: "MEMBER_VERIFIED_QUEUE",
+      entityType: "Member",
+      entityId: id,
+      summary: `Verified citizen member ${id} directly from Command Center queue.`,
+    });
+    toast.success(`Verified member ${id} — Digital ID Card unlocked for phone lookup.`);
+    syncAllStores();
   };
 
-  const handleCreateMember = (event: React.FormEvent) => {
-    event.preventDefault();
-    if (!newFullName.trim() || !newEmail.trim()) {
-      toast.error("Full name and email address are required.");
+  const handleQuickApproveBeneficiary = (id: string) => {
+    if (!hasPermission(activeRole, "relief:manage")) {
+      toast.error("Active RBAC role lacks relief verification permission.");
       return;
     }
-    setIsSavingMember(true);
-    try {
-      const created = saveMemberToStorage({
-        fullName: newFullName.trim(),
-        email: newEmail.trim(),
-        phone: newPhone.trim() || undefined,
-        state: newState,
-        lga: newLga || "Municipal",
-        gender: newGender,
-        occupation: newOccupation.trim() || undefined,
-        tier: newTier,
-        photoUrl: newPhotoUrl || undefined,
-      });
-      setMembers(loadMembersFromStorage());
-      toast.success(`Registered ${created.fullName} (${created.id}).`);
-      setNewFullName("");
-      setNewEmail("");
-      setNewPhone("");
-      setNewOccupation("");
-      setNewPhotoUrl("");
-      setIsAddMemberOpen(false);
-    } catch {
-      toast.error("Unable to save member to browser storage.");
-    } finally {
-      setIsSavingMember(false);
-    }
+    updateBeneficiaryStatus(id, { status: "Approved", ninVerified: true });
+    appendAuditLog({
+      role: activeRole,
+      action: "BENEFICIARY_APPROVED_QUEUE",
+      entityType: "Beneficiary",
+      entityId: id,
+      summary: `Approved relief intake ${id} & verified identity from Command Center queue.`,
+    });
+    toast.success(`Approved beneficiary ${id}.`);
+    syncAllStores();
   };
 
-  const handleMemberStatusChange = (id: string, status: Member["status"]) => {
-    const updated = updateMemberStatus(id, status);
-    setMembers(updated);
-    if (selectedMember?.id === id) {
-      setSelectedMember((prev) => (prev ? { ...prev, status } : null));
-    }
-    toast.success(`Member status updated to "${status}".`);
-  };
+  const renderSidebarContent = (isMobile: boolean) => (
+    <div className="flex h-full flex-col bg-[#0F172A] text-slate-100">
+      {/* Brand Header */}
+      <div className="flex h-16 shrink-0 items-center justify-between border-b border-slate-800 px-4">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-emerald-700 text-white shadow-sm">
+            <ShieldCheck className="size-5" />
+          </div>
+          {(!sidebarCollapsed || isMobile) && (
+            <div className="min-w-0">
+              <p className="truncate text-sm font-extrabold tracking-tight text-white">
+                ARF Command CMS
+              </p>
+              <p className="truncate text-[10px] font-semibold tracking-wider text-emerald-400 uppercase">
+                Institutional Console
+              </p>
+            </div>
+          )}
+        </div>
+        {!isMobile && (
+          <button
+            type="button"
+            aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            onClick={() => setSidebarCollapsed((c) => !c)}
+            className="hidden size-8 cursor-pointer items-center justify-center rounded-md text-slate-400 hover:bg-slate-800 hover:text-white lg:inline-flex"
+          >
+            {sidebarCollapsed ? (
+              <ChevronRight className="size-4" />
+            ) : (
+              <ChevronLeft className="size-4" />
+            )}
+          </button>
+        )}
+      </div>
 
-  const handleVolunteerStatusChange = (refNumber: string, status: VolunteerRecord["status"]) => {
-    const updated = updateVolunteerStatus(refNumber, status);
-    setVolunteers(updated);
-    if (selectedVolunteer?.refNumber === refNumber) {
-      setSelectedVolunteer((prev) => (prev ? { ...prev, status } : null));
-    }
-    toast.success(`Volunteer status updated to "${status}".`);
-  };
+      {/* Grouped Navigation */}
+      <nav
+        aria-label="Admin Console Navigation"
+        className="flex-1 space-y-5 overflow-y-auto px-3 py-4"
+      >
+        {SIDEBAR_SECTIONS.map((section) => (
+          <div key={section.groupLabel}>
+            {(!sidebarCollapsed || isMobile) && (
+              <p className="px-3 pb-1.5 text-[10px] font-bold tracking-widest text-slate-400 uppercase">
+                {section.groupLabel}
+              </p>
+            )}
+            <ul className="space-y-1">
+              {section.items.map((item) => {
+                const Icon = item.icon;
+                const active = activeModule === item.id;
 
-  const handleLawyerStatusChange = (id: string, status: LawyerVolunteer["status"]) => {
-    const updated = updateLawyerStatus(id, status);
-    setLawyers(updated);
-    if (selectedLawyer?.id === id) {
-      setSelectedLawyer((prev) => (prev ? { ...prev, status } : null));
-    }
-    toast.success(`Advocate status updated to "${status}".`);
-  };
+                return (
+                  <li key={item.id}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActiveModule(item.id);
+                        if (isMobile) setMobileMenuOpen(false);
+                      }}
+                      title={sidebarCollapsed && !isMobile ? item.label : undefined}
+                      className={cn(
+                        "flex min-h-11 w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-xs font-semibold transition-all sm:text-sm",
+                        active
+                          ? "bg-emerald-700 text-white shadow-sm"
+                          : "text-slate-300 hover:bg-slate-800/80 hover:text-white",
+                        sidebarCollapsed && !isMobile && "justify-center px-2",
+                      )}
+                    >
+                      <Icon className="size-4.5 shrink-0" />
+                      {(!sidebarCollapsed || isMobile) && (
+                        <span className="truncate">{item.label}</span>
+                      )}
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        ))}
+      </nav>
 
-  const confirmDeleteRecord = () => {
-    if (!pendingDelete) return;
-    const { type, id, name } = pendingDelete;
-    if (type === "members") {
-      setMembers(deleteMemberFromStorage(id));
-      if (selectedMember?.id === id) setSelectedMember(null);
-    } else if (type === "volunteers") {
-      setVolunteers(deleteVolunteerFromStorage(id));
-      if (selectedVolunteer?.refNumber === id) setSelectedVolunteer(null);
-    } else {
-      setLawyers(deleteLawyerFromStorage(id));
-      if (selectedLawyer?.id === id) setSelectedLawyer(null);
-    }
-    toast.success(`Removed ${name} from the registry.`);
-    setPendingDelete(null);
-  };
+      {/* Bottom Security & Public Site Shortcut */}
+      <div className="shrink-0 border-t border-slate-800 p-3 space-y-2">
+        {(!sidebarCollapsed || isMobile) && (
+          <div className="rounded-md bg-slate-900/90 px-3 py-2 text-[11px] text-slate-300">
+            <div className="flex items-center gap-1.5 font-bold text-emerald-400">
+              <Lock className="size-3" />
+              <span>NDPR PII Guard Active</span>
+            </div>
+            <p className="mt-0.5 text-[10px] text-slate-400">Audit trail &amp; RBAC verified</p>
+          </div>
+        )}
+        <Link
+          to="/"
+          className={cn(
+            "flex min-h-10 items-center gap-2 rounded-md border border-slate-700 bg-slate-800/60 px-3 py-2 text-xs font-semibold text-slate-200 transition-colors hover:bg-slate-800",
+            sidebarCollapsed && !isMobile && "justify-center px-2",
+          )}
+        >
+          <ExternalLink className="size-4 shrink-0" />
+          {(!sidebarCollapsed || isMobile) && <span>Public Website</span>}
+        </Link>
+      </div>
+    </div>
+  );
 
-  const handleExportVolunteersCsv = () => {
-    const headers = [
-      "Reference ID",
-      "Full Name",
-      "Email",
-      "Phone",
-      "Gender",
-      "Age Group",
-      "State",
-      "LGA",
-      "Profession",
-      "Availability",
-      "Primary Activity",
-      "Secondary Activities",
-      "Address",
-      "Status",
-      "Submitted Date",
-    ];
-    const rows = filteredVolunteers.map((v) => [
-      v.refNumber,
-      v.fullName,
-      v.email,
-      v.phone,
-      v.gender,
-      v.ageGroup,
-      v.state,
-      v.lga,
-      v.profession,
-      v.availability,
-      v.activity,
-      v.secondaryActivities?.join("; "),
-      v.address,
-      v.status,
-      v.submissionDate,
-    ]);
-    exportRecordsToCsv("arf-volunteers.csv", headers, rows);
-    toast.success(`Exported ${filteredVolunteers.length} volunteer record(s) to CSV.`);
-  };
-
-  const handleDownloadMemberSlip = async (member: Member) => {
-    try {
-      await downloadMembershipCard(member);
-      toast.success(`Downloaded ID slip for ${member.fullName}.`);
-    } catch {
-      toast.error("Failed to generate membership slip.");
-    }
-  };
-
-  const handleDownloadVolunteerSlip = async (volunteer: VolunteerRecord) => {
-    try {
-      await downloadVolunteerSlip(volunteer);
-      toast.success(`Downloaded volunteer slip for ${volunteer.fullName}.`);
-    } catch {
-      toast.error("Failed to generate volunteer slip.");
-    }
-  };
-
-  const handleDownloadLawyerSlip = async (lawyer: LawyerVolunteer) => {
-    try {
-      await downloadLawyerSlip({
-        refNumber: lawyer.id,
-        fullName: lawyer.fullName,
-        email: lawyer.email,
-        phone: lawyer.phone,
-        university: lawyer.university,
-        callToBarYear: lawyer.callToBarYear,
-        casesWon: String(lawyer.casesWon),
-        submissionDate: lawyer.submissionDate,
-        lawFirm: lawyer.lawFirm,
-        jurisdictionState: lawyer.jurisdictionState,
-        practiceAreas: lawyer.practiceAreas,
-      });
-      toast.success(`Downloaded advocate slip for ${lawyer.fullName}.`);
-    } catch {
-      toast.error("Failed to generate advocate slip.");
-    }
-  };
+  const meta = MODULE_META[activeModule];
 
   return (
-    <div className="min-h-screen bg-[#f6f8f6] text-foreground">
-      {/* Top sticky admin header */}
-      <header className="sticky top-0 z-30 border-b border-border/80 bg-white/95 backdrop-blur-md">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-3.5 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--green-deep)] text-white shadow-sm">
-              <ShieldCheck className="h-5 w-5" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-base font-bold tracking-tight text-foreground sm:text-lg">
-                  ARF Registry Console
-                </h1>
-                <Badge
-                  variant="outline"
-                  className="hidden border-emerald-200 bg-emerald-50 text-[11px] font-semibold text-emerald-800 sm:inline-flex"
-                >
-                  Admin Portal
-                </Badge>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Members, General Volunteers & Pro Bono Legal Corps Management
-              </p>
-            </div>
-          </div>
+    <div className="flex min-h-screen bg-[#f4f6f9] text-slate-900">
+      {/* Desktop Collapsible Left Sidebar */}
+      <aside
+        className={cn(
+          "sticky top-0 hidden h-screen shrink-0 transition-all duration-200 lg:block",
+          sidebarCollapsed ? "w-18" : "w-64",
+        )}
+      >
+        {renderSidebarContent(false)}
+      </aside>
 
-          <nav aria-label="Admin Navigation" className="flex flex-wrap items-center gap-2">
-            <Link
-              to="/"
-              className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-white px-3 text-xs font-medium text-foreground transition-colors hover:bg-muted sm:text-sm"
-            >
-              <ExternalLink className="h-3.5 w-3.5" />
-              Public Website
-            </Link>
-            <Link
-              to="/membership"
-              className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-white px-3 text-xs font-medium text-foreground transition-colors hover:bg-muted sm:text-sm"
-            >
-              <Users className="h-3.5 w-3.5" />
-              Membership Form
-            </Link>
-            <Link
-              to="/volunteer"
-              className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-white px-3 text-xs font-medium text-foreground transition-colors hover:bg-muted sm:text-sm"
-            >
-              <HeartHandshake className="h-3.5 w-3.5" />
-              Volunteer Portal
-            </Link>
-          </nav>
-        </div>
-      </header>
+      {/* Mobile Left Navigation Sheet */}
+      <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+        <SheetContent side="left" className="w-72 border-r-slate-800 bg-[#0F172A] p-0 text-white">
+          <SheetHeader className="sr-only">
+            <SheetTitle>ARF Admin Navigation</SheetTitle>
+          </SheetHeader>
+          {renderSidebarContent(true)}
+        </SheetContent>
+      </Sheet>
 
-      <main className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
-        {/* Local browser persistence notice */}
-        <div
-          role="note"
-          className="flex flex-col gap-2 rounded-xl border border-emerald-200/80 bg-emerald-50/70 px-4 py-3 text-xs text-emerald-950 sm:flex-row sm:items-center sm:justify-between sm:text-sm"
-        >
-          <div className="flex items-start gap-2.5 sm:items-center">
-            <Info className="mt-0.5 h-4 w-4 shrink-0 text-emerald-700 sm:mt-0" />
-            <p>
-              <strong>Browser-Local Registry:</strong> Submissions created on this device sync
-              automatically into this console alongside Foundation baseline records. Export CSV
-              regularly for central secretariat archival.
-            </p>
-          </div>
-        </div>
-
-        {/* KPI Cards */}
-        <section
-          aria-label="Registry Key Performance Indicators"
-          className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
-        >
-          <Card className="border-border/70 bg-white shadow-xs">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                Registered Members
-              </CardTitle>
-              <Users className="h-4 w-4 text-[var(--green-mid)]" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-foreground">{kpis.totalMembers}</div>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {kpis.verifiedMembers} verified or honorary profiles
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-border/70 bg-white shadow-xs">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                Volunteer Corps
-              </CardTitle>
-              <HeartHandshake className="h-4 w-4 text-[var(--brand-red)]" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-foreground">{kpis.totalVolunteers}</div>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {kpis.deployedVolunteers} verified or deployed in field
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-border/70 bg-white shadow-xs">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                Legal Aid Advocates
-              </CardTitle>
-              <Scale className="h-4 w-4 text-[var(--green-deep)]" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-foreground">{kpis.totalLawyers}</div>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {kpis.totalCasesWon} cumulative pro bono cases won
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-border/70 bg-white shadow-xs">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                Geographic Reach
-              </CardTitle>
-              <MapPin className="h-4 w-4 text-emerald-700" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-foreground">{kpis.statesCovered}</div>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Nigerian states represented across registries
-              </p>
-            </CardContent>
-          </Card>
-        </section>
-
-        {/* Main Registry Workspace */}
-        <Card className="border-border/80 bg-white shadow-xs">
-          <CardHeader className="border-b border-border/70 pb-4">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-              {/* Registry Switcher Tabs */}
-              <div
-                role="tablist"
-                aria-label="Registry sections"
-                className="inline-flex flex-wrap gap-1.5 rounded-xl bg-muted/70 p-1"
+      {/* Main Content Shell */}
+      <div className="flex min-w-0 flex-1 flex-col">
+        {/* Sticky Top Utility Bar */}
+        <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur-md">
+          <div className="flex min-h-16 flex-wrap items-center justify-between gap-3 px-4 py-2.5 sm:px-6">
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                aria-label="Open admin navigation drawer"
+                onClick={() => setMobileMenuOpen(true)}
+                className="inline-flex size-11 cursor-pointer items-center justify-center rounded-md border border-slate-200 text-slate-700 hover:bg-slate-100 lg:hidden"
               >
-                <button
-                  type="button"
-                  role="tab"
-                  aria-selected={activeTab === "members"}
-                  onClick={() => setActiveTab("members")}
-                  className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs font-semibold transition-all sm:text-sm ${
-                    activeTab === "members"
-                      ? "bg-white text-foreground shadow-xs"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <Users className="h-4 w-4" />
-                  Members
-                  <span className="rounded-full bg-muted px-2 py-0.5 text-[11px]">
-                    {members.length}
-                  </span>
-                </button>
+                <Menu className="size-5" />
+              </button>
 
-                <button
-                  type="button"
-                  role="tab"
-                  aria-selected={activeTab === "volunteers"}
-                  onClick={() => setActiveTab("volunteers")}
-                  className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs font-semibold transition-all sm:text-sm ${
-                    activeTab === "volunteers"
-                      ? "bg-white text-foreground shadow-xs"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <HeartHandshake className="h-4 w-4" />
-                  Volunteers
-                  <span className="rounded-full bg-muted px-2 py-0.5 text-[11px]">
-                    {volunteers.length}
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  role="tab"
-                  aria-selected={activeTab === "lawyers"}
-                  onClick={() => setActiveTab("lawyers")}
-                  className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs font-semibold transition-all sm:text-sm ${
-                    activeTab === "lawyers"
-                      ? "bg-white text-foreground shadow-xs"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <Scale className="h-4 w-4" />
-                  Legal Corps
-                  <span className="rounded-full bg-muted px-2 py-0.5 text-[11px]">
-                    {lawyers.length}
-                  </span>
-                </button>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex flex-wrap items-center gap-2">
-                {activeTab === "members" && (
-                  <>
-                    <Button
-                      type="button"
-                      size="sm"
-                      onClick={() => setIsAddMemberOpen(true)}
-                      className="bg-[var(--green-deep)] text-white hover:bg-[var(--green-mid)]"
-                    >
-                      <Plus className="mr-1.5 h-4 w-4" />
-                      Register Member
-                    </Button>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
-                        exportMembersToCsv(filteredMembers);
-                        toast.success(
-                          `Exported ${filteredMembers.length} member record(s) to CSV.`,
-                        );
-                      }}
-                    >
-                      <FileSpreadsheet className="mr-1.5 h-4 w-4" />
-                      Export CSV
-                    </Button>
-                  </>
-                )}
-
-                {activeTab === "volunteers" && (
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={handleExportVolunteersCsv}
-                  >
-                    <FileSpreadsheet className="mr-1.5 h-4 w-4" />
-                    Export Volunteers CSV
-                  </Button>
-                )}
-
-                {activeTab === "lawyers" && (
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={() => {
-                      exportLawyersToCsv(filteredLawyers);
-                      toast.success(
-                        `Exported ${filteredLawyers.length} legal advocate record(s) to CSV.`,
-                      );
-                    }}
-                  >
-                    <FileSpreadsheet className="mr-1.5 h-4 w-4" />
-                    Export Advocates CSV
-                  </Button>
-                )}
-              </div>
-            </div>
-
-            {/* Search & Filters */}
-            <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
-              <div className="relative flex-1">
-                <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              {/* Global Cross-Module Search */}
+              <div ref={searchWrapperRef} className="relative w-56 sm:w-72 md:w-84">
+                <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-slate-400" />
                 <Input
                   type="search"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder={
-                    activeTab === "members"
-                      ? "Search members by name, ID, email, state, or LGA..."
-                      : activeTab === "volunteers"
-                        ? "Search volunteers by name, ref ID, state, or profession..."
-                        : "Search advocates by name, ID, university, firm, or email..."
-                  }
-                  className="pl-9"
+                  value={globalSearch}
+                  onFocus={() => setSearchFocused(true)}
+                  onChange={(e) => {
+                    setGlobalSearch(e.target.value);
+                    setSearchFocused(true);
+                  }}
+                  placeholder="Global search (members, cases, CMS, beneficiaries)..."
+                  className="h-10 pl-9 text-xs sm:text-sm"
                 />
-              </div>
 
-              {activeTab === "members" && (
-                <div className="flex flex-wrap gap-2">
-                  <select
-                    aria-label="Filter by membership tier"
-                    value={memberTierFilter}
-                    onChange={(e) => setMemberTierFilter(e.target.value)}
-                    className={selectClassName}
-                  >
-                    <option value="all">All Tiers</option>
-                    {MEMBERSHIP_TIERS.map((tier) => (
-                      <option key={tier} value={tier}>
-                        {tier}
-                      </option>
-                    ))}
-                  </select>
-
-                  <select
-                    aria-label="Filter by member status"
-                    value={memberStatusFilter}
-                    onChange={(e) => setMemberStatusFilter(e.target.value)}
-                    className={selectClassName}
-                  >
-                    <option value="all">All Statuses</option>
-                    {MEMBER_STATUSES.map((status) => (
-                      <option key={status} value={status}>
-                        {status}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-
-              {activeTab === "volunteers" && (
-                <select
-                  aria-label="Filter by volunteer status"
-                  value={volunteerStatusFilter}
-                  onChange={(e) => setVolunteerStatusFilter(e.target.value)}
-                  className={selectClassName}
-                >
-                  <option value="all">All Statuses</option>
-                  {VOLUNTEER_STATUSES.map((status) => (
-                    <option key={status} value={status}>
-                      {status}
-                    </option>
-                  ))}
-                </select>
-              )}
-
-              {activeTab === "lawyers" && (
-                <select
-                  aria-label="Filter by advocate status"
-                  value={lawyerStatusFilter}
-                  onChange={(e) => setLawyerStatusFilter(e.target.value)}
-                  className={selectClassName}
-                >
-                  <option value="all">All Statuses</option>
-                  {LAWYER_STATUSES.map((status) => (
-                    <option key={status} value={status}>
-                      {status}
-                    </option>
-                  ))}
-                </select>
-              )}
-            </div>
-          </CardHeader>
-
-          <CardContent className="p-0">
-            {/* MEMBERS TABLE */}
-            {activeTab === "members" && (
-              <div className="overflow-x-auto">
-                {filteredMembers.length === 0 ? (
-                  <EmptyRegistryState
-                    icon={Users}
-                    title="No matching members found"
-                    description="Adjust your search query or register a new Foundation member."
-                  />
-                ) : (
-                  <table className="w-full min-w-[820px] border-collapse text-left text-sm">
-                    <thead>
-                      <tr className="border-b border-border/80 bg-muted/40 text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                        <th className="px-4 py-3">Member</th>
-                        <th className="px-4 py-3">Registry ID & Tier</th>
-                        <th className="px-4 py-3">Location</th>
-                        <th className="px-4 py-3">Joined</th>
-                        <th className="px-4 py-3">Status</th>
-                        <th className="px-4 py-3 text-right">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-border/60">
-                      {filteredMembers.map((member) => (
-                        <tr key={member.id} className="transition-colors hover:bg-muted/25">
-                          <td className="px-4 py-3.5">
-                            <div className="flex items-center gap-3">
-                              {member.photoUrl ? (
-                                <img
-                                  src={member.photoUrl}
-                                  alt={member.fullName}
-                                  className="h-10 w-10 rounded-full border border-border object-cover"
-                                />
-                              ) : (
-                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-900">
-                                  {getInitials(member.fullName)}
-                                </div>
-                              )}
-                              <div className="min-w-0">
-                                <p className="truncate font-semibold text-foreground">
-                                  {member.fullName}
-                                </p>
-                                <p className="truncate text-xs text-muted-foreground">
-                                  {member.email}
-                                </p>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-4 py-3.5">
-                            <p className="font-mono text-xs font-semibold text-foreground">
-                              {member.id}
-                            </p>
-                            <Badge variant="secondary" className="mt-1 text-xs">
-                              {member.tier}
-                            </Badge>
-                          </td>
-                          <td className="px-4 py-3.5 text-xs text-muted-foreground">
-                            <p className="font-medium text-foreground">{member.state}</p>
-                            <p>{member.lga}</p>
-                          </td>
-                          <td className="px-4 py-3.5 text-xs text-muted-foreground">
-                            {formatDate(member.joinedDate)}
-                          </td>
-                          <td className="px-4 py-3.5">
-                            <select
-                              aria-label={`Change status for ${member.fullName}`}
-                              value={member.status}
-                              onChange={(e) =>
-                                handleMemberStatusChange(
-                                  member.id,
-                                  e.target.value as Member["status"],
-                                )
-                              }
-                              className={`rounded-full border px-2.5 py-1 text-xs font-semibold focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none ${getStatusBadgeClass(
-                                member.status,
-                              )}`}
-                            >
-                              {MEMBER_STATUSES.map((s) => (
-                                <option key={s} value={s}>
-                                  {s}
-                                </option>
-                              ))}
-                            </select>
-                          </td>
-                          <td className="px-4 py-3.5 text-right">
-                            <div className="inline-flex items-center gap-1">
-                              <Button
-                                type="button"
-                                size="icon"
-                                variant="ghost"
-                                title="View profile details"
-                                onClick={() => setSelectedMember(member)}
-                              >
-                                <Eye className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                type="button"
-                                size="icon"
-                                variant="ghost"
-                                title="Download official membership slip"
-                                onClick={() => handleDownloadMemberSlip(member)}
-                              >
-                                <Download className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                type="button"
-                                size="icon"
-                                variant="ghost"
-                                title="Remove member"
-                                className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-                                onClick={() =>
-                                  setPendingDelete({
-                                    type: "members",
-                                    id: member.id,
-                                    name: member.fullName,
-                                  })
-                                }
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                )}
-              </div>
-            )}
-
-            {/* VOLUNTEERS TABLE */}
-            {activeTab === "volunteers" && (
-              <div className="overflow-x-auto">
-                {filteredVolunteers.length === 0 ? (
-                  <EmptyRegistryState
-                    icon={HeartHandshake}
-                    title="No volunteer registrations yet"
-                    description="Volunteers who submit the General Volunteering form on this device appear here for deployment tracking."
-                  />
-                ) : (
-                  <table className="w-full min-w-[820px] border-collapse text-left text-sm">
-                    <thead>
-                      <tr className="border-b border-border/80 bg-muted/40 text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                        <th className="px-4 py-3">Volunteer</th>
-                        <th className="px-4 py-3">Reference & Profession</th>
-                        <th className="px-4 py-3">State & Availability</th>
-                        <th className="px-4 py-3">Submitted</th>
-                        <th className="px-4 py-3">Status</th>
-                        <th className="px-4 py-3 text-right">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-border/60">
-                      {filteredVolunteers.map((vol) => (
-                        <tr key={vol.refNumber} className="transition-colors hover:bg-muted/25">
-                          <td className="px-4 py-3.5">
-                            <div className="flex items-center gap-3">
-                              {vol.photoUrl ? (
-                                <img
-                                  src={vol.photoUrl}
-                                  alt={vol.fullName}
-                                  className="h-10 w-10 rounded-full border border-border object-cover"
-                                />
-                              ) : (
-                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-rose-100 text-xs font-bold text-rose-900">
-                                  {getInitials(vol.fullName)}
-                                </div>
-                              )}
-                              <div className="min-w-0">
-                                <p className="truncate font-semibold text-foreground">
-                                  {vol.fullName}
-                                </p>
-                                <p className="truncate text-xs text-muted-foreground">
-                                  {vol.email}
-                                </p>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-4 py-3.5">
-                            <p className="font-mono text-xs font-semibold text-foreground">
-                              {vol.refNumber}
-                            </p>
-                            <p className="text-xs text-muted-foreground">{vol.profession}</p>
-                          </td>
-                          <td className="px-4 py-3.5 text-xs text-muted-foreground">
-                            <p className="font-medium text-foreground">
-                              {vol.lga}, {vol.state}
-                            </p>
-                            <p>{vol.availability}</p>
-                          </td>
-                          <td className="px-4 py-3.5 text-xs text-muted-foreground">
-                            {vol.submissionDate}
-                          </td>
-                          <td className="px-4 py-3.5">
-                            <select
-                              aria-label={`Change status for ${vol.fullName}`}
-                              value={vol.status}
-                              onChange={(e) =>
-                                handleVolunteerStatusChange(
-                                  vol.refNumber,
-                                  e.target.value as VolunteerRecord["status"],
-                                )
-                              }
-                              className={`rounded-full border px-2.5 py-1 text-xs font-semibold focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none ${getStatusBadgeClass(
-                                vol.status,
-                              )}`}
-                            >
-                              {VOLUNTEER_STATUSES.map((s) => (
-                                <option key={s} value={s}>
-                                  {s}
-                                </option>
-                              ))}
-                            </select>
-                          </td>
-                          <td className="px-4 py-3.5 text-right">
-                            <div className="inline-flex items-center gap-1">
-                              <Button
-                                type="button"
-                                size="icon"
-                                variant="ghost"
-                                title="View volunteer application"
-                                onClick={() => setSelectedVolunteer(vol)}
-                              >
-                                <Eye className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                type="button"
-                                size="icon"
-                                variant="ghost"
-                                title="Download volunteer slip"
-                                onClick={() => handleDownloadVolunteerSlip(vol)}
-                              >
-                                <Download className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                type="button"
-                                size="icon"
-                                variant="ghost"
-                                title="Remove volunteer"
-                                className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-                                onClick={() =>
-                                  setPendingDelete({
-                                    type: "volunteers",
-                                    id: vol.refNumber,
-                                    name: vol.fullName,
-                                  })
-                                }
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                )}
-              </div>
-            )}
-
-            {/* LAWYERS TABLE */}
-            {activeTab === "lawyers" && (
-              <div className="overflow-x-auto">
-                {filteredLawyers.length === 0 ? (
-                  <EmptyRegistryState
-                    icon={Scale}
-                    title="No matching legal advocates"
-                    description="Try clearing your search or status filter."
-                  />
-                ) : (
-                  <table className="w-full min-w-[820px] border-collapse text-left text-sm">
-                    <thead>
-                      <tr className="border-b border-border/80 bg-muted/40 text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                        <th className="px-4 py-3">Legal Advocate</th>
-                        <th className="px-4 py-3">Bar ID & Credentials</th>
-                        <th className="px-4 py-3">Pro Bono Record</th>
-                        <th className="px-4 py-3">Registered</th>
-                        <th className="px-4 py-3">Status</th>
-                        <th className="px-4 py-3 text-right">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-border/60">
-                      {filteredLawyers.map((lawyer) => (
-                        <tr key={lawyer.id} className="transition-colors hover:bg-muted/25">
-                          <td className="px-4 py-3.5">
-                            <div className="flex items-center gap-3">
-                              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-800">
-                                {getInitials(lawyer.fullName)}
-                              </div>
-                              <div className="min-w-0">
-                                <p className="truncate font-semibold text-foreground">
-                                  {lawyer.fullName}
-                                </p>
-                                <p className="truncate text-xs text-muted-foreground">
-                                  {lawyer.lawFirm || "Independent Practice"}
-                                </p>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-4 py-3.5">
-                            <p className="font-mono text-xs font-semibold text-foreground">
-                              {lawyer.id}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              {lawyer.university} (Call {lawyer.callToBarYear})
-                            </p>
-                          </td>
-                          <td className="px-4 py-3.5">
-                            <Badge variant="outline" className="text-xs">
-                              {lawyer.casesWon} cases won
-                            </Badge>
-                            {lawyer.jurisdictionState && (
-                              <p className="mt-1 text-xs text-muted-foreground">
-                                {lawyer.jurisdictionState}
-                              </p>
-                            )}
-                          </td>
-                          <td className="px-4 py-3.5 text-xs text-muted-foreground">
-                            {formatDate(lawyer.submissionDate)}
-                          </td>
-                          <td className="px-4 py-3.5">
-                            <select
-                              aria-label={`Change status for ${lawyer.fullName}`}
-                              value={lawyer.status}
-                              onChange={(e) =>
-                                handleLawyerStatusChange(
-                                  lawyer.id,
-                                  e.target.value as LawyerVolunteer["status"],
-                                )
-                              }
-                              className={`rounded-full border px-2.5 py-1 text-xs font-semibold focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none ${getStatusBadgeClass(
-                                lawyer.status,
-                              )}`}
-                            >
-                              {LAWYER_STATUSES.map((s) => (
-                                <option key={s} value={s}>
-                                  {s}
-                                </option>
-                              ))}
-                            </select>
-                          </td>
-                          <td className="px-4 py-3.5 text-right">
-                            <div className="inline-flex items-center gap-1">
-                              <Button
-                                type="button"
-                                size="icon"
-                                variant="ghost"
-                                title="View advocate dossier"
-                                onClick={() => setSelectedLawyer(lawyer)}
-                              >
-                                <Eye className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                type="button"
-                                size="icon"
-                                variant="ghost"
-                                title="Download advocate slip"
-                                onClick={() => handleDownloadLawyerSlip(lawyer)}
-                              >
-                                <Download className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                type="button"
-                                size="icon"
-                                variant="ghost"
-                                title="Remove advocate"
-                                className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-                                onClick={() =>
-                                  setPendingDelete({
-                                    type: "lawyers",
-                                    id: lawyer.id,
-                                    name: lawyer.fullName,
-                                  })
-                                }
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                )}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </main>
-
-      {/* MEMBER DETAIL MODAL */}
-      <Dialog
-        open={selectedMember !== null}
-        onOpenChange={(open) => {
-          if (!open) setSelectedMember(null);
-        }}
-      >
-        <DialogContent className="sm:max-w-lg">
-          {selectedMember && (
-            <>
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-3">
-                  {selectedMember.photoUrl ? (
-                    <img
-                      src={selectedMember.photoUrl}
-                      alt={selectedMember.fullName}
-                      className="h-12 w-12 rounded-full border border-border object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 text-sm font-bold text-emerald-900">
-                      {getInitials(selectedMember.fullName)}
-                    </div>
-                  )}
-                  <div>
-                    <span>{selectedMember.fullName}</span>
-                    <DialogDescription className="mt-0.5 font-mono text-xs">
-                      {selectedMember.id} • {selectedMember.tier}
-                    </DialogDescription>
-                  </div>
-                </DialogTitle>
-              </DialogHeader>
-
-              <div className="grid gap-3 py-2 text-sm sm:grid-cols-2">
-                <DetailRow icon={Mail} label="Email" value={selectedMember.email} />
-                <DetailRow
-                  icon={Phone}
-                  label="Phone"
-                  value={selectedMember.phone || "Not provided"}
-                />
-                <DetailRow
-                  icon={MapPin}
-                  label="Location"
-                  value={`${selectedMember.lga}, ${selectedMember.state}`}
-                />
-                <DetailRow
-                  icon={Briefcase}
-                  label="Occupation"
-                  value={selectedMember.occupation || "Not specified"}
-                />
-                <DetailRow
-                  icon={User}
-                  label="Gender"
-                  value={selectedMember.gender || "Not specified"}
-                />
-                <DetailRow
-                  icon={Calendar}
-                  label="Joined"
-                  value={formatDate(selectedMember.joinedDate)}
-                />
-              </div>
-
-              <DialogFooter className="flex-wrap justify-between gap-2 sm:justify-between">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => handleDownloadMemberSlip(selectedMember)}
-                >
-                  <Download className="mr-1.5 h-4 w-4" />
-                  Download ID Slip
-                </Button>
-                <Button
-                  type="button"
-                  variant="destructive"
-                  onClick={() =>
-                    setPendingDelete({
-                      type: "members",
-                      id: selectedMember.id,
-                      name: selectedMember.fullName,
-                    })
-                  }
-                >
-                  <Trash2 className="mr-1.5 h-4 w-4" />
-                  Delete Record
-                </Button>
-              </DialogFooter>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* VOLUNTEER DETAIL MODAL */}
-      <Dialog
-        open={selectedVolunteer !== null}
-        onOpenChange={(open) => {
-          if (!open) setSelectedVolunteer(null);
-        }}
-      >
-        <DialogContent className="sm:max-w-xl">
-          {selectedVolunteer && (
-            <>
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-3">
-                  {selectedVolunteer.photoUrl ? (
-                    <img
-                      src={selectedVolunteer.photoUrl}
-                      alt={selectedVolunteer.fullName}
-                      className="h-12 w-12 rounded-full border border-border object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-rose-100 text-sm font-bold text-rose-900">
-                      {getInitials(selectedVolunteer.fullName)}
-                    </div>
-                  )}
-                  <div>
-                    <span>{selectedVolunteer.fullName}</span>
-                    <DialogDescription className="mt-0.5 font-mono text-xs">
-                      {selectedVolunteer.refNumber} • {selectedVolunteer.profession}
-                    </DialogDescription>
-                  </div>
-                </DialogTitle>
-              </DialogHeader>
-
-              <div className="grid gap-3 py-2 text-sm sm:grid-cols-2">
-                <DetailRow icon={Mail} label="Email" value={selectedVolunteer.email} />
-                <DetailRow icon={Phone} label="Phone" value={selectedVolunteer.phone} />
-                <DetailRow
-                  icon={MapPin}
-                  label="Location"
-                  value={`${selectedVolunteer.lga}, ${selectedVolunteer.state}`}
-                />
-                <DetailRow
-                  icon={Calendar}
-                  label="Availability"
-                  value={selectedVolunteer.availability}
-                />
-                <DetailRow
-                  icon={User}
-                  label="Demographics"
-                  value={`${selectedVolunteer.gender} • ${selectedVolunteer.ageGroup}`}
-                />
-                <DetailRow
-                  icon={Award}
-                  label="Primary Program"
-                  value={selectedVolunteer.activity}
-                />
-              </div>
-
-              <div className="space-y-3 rounded-lg bg-muted/40 p-3 text-xs">
-                <div>
-                  <p className="font-semibold text-foreground">Assigned Programs</p>
-                  <div className="mt-1.5 flex flex-wrap gap-1.5">
-                    <Badge variant="default" className="text-xs">
-                      {selectedVolunteer.activity}
-                    </Badge>
-                    {selectedVolunteer.secondaryActivities?.map((act) => (
-                      <Badge key={act} variant="secondary" className="text-xs">
-                        {act}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-                {selectedVolunteer.address && (
-                  <div>
-                    <p className="font-semibold text-foreground">Residential Address</p>
-                    <p className="mt-1 leading-relaxed text-muted-foreground">
-                      {selectedVolunteer.address}
+                {searchFocused && globalResults.length > 0 && (
+                  <div className="absolute top-full left-0 z-50 mt-1.5 w-full rounded-md border border-slate-200 bg-white p-1.5 shadow-lg">
+                    <p className="px-2 py-1 text-[10px] font-bold tracking-wider text-slate-400 uppercase">
+                      Cross-Module Matches
                     </p>
+                    {globalResults.map((res, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => {
+                          setActiveModule(res.module);
+                          setSearchFocused(false);
+                          setGlobalSearch("");
+                        }}
+                        className="flex w-full cursor-pointer flex-col rounded-xs px-2.5 py-2 text-left hover:bg-slate-100"
+                      >
+                        <span className="truncate text-xs font-bold text-slate-900">
+                          {res.label}
+                        </span>
+                        <span className="truncate text-[11px] text-slate-500">{res.meta}</span>
+                      </button>
+                    ))}
                   </div>
                 )}
               </div>
-
-              <DialogFooter className="flex-wrap justify-between gap-2 sm:justify-between">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => handleDownloadVolunteerSlip(selectedVolunteer)}
-                >
-                  <Download className="mr-1.5 h-4 w-4" />
-                  Download Volunteer Slip
-                </Button>
-                <Button
-                  type="button"
-                  variant="destructive"
-                  onClick={() =>
-                    setPendingDelete({
-                      type: "volunteers",
-                      id: selectedVolunteer.refNumber,
-                      name: selectedVolunteer.fullName,
-                    })
-                  }
-                >
-                  <Trash2 className="mr-1.5 h-4 w-4" />
-                  Delete Record
-                </Button>
-              </DialogFooter>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* LAWYER DETAIL MODAL */}
-      <Dialog
-        open={selectedLawyer !== null}
-        onOpenChange={(open) => {
-          if (!open) setSelectedLawyer(null);
-        }}
-      >
-        <DialogContent className="sm:max-w-lg">
-          {selectedLawyer && (
-            <>
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-sm font-bold text-slate-800">
-                    {getInitials(selectedLawyer.fullName)}
-                  </div>
-                  <div>
-                    <span>{selectedLawyer.fullName}</span>
-                    <DialogDescription className="mt-0.5 font-mono text-xs">
-                      {selectedLawyer.id} • Call {selectedLawyer.callToBarYear}
-                    </DialogDescription>
-                  </div>
-                </DialogTitle>
-              </DialogHeader>
-
-              <div className="grid gap-3 py-2 text-sm sm:grid-cols-2">
-                <DetailRow icon={Mail} label="Email" value={selectedLawyer.email} />
-                <DetailRow icon={Phone} label="Phone" value={selectedLawyer.phone} />
-                <DetailRow
-                  icon={Building2}
-                  label="Law Firm / Chambers"
-                  value={selectedLawyer.lawFirm || "Independent Counsel"}
-                />
-                <DetailRow
-                  icon={GraduationCap}
-                  label="University"
-                  value={selectedLawyer.university}
-                />
-                <DetailRow
-                  icon={MapPin}
-                  label="Primary Jurisdiction"
-                  value={selectedLawyer.jurisdictionState || "Nigeria"}
-                />
-                <DetailRow
-                  icon={Scale}
-                  label="Cases Won"
-                  value={`${selectedLawyer.casesWon} documented cases`}
-                />
-              </div>
-
-              {selectedLawyer.practiceAreas && selectedLawyer.practiceAreas.length > 0 && (
-                <div className="rounded-lg bg-muted/40 p-3">
-                  <p className="text-xs font-semibold text-foreground">Practice Focus Areas</p>
-                  <div className="mt-1.5 flex flex-wrap gap-1.5">
-                    {selectedLawyer.practiceAreas.map((area) => (
-                      <Badge key={area} variant="secondary" className="text-xs">
-                        {area}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <DialogFooter className="flex-wrap justify-between gap-2 sm:justify-between">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => handleDownloadLawyerSlip(selectedLawyer)}
-                >
-                  <Download className="mr-1.5 h-4 w-4" />
-                  Download Advocate Slip
-                </Button>
-                <Button
-                  type="button"
-                  variant="destructive"
-                  onClick={() =>
-                    setPendingDelete({
-                      type: "lawyers",
-                      id: selectedLawyer.id,
-                      name: selectedLawyer.fullName,
-                    })
-                  }
-                >
-                  <Trash2 className="mr-1.5 h-4 w-4" />
-                  Delete Record
-                </Button>
-              </DialogFooter>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* ADD MEMBER MODAL */}
-      <Dialog open={isAddMemberOpen} onOpenChange={setIsAddMemberOpen}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Register Foundation Member</DialogTitle>
-            <DialogDescription>
-              Create a verified member record in the Foundation registry.
-            </DialogDescription>
-          </DialogHeader>
-
-          <form onSubmit={handleCreateMember} className="space-y-4">
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="space-y-1.5 sm:col-span-2">
-                <Label htmlFor="admin-member-name">Full Name *</Label>
-                <Input
-                  id="admin-member-name"
-                  required
-                  value={newFullName}
-                  onChange={(e) => setNewFullName(e.target.value)}
-                  placeholder="e.g. Amina Bello"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="admin-member-email">Email Address *</Label>
-                <Input
-                  id="admin-member-email"
-                  type="email"
-                  required
-                  value={newEmail}
-                  onChange={(e) => setNewEmail(e.target.value)}
-                  placeholder="amina@example.com"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="admin-member-phone">Phone Number</Label>
-                <Input
-                  id="admin-member-phone"
-                  type="tel"
-                  value={newPhone}
-                  onChange={(e) => setNewPhone(e.target.value)}
-                  placeholder="+234 800 000 0000"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="admin-member-state">State *</Label>
-                <select
-                  id="admin-member-state"
-                  value={newState}
-                  onChange={(e) => setNewState(e.target.value)}
-                  className={`${selectClassName} w-full`}
-                >
-                  {ALL_STATES.map((stateName) => (
-                    <option key={stateName} value={stateName}>
-                      {stateName}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="admin-member-lga">Local Government Area *</Label>
-                <select
-                  id="admin-member-lga"
-                  value={newLga}
-                  onChange={(e) => setNewLga(e.target.value)}
-                  className={`${selectClassName} w-full`}
-                >
-                  {availableLgas.map((lgaName) => (
-                    <option key={lgaName} value={lgaName}>
-                      {lgaName}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="admin-member-tier">Membership Tier</Label>
-                <select
-                  id="admin-member-tier"
-                  value={newTier}
-                  onChange={(e) => setNewTier(e.target.value as MembershipTier)}
-                  className={`${selectClassName} w-full`}
-                >
-                  {MEMBERSHIP_TIERS.map((tier) => (
-                    <option key={tier} value={tier}>
-                      {tier}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="admin-member-gender">Gender</Label>
-                <select
-                  id="admin-member-gender"
-                  value={newGender}
-                  onChange={(e) =>
-                    setNewGender(e.target.value as "Male" | "Female" | "Prefer not to say")
-                  }
-                  className={`${selectClassName} w-full`}
-                >
-                  <option value="Prefer not to say">Prefer not to say</option>
-                  <option value="Female">Female</option>
-                  <option value="Male">Male</option>
-                </select>
-              </div>
-
-              <div className="space-y-1.5 sm:col-span-2">
-                <Label htmlFor="admin-member-occupation">Occupation</Label>
-                <Input
-                  id="admin-member-occupation"
-                  value={newOccupation}
-                  onChange={(e) => setNewOccupation(e.target.value)}
-                  placeholder="e.g. Educator, Civil Servant, Entrepreneur"
-                />
-              </div>
-
-              <div className="space-y-1.5 sm:col-span-2">
-                <Label htmlFor="admin-member-photo">Passport Photograph (Optional)</Label>
-                <div className="flex items-center gap-3">
-                  <label
-                    htmlFor="admin-member-photo"
-                    className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-dashed border-border px-3 py-2 text-xs font-medium text-muted-foreground hover:border-foreground/40 hover:text-foreground"
-                  >
-                    <Upload className="h-3.5 w-3.5" />
-                    {newPhotoUrl ? "Change Photo" : "Upload Photo"}
-                    <input
-                      id="admin-member-photo"
-                      type="file"
-                      accept="image/*"
-                      className="sr-only"
-                      onChange={handlePhotoUpload}
-                    />
-                  </label>
-                  {newPhotoUrl && (
-                    <img
-                      src={newPhotoUrl}
-                      alt="Passport preview"
-                      className="h-10 w-10 rounded-full border border-border object-cover"
-                    />
-                  )}
-                </div>
-              </div>
             </div>
 
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsAddMemberOpen(false)}>
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={isSavingMember}
-                className="bg-[var(--green-deep)] text-white hover:bg-[var(--green-mid)]"
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+              {/* Quick Create Menu */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="min-h-10 gap-1.5 bg-emerald-800 text-xs font-bold text-white hover:bg-emerald-700"
+                  >
+                    <Plus className="size-4" />
+                    <span className="hidden sm:inline">Quick Action</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel className="text-xs">Jump to Action</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => setActiveModule("cms-pages")}>
+                    <LayoutTemplate className="mr-2 size-4" />
+                    <span>Open CMS Page Builder</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setActiveModule("relief")}>
+                    <HeartHandshake className="mr-2 size-4" />
+                    <span>Register Beneficiary / Batch</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setActiveModule("legal")}>
+                    <Gavel className="mr-2 size-4" />
+                    <span>Log Inmate / Legal Case</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setActiveModule("community")}>
+                    <Users className="mr-2 size-4" />
+                    <span>Approve Citizen Members</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* Queue Notifications Indicator */}
+              <button
+                type="button"
+                onClick={() => setActiveModule("command")}
+                title="Pending Operational Approval Queues"
+                className="relative inline-flex size-10 cursor-pointer items-center justify-center rounded-md border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
               >
-                {isSavingMember ? "Saving..." : "Save Member"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+                <Bell className="size-4" />
+                {pendingCounts.total > 0 && (
+                  <span className="absolute -top-1 -right-1 flex size-5 items-center justify-center rounded-full bg-rose-600 text-[10px] font-bold text-white">
+                    {pendingCounts.total}
+                  </span>
+                )}
+              </button>
 
-      {/* DELETE CONFIRMATION DIALOG */}
-      <AlertDialog
-        open={pendingDelete !== null}
-        onOpenChange={(open) => {
-          if (!open) setPendingDelete(null);
-        }}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Remove registry record?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This permanently removes{" "}
-              <span className="font-semibold text-foreground">{pendingDelete?.name}</span> from the
-              local registry on this device. This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmDeleteRecord}
-              className="bg-destructive text-white hover:bg-destructive/90"
-            >
-              Remove Record
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
-  );
-}
+              {/* Interactive RBAC Role Switcher */}
+              <div className="flex items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1">
+                <span className="hidden text-[10px] font-bold tracking-wider text-slate-500 uppercase xl:inline">
+                  Active Role:
+                </span>
+                <select
+                  aria-label="Switch active RBAC operator role"
+                  value={activeRole}
+                  onChange={(e) => {
+                    const nextRole = e.target.value as AdminRole;
+                    setActiveRole(nextRole);
+                    toast.info(
+                      `Switched RBAC session preview to "${getRoleProfile(nextRole).label}".`,
+                    );
+                  }}
+                  className="bg-transparent text-xs font-bold text-slate-900 focus:outline-none"
+                >
+                  {ROLE_PROFILES.map((p) => (
+                    <option key={p.role} value={p.role}>
+                      {p.label}
+                    </option>
+                  ))}
+                </select>
+                <Badge
+                  variant="outline"
+                  className={`hidden text-[10px] font-bold sm:inline-flex ${roleProfile.badgeClass}`}
+                >
+                  {roleProfile.actorName.split(" ")[0]}
+                </Badge>
+              </div>
+            </div>
+          </div>
+        </header>
 
-function DetailRow({
-  icon: Icon,
-  label,
-  value,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="flex items-start gap-2.5 rounded-lg border border-border/60 bg-muted/20 p-2.5">
-      <Icon className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
-      <div className="min-w-0">
-        <p className="text-[11px] font-medium text-muted-foreground uppercase">{label}</p>
-        <p className="truncate font-medium text-foreground">{value}</p>
+        {/* Workspace Canvas */}
+        <main className="mx-auto w-full max-w-[1440px] flex-1 space-y-6 p-4 sm:p-6 lg:p-8">
+          {/* Active Module Title Banner */}
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h1 className="font-display text-xl font-extrabold tracking-tight text-slate-900 sm:text-2xl">
+                {meta.title}
+              </h1>
+              <p className="mt-0.5 text-xs text-slate-600 sm:text-sm">{meta.subtitle}</p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <Link
+                to="/p/$slug"
+                params={{ slug: "scholarship-bursary-2026" }}
+                className="inline-flex min-h-9 items-center gap-1.5 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-emerald-800 shadow-2xs hover:bg-emerald-50"
+              >
+                <Globe className="size-3.5" />
+                <span>Live CMS Page (/p/scholarship-bursary-2026)</span>
+              </Link>
+              <Link
+                to="/"
+                className="inline-flex min-h-9 items-center gap-1.5 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 shadow-2xs hover:bg-slate-50"
+              >
+                <ExternalLink className="size-3.5" />
+                <span>Executive Home</span>
+              </Link>
+            </div>
+          </div>
+
+          {/* Active Module Viewport */}
+          {activeModule === "command" && (
+            <CommandCenterView
+              activeRole={activeRole}
+              beneficiaries={beneficiaries}
+              batches={batches}
+              legalCases={legalCases}
+              lawyers={lawyers}
+              members={members}
+              onApproveMember={handleQuickApproveMember}
+              onApproveBeneficiary={handleQuickApproveBeneficiary}
+              onNavigateModule={setActiveModule}
+            />
+          )}
+
+          {activeModule === "cms-pages" && (
+            <CmsBuilderView activeRole={activeRole} initialSubTab="pages" />
+          )}
+
+          {activeModule === "cms-media" && (
+            <CmsBuilderView activeRole={activeRole} initialSubTab="navigation" />
+          )}
+
+          {activeModule === "relief" && (
+            <ReliefPortalView
+              activeRole={activeRole}
+              beneficiaries={beneficiaries}
+              batches={batches}
+              onRefresh={syncAllStores}
+            />
+          )}
+
+          {activeModule === "legal" && (
+            <LegalAidAdminView
+              activeRole={activeRole}
+              legalCases={legalCases}
+              lawyers={lawyers}
+              onRefresh={syncAllStores}
+            />
+          )}
+
+          {activeModule === "community" && (
+            <CommunityChaptersView
+              activeRole={activeRole}
+              members={members}
+              volunteers={volunteers}
+              chapters={chapters}
+              onRefresh={syncAllStores}
+            />
+          )}
+
+          {activeModule === "governance" && (
+            <GovernanceAuditView
+              activeRole={activeRole}
+              onSelectRole={setActiveRole}
+              auditLogs={auditLogs}
+            />
+          )}
+        </main>
       </div>
-    </div>
-  );
-}
-
-function EmptyRegistryState({
-  icon: Icon,
-  title,
-  description,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  title: string;
-  description: string;
-}) {
-  return (
-    <div className="flex flex-col items-center justify-center px-6 py-16 text-center">
-      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
-        <Icon className="h-6 w-6" />
-      </div>
-      <h3 className="mt-4 text-base font-semibold text-foreground">{title}</h3>
-      <p className="mt-1 max-w-md text-sm text-muted-foreground">{description}</p>
     </div>
   );
 }

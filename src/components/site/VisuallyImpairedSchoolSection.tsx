@@ -808,10 +808,10 @@ export function VisuallyImpairedSchoolSection({ id = "dutse-outreach" }: { id?: 
                 </Link>
               </Button>
               <Button asChild variant="give" size="sm" className="w-full sm:w-auto font-bold">
-                <a href="#donate" onClick={() => setDetailsModalOpen(false)}>
+                <Link to="/donate" onClick={() => setDetailsModalOpen(false)}>
                   <Heart className="size-3.5 fill-white animate-pulse" />
                   <span>Support Special Needs Relief</span>
-                </a>
+                </Link>
               </Button>
             </div>
           </div>

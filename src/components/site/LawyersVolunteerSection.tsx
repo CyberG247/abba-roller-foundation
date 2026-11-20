@@ -1,24 +1,34 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import {
+  AlertCircle,
+  ArrowLeft,
+  ArrowRight,
   Award,
+  Building2,
+  Calendar,
+  Check,
   CheckCircle2,
-  Download,
-  FileCheck2,
+  Clock,
   Gavel,
   GraduationCap,
   Mail,
   Phone,
   Scale,
   Shield,
+  ShieldCheck,
   Sparkles,
-  Building2,
-  Calendar,
-  AlertCircle,
-  Share2,
 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -28,22 +38,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Reveal } from "@/components/site/Reveal";
-import { downloadLawyerSlip, type LawyerSlipData } from "@/lib/generateLawyerSlip";
 import { saveLawyerVolunteer } from "@/data/lawyersStore";
 import { NIGERIAN_STATES } from "@/data/volunteerOptions";
+import type { LawyerSlipData } from "@/lib/generateLawyerSlip";
+import { cn } from "@/lib/utils";
 
-// Generate years 2026 down to 1970 for Call to Bar
+const DRAFT_STORAGE_KEY = "arf_lawyer_intake_draft_v1";
+
 const CALL_TO_BAR_YEARS = Array.from({ length: 57 }, (_, i) => String(2026 - i));
-
-// Cases won dropdown 1 to 100 as requested
 const CASES_WON_OPTIONS = Array.from({ length: 100 }, (_, i) => String(i + 1));
 
 const LEGAL_SPECIALTIES = [
@@ -57,10 +59,21 @@ const LEGAL_SPECIALTIES = [
   "General Pro Bono Litigation & Civil Rights",
 ];
 
+const WIZARD_STEPS = [
+  { id: 1 as const, label: "Practitioner & Chambers" },
+  { id: 2 as const, label: "Bar Credentials" },
+  { id: 3 as const, label: "Focus & Pledge" },
+];
+
+type LawyerWizardStep = 1 | 2 | 3;
+
 export function LawyersVolunteerSection({ id = "lawyers-volunteer" }: { id?: string }) {
-  // Form fields per user specification
+  const [step, setStep] = useState<LawyerWizardStep>(1);
+  const [draftSavedAt, setDraftSavedAt] = useState<string | null>(null);
+
   const [fullName, setFullName] = useState("");
   const [lawFirm, setLawFirm] = useState("");
+  const [nbaNumber, setNbaNumber] = useState("");
   const [email, setEmail] = useState("");
   const [university, setUniversity] = useState("");
   const [phone, setPhone] = useState("");
@@ -72,12 +85,64 @@ export function LawyersVolunteerSection({ id = "lawyers-volunteer" }: { id?: str
   ]);
   const [pledgeConsent, setPledgeConsent] = useState(false);
 
-  // Submission & Slip States
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [slipData, setSlipData] = useState<LawyerSlipData | null>(null);
   const [isSlipOpen, setIsSlipOpen] = useState(false);
-  const [downloading, setDownloading] = useState(false);
+
+  // Restore saved section draft on mount
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = sessionStorage.getItem(DRAFT_STORAGE_KEY);
+      if (!raw) return;
+      const draft = JSON.parse(raw) as Partial<{
+        fullName: string;
+        lawFirm: string;
+        nbaNumber: string;
+        email: string;
+        university: string;
+        phone: string;
+        callToBarYear: string;
+        casesWon: string;
+        jurisdictionState: string;
+      }>;
+      if (draft.fullName) setFullName(draft.fullName);
+      if (draft.lawFirm) setLawFirm(draft.lawFirm);
+      if (draft.nbaNumber) setNbaNumber(draft.nbaNumber);
+      if (draft.email) setEmail(draft.email);
+      if (draft.university) setUniversity(draft.university);
+      if (draft.phone) setPhone(draft.phone);
+      if (draft.callToBarYear) setCallToBarYear(draft.callToBarYear);
+      if (draft.casesWon) setCasesWon(draft.casesWon);
+      if (draft.jurisdictionState) setJurisdictionState(draft.jurisdictionState);
+    } catch {
+      // ignore corrupted draft
+    }
+  }, []);
+
+  const persistDraft = () => {
+    if (typeof window === "undefined") return;
+    try {
+      sessionStorage.setItem(
+        DRAFT_STORAGE_KEY,
+        JSON.stringify({
+          fullName,
+          lawFirm,
+          nbaNumber,
+          email,
+          university,
+          phone,
+          callToBarYear,
+          casesWon,
+          jurisdictionState,
+        }),
+      );
+      setDraftSavedAt(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
+    } catch {
+      // ignore
+    }
+  };
 
   const toggleSpecialty = (spec: string) => {
     setSelectedSpecialties((prev) =>
@@ -85,38 +150,70 @@ export function LawyersVolunteerSection({ id = "lawyers-volunteer" }: { id?: str
     );
   };
 
+  const handleSaveAndContinue = () => {
+    setErrorMsg(null);
+
+    if (step === 1) {
+      if (!fullName.trim()) {
+        setErrorMsg("Please enter your full legal name and title (e.g. Barr., Esq.).");
+        return;
+      }
+      if (!email.trim() || !email.includes("@")) {
+        setErrorMsg("Please enter a valid professional email address.");
+        return;
+      }
+      if (!phone.trim()) {
+        setErrorMsg("Please enter an accessible phone number for urgent bail referrals.");
+        return;
+      }
+      persistDraft();
+      setStep(2);
+      toast.success("Practitioner details saved. Next: enter Bar credentials.");
+      return;
+    }
+
+    if (step === 2) {
+      if (!university.trim()) {
+        setErrorMsg("Please provide your Faculty of Law / University (LL.B).");
+        return;
+      }
+      if (!callToBarYear) {
+        setErrorMsg("Please select your Call to Bar year.");
+        return;
+      }
+      if (!casesWon) {
+        setErrorMsg("Please select the number of cases won so far.");
+        return;
+      }
+      persistDraft();
+      setStep(3);
+      toast.success("Bar credentials saved. Select your pro bono focus areas to finish.");
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
 
-    // Validation
-    if (!fullName.trim()) {
-      setErrorMsg("Please enter your full name.");
+    if (step < 3) {
+      handleSaveAndContinue();
       return;
     }
-    if (!email.trim() || !email.includes("@")) {
-      setErrorMsg("Please enter a valid email address.");
-      return;
-    }
-    if (!university.trim()) {
-      setErrorMsg("Please provide the University/Faculty of Law you attended.");
-      return;
-    }
-    if (!phone.trim()) {
-      setErrorMsg("Please enter your phone number.");
-      return;
-    }
-    if (!callToBarYear) {
-      setErrorMsg("Please select the year you completed law school (Call to Bar).");
-      return;
-    }
-    if (!casesWon) {
-      setErrorMsg("Please select the number of cases won so far (1 - 100).");
+
+    if (
+      !fullName.trim() ||
+      !email.trim() ||
+      !university.trim() ||
+      !phone.trim() ||
+      !callToBarYear ||
+      !casesWon
+    ) {
+      setErrorMsg("Please ensure all required practitioner & Bar credential fields are completed.");
       return;
     }
     if (!pledgeConsent) {
       setErrorMsg(
-        "Please confirm your pledge to offer pro bono legal defense for indigent and underprivileged citizens.",
+        "Please confirm your pledge to offer pro bono legal defense for indigent citizens.",
       );
       return;
     }
@@ -126,6 +223,7 @@ export function LawyersVolunteerSection({ id = "lawyers-volunteer" }: { id?: str
     try {
       const saved = saveLawyerVolunteer({
         fullName: fullName.trim(),
+        nbaNumber: nbaNumber.trim() || undefined,
         lawFirm: lawFirm.trim() || undefined,
         email: email.trim(),
         university: university.trim(),
@@ -135,6 +233,10 @@ export function LawyersVolunteerSection({ id = "lawyers-volunteer" }: { id?: str
         jurisdictionState,
         practiceAreas: selectedSpecialties,
       });
+
+      if (typeof window !== "undefined") {
+        sessionStorage.removeItem(DRAFT_STORAGE_KEY);
+      }
 
       const slip: LawyerSlipData = {
         refNumber: saved.id,
@@ -152,7 +254,9 @@ export function LawyersVolunteerSection({ id = "lawyers-volunteer" }: { id?: str
 
       setSlipData(slip);
       setIsSlipOpen(true);
-      toast.success("Enrolled successfully in the ARF Legal Defense Pro Bono Corps!");
+      toast.success(
+        "Application received! Your Bar Accreditation Slip will unlock after Admin verification.",
+      );
     } catch {
       setErrorMsg("An unexpected error occurred while processing your enrollment.");
     } finally {
@@ -160,520 +264,508 @@ export function LawyersVolunteerSection({ id = "lawyers-volunteer" }: { id?: str
     }
   };
 
-  const handleDownload = async () => {
-    if (!slipData) return;
-    setDownloading(true);
-    try {
-      await downloadLawyerSlip(slipData);
-      toast.success("Official Pro Bono Lawyer Accreditation Slip downloaded!");
-    } catch {
-      toast.error("Failed to generate slip image. Please try again.");
-    } finally {
-      setDownloading(false);
-    }
-  };
-
   return (
-    <section id={id} className="py-16 md:py-24 bg-surface/50 border-t border-hairline relative">
-      <div className="shell max-w-6xl mx-auto">
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-12">
-          <Reveal>
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-950 text-emerald-300 text-xs font-semibold uppercase tracking-wider mb-4 border border-emerald-800/60 shadow-sm">
-              <Scale className="size-4 text-emerald-400" />
-              <span>Pro Bono Legal Defense Corps</span>
-            </div>
-            <h2 className="font-display text-3xl md:text-5xl font-black text-ink tracking-tight">
-              Lawyers Volunteer Section
-            </h2>
-            <p className="mt-3 text-lg md:text-xl font-medium text-emerald-700 dark:text-emerald-400 italic">
-              “Win a case for the less privileged.”
-            </p>
-            <p className="mt-3 text-sm md:text-base text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-              Too many indigent individuals languish in pretrial detention or face injustice simply
-              because they cannot afford counsel. Join our legal advocacy vanguard to represent the
-              vulnerable and protect constitutional rights.
-            </p>
-          </Reveal>
-        </div>
-
-        {/* Feature Cards / Value Pillars for Advocates */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <Reveal
-            delay={40}
-            className="p-5 rounded-lg bg-background border border-hairline shadow-2xs"
-          >
-            <div className="size-10 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 flex items-center justify-center mb-3">
-              <Gavel className="size-5" />
-            </div>
-            <h3 className="font-display text-base font-bold text-ink">
-              Indigent Court Representation
-            </h3>
-            <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">
-              Step into courtrooms across Northern Nigeria to defend vulnerable youths, disabled
-              citizens, and low-income families without voice or means.
-            </p>
-          </Reveal>
-
-          <Reveal
-            delay={80}
-            className="p-5 rounded-lg bg-background border border-hairline shadow-2xs"
-          >
-            <div className="size-10 rounded-full bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 flex items-center justify-center mb-3">
-              <Shield className="size-5" />
-            </div>
-            <h3 className="font-display text-base font-bold text-ink">
-              Prison Decongestion & Bail
-            </h3>
-            <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">
-              Expedite bail applications and review cases of persons held indefinitely on minor or
-              unsubstantiated infractions.
-            </p>
-          </Reveal>
-
-          <Reveal
-            delay={120}
-            className="p-5 rounded-lg bg-background border border-hairline shadow-2xs"
-          >
-            <div className="size-10 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 flex items-center justify-center mb-3">
-              <Award className="size-5" />
-            </div>
-            <h3 className="font-display text-base font-bold text-ink">
-              Official ARF Bar Credential
-            </h3>
-            <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">
-              Receive verified Pro Bono Advocate Accreditation, public commendation, and an official
-              downloadable credentials slip.
-            </p>
-          </Reveal>
-        </div>
-
-        {/* Main Lawyers Intake Form */}
-        <div className="bg-background rounded-xl border border-hairline shadow-md p-6 md:p-10 max-w-4xl mx-auto">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-hairline">
-            <div>
-              <h3 className="font-display text-xl md:text-2xl font-bold text-ink flex items-center gap-2">
-                <Scale className="size-6 text-emerald-600 dark:text-emerald-400" />
-                Legal Practitioner Enrollment Form
-              </h3>
-              <p className="text-xs md:text-sm text-muted-foreground mt-1">
-                Win a case for the less privileged. Dedicated strictly for qualified legal
-                practitioners.
-              </p>
-            </div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-xs font-semibold">
-              <Sparkles className="size-3.5" />
-              <span>Instant Bar Slip Generation</span>
-            </div>
+    <section id={id} className="relative border-t border-hairline bg-surface/50 py-14 md:py-20">
+      <div className="shell mx-auto max-w-3xl">
+        {/* Compact Header & Capability Badges */}
+        <div className="mb-8 text-center">
+          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-emerald-800/40 bg-emerald-950 px-3.5 py-1 text-[11px] font-bold tracking-wider text-emerald-300 uppercase">
+            <Scale className="size-3.5 text-emerald-400" />
+            <span>Pro Bono Legal Defense Corps</span>
           </div>
+          <h2 className="font-display text-2xl font-black tracking-tight text-ink sm:text-4xl">
+            Pro Bono Counsel Application
+          </h2>
+          <p className="mt-2 text-sm font-medium text-emerald-800 italic">
+            “Win a case for the less privileged.”
+          </p>
 
-          {errorMsg && (
-            <div className="mt-6 p-4 rounded-md bg-destructive/10 border border-destructive/20 text-destructive text-sm flex items-start gap-3">
-              <AlertCircle className="size-5 shrink-0 mt-0.5" />
-              <span>{errorMsg}</span>
-            </div>
-          )}
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-[11px] font-semibold text-muted-foreground">
+            <span className="inline-flex items-center gap-1 rounded-full border border-hairline bg-background px-3 py-1">
+              <Gavel className="size-3 text-emerald-700" />
+              Indigent Court Defense
+            </span>
+            <span className="inline-flex items-center gap-1 rounded-full border border-hairline bg-background px-3 py-1">
+              <Shield className="size-3 text-emerald-700" />
+              Prison Bail Applications
+            </span>
+            <span className="inline-flex items-center gap-1 rounded-full border border-hairline bg-background px-3 py-1">
+              <Sparkles className="size-3 text-amber-600" />
+              Admin Bar Verification
+            </span>
+            <Link
+              to="/verify-id"
+              className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 font-semibold text-emerald-900 hover:bg-emerald-100"
+            >
+              <ShieldCheck className="size-3 text-emerald-700" />
+              Check &amp; Download Verified Slip
+            </Link>
+          </div>
+        </div>
 
-          <form onSubmit={handleSubmit} className="mt-8 space-y-6">
-            {/* Row 1: Full Name & Law Firm */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label
-                  htmlFor="lawyer-fullname"
-                  className="text-xs font-bold uppercase tracking-wider text-ink"
-                >
-                  Full Name <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="lawyer-fullname"
-                  type="text"
-                  placeholder="e.g. Barr. Aminu Kabir Dutse"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  required
-                  className="h-11"
-                />
-                <span className="text-[11px] text-muted-foreground">
-                  Include title (e.g. Barr., Esq., SAN if applicable)
-                </span>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label
-                    htmlFor="lawyer-firm"
-                    className="text-xs font-bold uppercase tracking-wider text-ink"
-                  >
-                    Law Firm{" "}
-                    <span className="text-muted-foreground font-normal lowercase">(optional)</span>
-                  </Label>
-                </div>
-                <div className="relative">
-                  <Building2 className="size-4 text-muted-foreground absolute left-3 top-3.5" />
-                  <Input
-                    id="lawyer-firm"
-                    type="text"
-                    placeholder="e.g. Dutse Chambers & Associates / Solo Practitioner"
-                    value={lawFirm}
-                    onChange={(e) => setLawFirm(e.target.value)}
-                    className="h-11 pl-9"
-                  />
-                </div>
-                <span className="text-[11px] text-muted-foreground">
-                  Leave blank if operating as an independent counsel
-                </span>
-              </div>
-            </div>
-
-            {/* Row 2: Email & Phone Number */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label
-                  htmlFor="lawyer-email"
-                  className="text-xs font-bold uppercase tracking-wider text-ink"
-                >
-                  Email <span className="text-destructive">*</span>
-                </Label>
-                <div className="relative">
-                  <Mail className="size-4 text-muted-foreground absolute left-3 top-3.5" />
-                  <Input
-                    id="lawyer-email"
-                    type="email"
-                    placeholder="counsel@legalchambers.ng"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="h-11 pl-9"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label
-                  htmlFor="lawyer-phone"
-                  className="text-xs font-bold uppercase tracking-wider text-ink"
-                >
-                  Phone No <span className="text-destructive">*</span>
-                </Label>
-                <div className="relative">
-                  <Phone className="size-4 text-muted-foreground absolute left-3 top-3.5" />
-                  <Input
-                    id="lawyer-phone"
-                    type="tel"
-                    placeholder="+234 803 000 0000"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    required
-                    className="h-11 pl-9"
-                  />
-                </div>
-                <span className="text-[11px] text-muted-foreground">
-                  Accessible for swift urgent bail and hearing notifications
-                </span>
-              </div>
-            </div>
-
-            {/* Row 3: University (LL.B) */}
-            <div className="space-y-2">
-              <Label
-                htmlFor="lawyer-university"
-                className="text-xs font-bold uppercase tracking-wider text-ink"
-              >
-                University (Faculty of Law / LL.B) <span className="text-destructive">*</span>
-              </Label>
-              <div className="relative">
-                <GraduationCap className="size-4 text-muted-foreground absolute left-3 top-3.5" />
-                <Input
-                  id="lawyer-university"
-                  type="text"
-                  placeholder="e.g. Ahmadu Bello University (ABU) Zaria / Bayero University Kano (BUK)"
-                  value={university}
-                  onChange={(e) => setUniversity(e.target.value)}
-                  required
-                  className="h-11 pl-9"
-                />
-              </div>
-            </div>
-
-            {/* Row 4: Year Completed Law School (Call to Bar) & Cases Won So Far (1-100) */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label
-                  htmlFor="lawyer-calltobar"
-                  className="text-xs font-bold uppercase tracking-wider text-ink"
-                >
-                  Year Completed Law School (Call to Bar){" "}
-                  <span className="text-destructive">*</span>
-                </Label>
-                <div className="relative">
-                  <Select value={callToBarYear} onValueChange={setCallToBarYear}>
-                    <SelectTrigger id="lawyer-calltobar" className="h-11 w-full">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="size-4 text-muted-foreground shrink-0" />
-                        <SelectValue placeholder="Select Call to Bar Year" />
-                      </div>
-                    </SelectTrigger>
-                    <SelectContent className="max-h-64">
-                      {CALL_TO_BAR_YEARS.map((yr) => (
-                        <SelectItem key={yr} value={yr}>
-                          {yr} {yr === "2026" ? "(Latest Call)" : ""}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <span className="text-[11px] text-muted-foreground">
-                  Year of formal induction into the Nigerian Bar
-                </span>
-              </div>
-
-              <div className="space-y-2">
-                <Label
-                  htmlFor="lawyer-caseswon"
-                  className="text-xs font-bold uppercase tracking-wider text-ink"
-                >
-                  Cases Won So Far <span className="text-destructive">*</span>
-                </Label>
-                <div className="relative">
-                  <Select value={casesWon} onValueChange={setCasesWon}>
-                    <SelectTrigger id="lawyer-caseswon" className="h-11 w-full">
-                      <div className="flex items-center gap-2">
-                        <Award className="size-4 text-amber-500 shrink-0" />
-                        <SelectValue placeholder="Select cases won (1 - 100)" />
-                      </div>
-                    </SelectTrigger>
-                    <SelectContent className="max-h-64">
-                      {CASES_WON_OPTIONS.map((num) => (
-                        <SelectItem key={num} value={num}>
-                          {num} {Number(num) === 1 ? "Case Won" : "Cases Won"}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <span className="text-[11px] text-muted-foreground">
-                  Dropdown from 1 to 100 cases won in superior or subordinate courts
-                </span>
-              </div>
-            </div>
-
-            {/* Row 5: Primary Jurisdiction State */}
-            <div className="space-y-2">
-              <Label
-                htmlFor="lawyer-jurisdiction"
-                className="text-xs font-bold uppercase tracking-wider text-ink"
-              >
-                Primary Court Jurisdiction / State of Practice
-              </Label>
-              <Select value={jurisdictionState} onValueChange={setJurisdictionState}>
-                <SelectTrigger id="lawyer-jurisdiction" className="h-11 w-full">
-                  <SelectValue placeholder="Select Primary State" />
-                </SelectTrigger>
-                <SelectContent className="max-h-64">
-                  {NIGERIAN_STATES.map((st) => (
-                    <SelectItem key={st} value={st}>
-                      {st}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <span className="text-[11px] text-muted-foreground">
-                State where you are most readily available to attend court sittings
+        {/* Focused 3-Step One-Page Application Card */}
+        <div className="overflow-hidden rounded-lg border border-hairline bg-background shadow-lift">
+          {/* Interactive Stepper Bar */}
+          <div className="border-b border-hairline bg-surface/60 px-5 py-4 sm:px-8">
+            <div className="flex flex-wrap items-center justify-between gap-2 pb-4">
+              <span className="text-xs font-bold tracking-wider text-emerald-800 uppercase">
+                Step {step} of 3
               </span>
+              {draftSavedAt && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-800">
+                  <CheckCircle2 className="size-3" />
+                  <span>Saved at {draftSavedAt}</span>
+                </span>
+              )}
             </div>
 
-            {/* Specialization Tags */}
-            <div className="space-y-3 pt-2">
-              <Label className="text-xs font-bold uppercase tracking-wider text-ink block">
-                Preferred Pro Bono Advocacy Focus Areas
-              </Label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                {LEGAL_SPECIALTIES.map((spec) => {
-                  const checked = selectedSpecialties.includes(spec);
-                  return (
+            <ol className="grid grid-cols-3 gap-2">
+              {WIZARD_STEPS.map((item) => {
+                const isCurrent = step === item.id;
+                const isCompleted = step > item.id;
+                const canJump = item.id < step;
+
+                return (
+                  <li key={item.id}>
                     <button
                       type="button"
-                      key={spec}
-                      aria-pressed={checked}
-                      onClick={() => toggleSpecialty(spec)}
-                      className={`text-left text-xs p-3 rounded-md border transition-all flex items-start gap-2.5 ${
-                        checked
-                          ? "bg-emerald-50/80 border-emerald-600 dark:bg-emerald-950/40 dark:border-emerald-500 text-ink"
-                          : "bg-surface/60 border-hairline hover:border-emerald-300 text-muted-foreground"
-                      }`}
+                      disabled={!canJump}
+                      onClick={() => {
+                        if (canJump) setStep(item.id);
+                      }}
+                      className={cn(
+                        "flex w-full items-center gap-2 rounded-sm border px-2.5 py-2 text-left transition-all sm:px-3",
+                        isCurrent
+                          ? "border-emerald-700 bg-emerald-50/70 text-emerald-900"
+                          : isCompleted
+                            ? "cursor-pointer border-emerald-200 bg-white text-emerald-800 hover:bg-emerald-50"
+                            : "cursor-default border-hairline bg-white/70 text-muted-foreground",
+                      )}
                     >
-                      <div
-                        className={`size-4 rounded-sm mt-0.5 border flex items-center justify-center shrink-0 ${
-                          checked
-                            ? "bg-emerald-600 border-emerald-600 text-white"
-                            : "border-muted-foreground/40"
-                        }`}
+                      <span
+                        className={cn(
+                          "flex size-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold",
+                          isCurrent
+                            ? "bg-emerald-800 text-white"
+                            : isCompleted
+                              ? "bg-emerald-600 text-white"
+                              : "border border-hairline bg-surface text-muted-foreground",
+                        )}
                       >
-                        {checked && <CheckCircle2 className="size-3" />}
-                      </div>
-                      <span className="leading-snug">{spec}</span>
+                        {isCompleted ? <Check className="size-3.5" /> : item.id}
+                      </span>
+                      <span className="truncate text-[11px] font-bold sm:text-xs">
+                        {item.label}
+                      </span>
                     </button>
-                  );
-                })}
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
+
+          <form onSubmit={handleSubmit} className="p-5 sm:p-8">
+            {errorMsg && (
+              <div className="mb-6 flex items-start gap-2.5 rounded-md border border-destructive/20 bg-destructive/10 p-3.5 text-xs text-destructive sm:text-sm">
+                <AlertCircle className="mt-0.5 size-4.5 shrink-0" />
+                <span>{errorMsg}</span>
               </div>
-            </div>
+            )}
 
-            {/* Commitment Pledge */}
-            <div className="p-4 rounded-lg bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60 space-y-3">
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={pledgeConsent}
-                  onChange={(e) => setPledgeConsent(e.target.checked)}
-                  className="size-4.5 mt-0.5 accent-emerald-600 rounded cursor-pointer"
-                />
-                <span className="text-xs text-ink leading-relaxed font-medium">
-                  <strong>Pledge of Service:</strong> I hereby enroll as an honorary Pro Bono Legal
-                  Counsel with the Abba Roller Foundation. I agree to dedicate my professional
-                  skills to{" "}
-                  <span className="text-emerald-700 dark:text-emerald-400 font-bold">
-                    win cases for the less privileged
+            {/* SECTION 1: PRACTITIONER & CHAMBERS */}
+            {step === 1 && (
+              <div className="space-y-5">
+                <div>
+                  <h3 className="font-display text-lg font-bold text-ink sm:text-xl">
+                    Section 1 · Practitioner &amp; Chambers Information
+                  </h3>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Provide your legal title and contact channels for confidential court referrals.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="lawyer-fullname" className="text-xs font-bold">
+                      Full Name (with Title) <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="lawyer-fullname"
+                      placeholder="e.g. Barr. Aminu Kabir Dutse"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      required
+                      className="min-h-11"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="lawyer-firm" className="text-xs font-bold">
+                      Law Firm / Chambers{" "}
+                      <span className="font-normal text-muted-foreground">(Optional)</span>
+                    </Label>
+                    <div className="relative">
+                      <Building2 className="pointer-events-none absolute top-3.5 left-3 size-4 text-muted-foreground" />
+                      <Input
+                        id="lawyer-firm"
+                        placeholder="e.g. Dutse Chambers / Independent"
+                        value={lawFirm}
+                        onChange={(e) => setLawFirm(e.target.value)}
+                        className="min-h-11 pl-9"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="lawyer-email" className="text-xs font-bold">
+                      Professional Email <span className="text-destructive">*</span>
+                    </Label>
+                    <div className="relative">
+                      <Mail className="pointer-events-none absolute top-3.5 left-3 size-4 text-muted-foreground" />
+                      <Input
+                        id="lawyer-email"
+                        type="email"
+                        placeholder="counsel@legalchambers.ng"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        className="min-h-11 pl-9"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="lawyer-phone" className="text-xs font-bold">
+                      Phone Number <span className="text-destructive">*</span>
+                    </Label>
+                    <div className="relative">
+                      <Phone className="pointer-events-none absolute top-3.5 left-3 size-4 text-muted-foreground" />
+                      <Input
+                        id="lawyer-phone"
+                        type="tel"
+                        placeholder="+234 803 000 0000"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        required
+                        className="min-h-11 pl-9"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* SECTION 2: BAR CREDENTIALS & TRACK RECORD */}
+            {step === 2 && (
+              <div className="space-y-5">
+                <div>
+                  <h3 className="font-display text-lg font-bold text-ink sm:text-xl">
+                    Section 2 · Nigerian Bar Credentials &amp; Jurisdiction
+                  </h3>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Enter your academic qualification, Call to Bar year, and active state division.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div className="space-y-1.5 sm:col-span-2">
+                    <Label htmlFor="lawyer-university" className="text-xs font-bold">
+                      University / Faculty of Law (LL.B) <span className="text-destructive">*</span>
+                    </Label>
+                    <div className="relative">
+                      <GraduationCap className="pointer-events-none absolute top-3.5 left-3 size-4 text-muted-foreground" />
+                      <Input
+                        id="lawyer-university"
+                        placeholder="e.g. Ahmadu Bello University (ABU) Zaria / BUK"
+                        value={university}
+                        onChange={(e) => setUniversity(e.target.value)}
+                        required
+                        className="min-h-11 pl-9"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="lawyer-nba" className="text-xs font-bold">
+                      NBA Enrollment No. (SCN){" "}
+                      <span className="font-normal text-muted-foreground">(Optional)</span>
+                    </Label>
+                    <Input
+                      id="lawyer-nba"
+                      placeholder="e.g. SCN/084122"
+                      value={nbaNumber}
+                      onChange={(e) => setNbaNumber(e.target.value)}
+                      className="min-h-11 font-mono text-xs"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="lawyer-jurisdiction" className="text-xs font-bold">
+                      Primary Jurisdiction State
+                    </Label>
+                    <Select value={jurisdictionState} onValueChange={setJurisdictionState}>
+                      <SelectTrigger id="lawyer-jurisdiction" className="min-h-11 w-full">
+                        <SelectValue placeholder="Select Primary State" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-60">
+                        {NIGERIAN_STATES.map((st) => (
+                          <SelectItem key={st} value={st}>
+                            {st}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="lawyer-calltobar" className="text-xs font-bold">
+                      Call to Bar Year <span className="text-destructive">*</span>
+                    </Label>
+                    <Select value={callToBarYear} onValueChange={setCallToBarYear}>
+                      <SelectTrigger id="lawyer-calltobar" className="min-h-11 w-full">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="size-4 shrink-0 text-muted-foreground" />
+                          <SelectValue placeholder="Select Call Year" />
+                        </div>
+                      </SelectTrigger>
+                      <SelectContent className="max-h-60">
+                        {CALL_TO_BAR_YEARS.map((yr) => (
+                          <SelectItem key={yr} value={yr}>
+                            {yr}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="lawyer-caseswon" className="text-xs font-bold">
+                      Cases Won So Far (1–100) <span className="text-destructive">*</span>
+                    </Label>
+                    <Select value={casesWon} onValueChange={setCasesWon}>
+                      <SelectTrigger id="lawyer-caseswon" className="min-h-11 w-full">
+                        <div className="flex items-center gap-2">
+                          <Award className="size-4 shrink-0 text-amber-500" />
+                          <SelectValue placeholder="Select cases won" />
+                        </div>
+                      </SelectTrigger>
+                      <SelectContent className="max-h-60">
+                        {CASES_WON_OPTIONS.map((num) => (
+                          <SelectItem key={num} value={num}>
+                            {num} {Number(num) === 1 ? "Case Won" : "Cases Won"}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* SECTION 3: PRO BONO CATEGORIES & SERVICE PLEDGE */}
+            {step === 3 && (
+              <div className="space-y-5">
+                <div>
+                  <h3 className="font-display text-lg font-bold text-ink sm:text-xl">
+                    Section 3 · Pro Bono Focus Categories &amp; Pledge
+                  </h3>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Choose the advocacy categories where you accept pro bono case referrals and
+                    confirm your service pledge.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  {LEGAL_SPECIALTIES.map((spec) => {
+                    const checked = selectedSpecialties.includes(spec);
+                    return (
+                      <button
+                        type="button"
+                        key={spec}
+                        aria-pressed={checked}
+                        onClick={() => toggleSpecialty(spec)}
+                        className={cn(
+                          "flex min-h-11 cursor-pointer items-start gap-2.5 rounded-md border p-3 text-left text-xs transition-all",
+                          checked
+                            ? "border-emerald-700 bg-emerald-50/80 text-ink"
+                            : "border-hairline bg-surface/60 text-muted-foreground hover:border-emerald-300",
+                        )}
+                      >
+                        <div
+                          className={cn(
+                            "mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-sm border",
+                            checked
+                              ? "border-emerald-700 bg-emerald-700 text-white"
+                              : "border-muted-foreground/40",
+                          )}
+                        >
+                          {checked && <CheckCircle2 className="size-3" />}
+                        </div>
+                        <span className="leading-snug">{spec}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Compact Credential Summary */}
+                <div className="flex flex-wrap items-center justify-between gap-2 rounded-sm border border-hairline bg-surface px-4 py-3 text-xs">
+                  <div>
+                    <span className="font-bold text-ink">{fullName}</span>
+                    <span className="text-muted-foreground">
+                      {" "}
+                      · {jurisdictionState} · Call {callToBarYear}
+                    </span>
+                  </div>
+                  <span className="font-semibold text-emerald-800">{casesWon} cases won</span>
+                </div>
+
+                <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-emerald-200 bg-emerald-50/70 p-4">
+                  <input
+                    type="checkbox"
+                    checked={pledgeConsent}
+                    onChange={(e) => setPledgeConsent(e.target.checked)}
+                    className="mt-0.5 size-4 cursor-pointer accent-emerald-700"
+                  />
+                  <span className="text-xs leading-relaxed font-medium text-ink">
+                    <strong>Pledge of Service:</strong> I enroll as an honorary Pro Bono Legal
+                    Counsel with Abba Roller Foundation to{" "}
+                    <span className="font-bold text-emerald-800">
+                      win cases for the less privileged
+                    </span>{" "}
+                    and defend indigent rights with utmost confidentiality and diligence.
                   </span>
-                  , defend fundamental human rights, and treat every indigent client with dignifying
-                  confidentiality and utmost diligence.
-                </span>
-              </label>
-            </div>
+                </label>
+              </div>
+            )}
 
-            {/* Submit CTA Button */}
-            <div className="pt-2">
-              <Button
-                type="submit"
-                disabled={submitting}
-                className="w-full h-12 bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-sm tracking-wide shadow-md transition-all flex items-center justify-center gap-2"
-              >
-                <Scale className="size-4" />
-                <span>
-                  {submitting
-                    ? "Enrolling Legal Counsel..."
-                    : "Enroll as Pro Bono Advocate & Generate Slip"}
+            {/* Wizard Action Footer */}
+            <div className="mt-7 flex flex-col-reverse gap-3 border-t border-hairline pt-5 sm:flex-row sm:items-center sm:justify-between">
+              {step > 1 ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="lg"
+                  onClick={() => {
+                    setErrorMsg(null);
+                    setStep((s) => (s === 3 ? 2 : 1));
+                  }}
+                  className="min-h-12 gap-2 font-semibold"
+                >
+                  <ArrowLeft className="size-4" />
+                  <span>Previous Section</span>
+                </Button>
+              ) : (
+                <span className="text-xs text-muted-foreground">
+                  Dedicated to qualified legal practitioners
                 </span>
-              </Button>
-              <p className="text-[11px] text-center text-muted-foreground mt-2">
-                Verified enrollment triggers an instant, high-resolution official ARF Pro Bono Bar
-                Slip.
-              </p>
+              )}
+
+              {step < 3 ? (
+                <Button
+                  type="button"
+                  size="lg"
+                  onClick={handleSaveAndContinue}
+                  className="min-h-12 gap-2 bg-emerald-800 px-6 font-bold text-white hover:bg-emerald-900"
+                >
+                  <span>Save &amp; Continue</span>
+                  <ArrowRight className="size-4" />
+                </Button>
+              ) : (
+                <Button
+                  type="submit"
+                  size="lg"
+                  disabled={submitting}
+                  className="min-h-12 gap-2 bg-emerald-800 px-6 font-bold text-white shadow-md hover:bg-emerald-900"
+                >
+                  <Scale className="size-4" />
+                  <span>
+                    {submitting
+                      ? "Submitting Application..."
+                      : "Submit Application for Bar Verification"}
+                  </span>
+                </Button>
+              )}
             </div>
           </form>
         </div>
       </div>
 
-      {/* Slip Presentation Dialog Modal */}
+      {/* Application Confirmation Dialog Modal (Pending Bar Verification) */}
       <Dialog open={isSlipOpen} onOpenChange={setIsSlipOpen}>
-        <DialogContent className="max-w-2xl max-h-[92vh] overflow-y-auto p-6 md:p-8">
+        <DialogContent className="max-w-lg w-[95vw] p-6 md:p-8">
           <DialogHeader>
-            <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-semibold text-xs tracking-wider uppercase">
-              <CheckCircle2 className="size-4" />
-              <span>Enrollment Verified</span>
+            <div className="flex items-center gap-2 text-xs font-semibold tracking-wider text-amber-700 uppercase">
+              <Clock className="size-4" />
+              <span>Pending Admin Bar Verification</span>
             </div>
             <DialogTitle className="font-display text-2xl font-bold text-ink">
-              Official Pro Bono Lawyer Accreditation Slip
+              Pro Bono Application Submitted
             </DialogTitle>
-            <DialogDescription className="text-xs text-muted-foreground">
-              Thank you for standing up for the less privileged. Your official ARF Legal Corps
-              registration is ready for instant download and verification.
+            <DialogDescription className="text-xs sm:text-sm text-muted-foreground">
+              Thank you for volunteering your legal expertise. Your Bar Accreditation Slip is not
+              generated at registration — it will unlock automatically after Admin verification of
+              your credentials.
             </DialogDescription>
           </DialogHeader>
 
           {slipData && (
-            <div className="mt-4 space-y-6">
-              {/* Slip Card Preview */}
-              <div className="p-6 rounded-lg bg-surface border-2 border-emerald-700/40 relative overflow-hidden shadow-inner">
-                {/* Header ribbon */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-hairline gap-2">
-                  <div>
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-700 dark:text-emerald-400">
-                      Federal Republic of Nigeria • ARF Legal Corps
-                    </span>
-                    <h4 className="font-display text-lg font-bold text-ink">{slipData.fullName}</h4>
-                    <p className="text-xs text-muted-foreground">
-                      {slipData.lawFirm || "Independent Legal Practitioner"}
-                    </p>
-                  </div>
-                  <div className="text-left sm:text-right">
-                    <span className="text-[10px] text-muted-foreground uppercase block">
-                      Advocate Bar ID
-                    </span>
-                    <span className="font-mono text-xs font-bold px-2 py-1 rounded bg-background border border-hairline text-emerald-800 dark:text-emerald-300">
-                      {slipData.refNumber}
-                    </span>
-                  </div>
-                </div>
+            <div className="mt-4 space-y-5">
+              <div className="rounded-sm border border-amber-300 bg-amber-50 p-4 text-xs sm:text-sm text-amber-950 leading-relaxed">
+                <strong>Next Step — Check &amp; Download Later:</strong> Return anytime to{" "}
+                <Link to="/verify-id" className="font-bold text-green-deep underline">
+                  Check &amp; Download ID
+                </Link>{" "}
+                and enter your registered phone number (
+                <span className="font-mono font-semibold">{slipData.phone}</span>) to see when your
+                Official Bar Accreditation Slip becomes available for download.
+              </div>
 
-                {/* Details Grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 py-4 text-xs">
-                  <div>
-                    <span className="text-[10px] text-muted-foreground uppercase block font-semibold">
-                      Call to Bar Year
-                    </span>
-                    <span className="font-bold text-ink">{slipData.callToBarYear}</span>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-muted-foreground uppercase block font-semibold">
-                      Cases Won
-                    </span>
-                    <span className="font-bold text-emerald-700 dark:text-emerald-400">
-                      {slipData.casesWon} {Number(slipData.casesWon) === 1 ? "Case" : "Cases"} Won
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-muted-foreground uppercase block font-semibold">
-                      Jurisdiction
-                    </span>
-                    <span className="font-bold text-ink">
-                      {slipData.jurisdictionState || "Nigeria"}
-                    </span>
-                  </div>
-                  <div className="col-span-2">
-                    <span className="text-[10px] text-muted-foreground uppercase block font-semibold">
-                      University (LL.B)
-                    </span>
-                    <span className="font-medium text-ink truncate block">
-                      {slipData.university}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-muted-foreground uppercase block font-semibold">
-                      Enrollment Date
-                    </span>
-                    <span className="font-medium text-ink">{slipData.submissionDate}</span>
-                  </div>
-                </div>
-
-                {/* Motto Stamp */}
-                <div className="mt-3 pt-3 border-t border-hairline flex items-center justify-between text-[11px] text-muted-foreground">
-                  <span className="italic font-medium text-emerald-800 dark:text-emerald-400">
-                    “Win a case for the less privileged”
+              <div className="grid grid-cols-1 gap-3 rounded-sm border border-hairline bg-surface p-4 text-xs sm:grid-cols-2">
+                <div>
+                  <span className="block text-[10px] font-bold text-muted-foreground uppercase">
+                    Reference ID
                   </span>
-                  <span className="text-[10px] uppercase font-bold text-amber-600">
-                    ⚖️ Pro Bono Certified
+                  <span className="font-mono font-bold text-ink">{slipData.refNumber}</span>
+                </div>
+                <div>
+                  <span className="block text-[10px] font-bold text-muted-foreground uppercase">
+                    Registered Phone (Lookup Key)
+                  </span>
+                  <span className="font-mono font-bold text-emerald-800">{slipData.phone}</span>
+                </div>
+                <div>
+                  <span className="block text-[10px] font-bold text-muted-foreground uppercase">
+                    Counsel Name
+                  </span>
+                  <span className="font-semibold text-ink">{slipData.fullName}</span>
+                </div>
+                <div>
+                  <span className="block text-[10px] font-bold text-muted-foreground uppercase">
+                    Jurisdiction &amp; Call Year
+                  </span>
+                  <span className="font-semibold text-ink">
+                    {slipData.jurisdictionState || "Nigeria"} · {slipData.callToBarYear}
                   </span>
                 </div>
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex flex-col gap-3 sm:flex-row">
                 <Button
-                  onClick={handleDownload}
-                  disabled={downloading}
-                  className="flex-1 h-11 bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs gap-2"
+                  asChild
+                  className="h-11 flex-1 gap-2 bg-emerald-800 text-xs font-bold text-white hover:bg-emerald-900"
                 >
-                  <Download className="size-4" />
-                  <span>
-                    {downloading ? "Generating Slip..." : "Download Official Bar Slip (PNG)"}
-                  </span>
+                  <Link to="/verify-id" onClick={() => setIsSlipOpen(false)}>
+                    <ShieldCheck className="size-4" />
+                    <span>Check Status by Phone</span>
+                  </Link>
                 </Button>
                 <Button
+                  type="button"
                   variant="outline"
                   onClick={() => setIsSlipOpen(false)}
                   className="h-11 text-xs"
                 >
-                  Close Window
+                  Done
                 </Button>
               </div>
             </div>

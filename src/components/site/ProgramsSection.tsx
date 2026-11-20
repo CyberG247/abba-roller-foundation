@@ -106,7 +106,7 @@ export function ProgramsSection({ id = "programs" }: { id?: string }) {
                     </Link>
                   </Button>
                   <Button asChild variant="outline" size="default">
-                    <a href="#donate">Support this campaign</a>
+                    <Link to="/donate">Support this campaign</Link>
                   </Button>
                 </div>
               </div>

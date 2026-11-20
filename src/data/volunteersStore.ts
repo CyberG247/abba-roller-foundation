@@ -1,8 +1,9 @@
+import { recordDeletedCredential } from "@/data/deletedCredentialsStore";
 import { getTodayIsoDate } from "@/lib/utils";
 import type { VolunteerSlipData } from "@/lib/generateVolunteerSlip";
 
 export interface VolunteerRecord extends VolunteerSlipData {
-  status: "Pending Briefing" | "Verified Volunteer" | "Deployed";
+  status: "Pending Briefing" | "Verified Volunteer" | "Deployed" | "Removed";
 }
 
 const STORAGE_KEY = "arf_general_volunteers_v1";
@@ -59,7 +60,21 @@ export function updateVolunteerStatus(
 }
 
 export function deleteVolunteerFromStorage(refNumber: string): VolunteerRecord[] {
-  const updated = loadVolunteersFromStorage().filter((v) => v.refNumber !== refNumber);
+  const current = loadVolunteersFromStorage();
+  const target = current.find((v) => v.refNumber === refNumber);
+  if (target) {
+    recordDeletedCredential({
+      kind: "volunteer",
+      id: target.refNumber,
+      fullName: target.fullName,
+      phone: target.phone,
+      state: target.state,
+      subtitle: `${target.activity} • ${target.state} Chapter`,
+      submittedDate: target.submissionDate,
+      photoUrl: target.photoUrl ?? undefined,
+    });
+  }
+  const updated = current.filter((v) => v.refNumber !== refNumber);
   if (typeof window !== "undefined") {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
@@ -69,4 +84,9 @@ export function deleteVolunteerFromStorage(refNumber: string): VolunteerRecord[]
     }
   }
   return updated;
+}
+
+/** Accreditation slips are only unlocked once an administrator verifies the volunteer. */
+export function isVolunteerCredentialIssued(volunteer: VolunteerRecord): boolean {
+  return volunteer.status === "Verified Volunteer" || volunteer.status === "Deployed";
 }

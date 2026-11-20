@@ -115,10 +115,10 @@ export function FoodDistributionSection({ id = "food-distribution" }: { id?: str
 
           <Reveal delay={100} className="shrink-0 flex flex-wrap gap-3">
             <Button asChild variant="give" size="lg" className="shadow-lift font-bold gap-2">
-              <a href="#donate">
+              <Link to="/donate">
                 <Heart className="size-4 fill-white animate-pulse" />
                 <span>Sponsor a meal</span>
-              </a>
+              </Link>
             </Button>
             <Button asChild variant="outline" size="lg">
               <Link
@@ -305,10 +305,10 @@ export function FoodDistributionSection({ id = "food-distribution" }: { id?: str
 
               <div className="mt-4 flex flex-wrap items-center gap-3">
                 <Button asChild variant="give" size="sm" className="font-bold gap-1.5 shadow-2xs">
-                  <a href="#donate">
+                  <Link to="/donate">
                     <Heart className="size-3.5 fill-white animate-pulse" />
                     <span>Sponsor weekly meals</span>
-                  </a>
+                  </Link>
                 </Button>
                 <Button asChild variant="outline" size="sm" className="text-xs">
                   <Link

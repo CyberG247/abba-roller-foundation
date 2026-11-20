@@ -133,10 +133,10 @@ export function FounderSection({ id = "founder" }: { id?: string }) {
 
             <div className="pt-4 flex flex-wrap gap-3">
               <Button asChild variant="give" size="lg" className="gap-2">
-                <a href="#donate">
+                <Link to="/donate">
                   <Heart className="size-4 fill-white animate-pulse" />
                   <span>Support the mission</span>
-                </a>
+                </Link>
               </Button>
               <Button asChild variant="outline" size="lg">
                 <Link to="/founder" className="inline-flex items-center gap-2">

@@ -41,7 +41,7 @@ function StoryDetail() {
   const { story } = Route.useLoaderData();
 
   const isFootballStory = story.slug === "grassroots-football-championship-peace-cup";
-  const isDutseStory = story.slug === "visually-impaired-school-dutse-outreach";
+  const isDutseStory = story.slug === "visually-impaired-school-dutse-jigawa";
 
   return (
     <>
@@ -103,11 +103,11 @@ function StoryDetail() {
                   </h3>
                 </div>
                 <Link
-                  to="/"
+                  to="/relief"
                   hash="football-tournament"
                   className="text-xs font-bold text-brand-red hover:underline inline-flex items-center gap-1"
                 >
-                  <span>Interactive Section</span>
+                  <span>View Championship Section</span>
                   <ExternalLink className="size-3" />
                 </Link>
               </div>
@@ -153,11 +153,11 @@ function StoryDetail() {
                   </h3>
                 </div>
                 <Link
-                  to="/"
+                  to="/relief"
                   hash="dutse-outreach"
                   className="text-xs font-bold text-green-deep hover:underline inline-flex items-center gap-1"
                 >
-                  <span>Interactive Section</span>
+                  <span>View Dutse Outreach Section</span>
                   <ExternalLink className="size-3" />
                 </Link>
               </div>

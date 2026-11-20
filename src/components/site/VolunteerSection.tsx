@@ -1,18 +1,15 @@
 import React, { useState, useRef } from "react";
-import { Link, useRouterState } from "@tanstack/react-router";
-import confetti from "canvas-confetti";
+import { Link } from "@tanstack/react-router";
 import {
   Users2,
   CheckCircle2,
-  Download,
-  Printer,
+  Clock,
   Copy,
   Upload,
   Camera,
   HeartHandshake,
   ShieldCheck,
   Award,
-  Sparkles,
   ArrowRight,
   AlertCircle,
   Loader2,
@@ -34,7 +31,7 @@ import {
 } from "@/components/ui/select";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Reveal } from "./Reveal";
-import { downloadVolunteerSlip, type VolunteerSlipData } from "@/lib/generateVolunteerSlip";
+import type { VolunteerSlipData } from "@/lib/generateVolunteerSlip";
 import { compressPassportPhoto, copyToClipboard } from "@/lib/utils";
 import {
   AVAILABILITY_OPTIONS,
@@ -45,9 +42,6 @@ import {
 import { saveVolunteerToStorage } from "@/data/volunteersStore";
 
 export function VolunteerSection({ id = "volunteer" }: { id?: string }) {
-  const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const isHome = pathname === "/";
-
   // Form fields
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -72,10 +66,9 @@ export function VolunteerSection({ id = "volunteer" }: { id?: string }) {
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // Slip modal state
+  // Submission confirmation modal state
   const [slipData, setSlipData] = useState<VolunteerSlipData | null>(null);
   const [isSlipOpen, setIsSlipOpen] = useState(false);
-  const [downloading, setDownloading] = useState(false);
 
   // Photo handler with compression
   const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -187,38 +180,10 @@ export function VolunteerSection({ id = "volunteer" }: { id?: string }) {
       setSubmitting(false);
       setIsSlipOpen(true);
 
-      // Trigger celebration
-      try {
-        confetti({
-          particleCount: 100,
-          spread: 70,
-          origin: { y: 0.6 },
-          colors: ["#0B3D2E", "#C62828", "#145A43", "#F59E0B"],
-        });
-      } catch {
-        // ignore confetti error
-      }
-
-      toast.success("Application Received! Your Volunteer Acknowledgement Slip is ready.");
+      toast.success(
+        "Application submitted! Once an Admin verifies your profile, check & download your slip with your phone number.",
+      );
     }, 600);
-  };
-
-  const handleDownloadSlip = async () => {
-    if (!slipData) return;
-    try {
-      setDownloading(true);
-      await downloadVolunteerSlip(slipData);
-      toast.success("Acknowledgement Slip downloaded successfully!");
-    } catch (err) {
-      console.error(err);
-      toast.error("Could not download slip image. Please use Print to Save PDF.");
-    } finally {
-      setDownloading(false);
-    }
-  };
-
-  const handlePrint = () => {
-    window.print();
   };
 
   const copyRefNumber = async () => {
@@ -294,8 +259,8 @@ export function VolunteerSection({ id = "volunteer" }: { id?: string }) {
             </div>
             <h3 className="font-display font-bold text-ink">Official ARF Accreditation</h3>
             <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">
-              Receive verified volunteer accreditation, official registration slip, and recognized
-              community service credentials.
+              Receive Admin-verified volunteer accreditation and recognized community service
+              credentials once cleared for chapter deployment.
             </p>
           </Reveal>
 
@@ -336,8 +301,8 @@ export function VolunteerSection({ id = "volunteer" }: { id?: string }) {
                   </div>
                 </div>
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-xs text-xs font-semibold self-start sm:self-auto border border-white/20">
-                  <Sparkles className="size-3.5 text-yellow-300" />
-                  <span>Instant Verification Slip</span>
+                  <ShieldCheck className="size-3.5 text-green-wash" />
+                  <span>Admin-Verified Accreditation</span>
                 </div>
               </div>
             </div>
@@ -600,22 +565,13 @@ export function VolunteerSection({ id = "volunteer" }: { id?: string }) {
                     <p className="mt-1.5 text-[11px] text-muted-foreground">
                       <strong>Are you a Lawyer or Legal Practitioner?</strong> Please apply through
                       our dedicated{" "}
-                      {isHome ? (
-                        <a
-                          href="#lawyers-volunteer"
-                          className="text-green-deep font-bold underline hover:text-green-mid"
-                        >
-                          Lawyers Volunteer Section
-                        </a>
-                      ) : (
-                        <Link
-                          to="/volunteer"
-                          hash="lawyers-volunteer"
-                          className="text-green-deep font-bold underline hover:text-green-mid"
-                        >
-                          Lawyers Volunteer Section
-                        </Link>
-                      )}{" "}
+                      <Link
+                        to="/legal-aid"
+                        hash="lawyers-volunteer"
+                        className="text-green-deep font-bold underline hover:text-green-mid"
+                      >
+                        Pro Bono Legal Aid Network
+                      </Link>{" "}
                       to win a case for the less privileged.
                     </p>
                     <span className="text-[11px] text-muted-foreground mt-1 block">
@@ -757,7 +713,15 @@ export function VolunteerSection({ id = "volunteer" }: { id?: string }) {
               {/* SUBMIT BUTTON */}
               <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-hairline">
                 <p className="text-xs text-muted-foreground">
-                  * An official acknowledgement slip will pop out immediately upon submission.
+                  * Accreditation slips are issued strictly after Admin review. Check status later
+                  on{" "}
+                  <Link
+                    to="/verify-id"
+                    className="font-semibold text-green-deep underline underline-offset-2"
+                  >
+                    Check &amp; Download ID
+                  </Link>{" "}
+                  using your phone number.
                 </p>
                 <Button
                   type="submit"
@@ -768,11 +732,11 @@ export function VolunteerSection({ id = "volunteer" }: { id?: string }) {
                   {submitting ? (
                     <>
                       <Loader2 className="size-4 mr-2 animate-spin" />
-                      Generating Registration Slip...
+                      Submitting Application...
                     </>
                   ) : (
                     <>
-                      Submit Application &amp; View Slip
+                      Submit Volunteer Application
                       <ArrowRight className="size-4 ml-2" />
                     </>
                   )}
@@ -784,275 +748,112 @@ export function VolunteerSection({ id = "volunteer" }: { id?: string }) {
       </div>
 
       {/* ========================================================== */}
-      {/* ACKNOWLEDGEMENT SLIP POP-OUT MODAL */}
+      {/* APPLICATION CONFIRMATION (PENDING ADMIN VERIFICATION) */}
       {/* ========================================================== */}
       <Dialog open={isSlipOpen} onOpenChange={setIsSlipOpen}>
-        <DialogContent className="max-w-2xl w-[95vw] p-0 overflow-hidden border-2 border-green-deep shadow-2xl bg-white max-h-[92vh] flex flex-col">
+        <DialogContent className="max-w-lg w-[95vw] p-0 overflow-hidden border-2 border-green-deep shadow-2xl bg-white">
           {slipData && (
             <>
-              {/* Slip Scrollable Preview Area */}
-              <div className="overflow-y-auto p-4 sm:p-8 flex-1">
-                {/* Print Container with ID for direct clean print */}
-                <div className="printable-slip border-2 border-green-deep rounded-sm bg-[#FAFBF9] p-5 sm:p-7 relative shadow-sm text-ink">
-                  {/* Subtle Background Watermark */}
-                  <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none overflow-hidden select-none">
-                    <img src={arfLogo} alt="" className="size-96 object-contain" />
-                  </div>
-
-                  {/* Header Lockup */}
-                  <div className="border-b-2 border-green-deep pb-4 flex flex-col sm:flex-row items-center sm:items-start justify-between gap-4 text-center sm:text-left">
-                    <div className="flex items-center gap-3.5">
-                      <img
-                        src={arfLogo}
-                        alt="ARF Logo"
-                        className="size-16 sm:size-18 shrink-0 rounded-full border-2 border-green-deep bg-white object-contain p-0.5 shadow-xs"
-                      />
-                      <div>
-                        <h3 className="font-display text-xl sm:text-2xl font-extrabold tracking-tight text-green-deep">
-                          ABBA ROLLER FOUNDATION
-                        </h3>
-                        <p className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                          Directorate of Volunteer Services &amp; Humanitarian Intake
-                        </p>
-                        <p className="text-[10px] text-muted-foreground italic">
-                          Empowering youth &amp; women. Strengthening communities across Nigeria.
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="shrink-0 text-center sm:text-right">
-                      <span className="inline-block px-2.5 py-1 rounded-xs bg-green-wash border border-green-mid/30 text-[10px] font-bold text-green-deep uppercase tracking-wider">
-                        Official Slip
-                      </span>
-                      <p className="text-[10px] font-mono text-muted-foreground mt-1">
-                        Form ARF-V26
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Title Banner */}
-                  <div className="my-4 py-2 px-3 bg-muted/60 border border-hairline rounded-xs text-center">
-                    <h4 className="font-display text-sm sm:text-base font-bold text-green-deep tracking-wide uppercase">
-                      Volunteer Registration Acknowledgement Slip
-                    </h4>
-                  </div>
-
-                  {/* Ref & Status Strip */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs border-b border-hairline pb-3.5">
-                    <div>
-                      <span className="text-muted-foreground text-[11px] block">
-                        Registration Reference:
-                      </span>
-                      <span className="font-mono font-bold text-sm sm:text-base text-brand-red">
-                        {slipData.refNumber}
-                      </span>
-                    </div>
-                    <div className="sm:text-right">
-                      <span className="text-muted-foreground text-[11px] block">
-                        Date of Submission:
-                      </span>
-                      <span className="font-semibold text-ink">{slipData.submissionDate}</span>
-                    </div>
-                  </div>
-
-                  {/* Status Tag */}
-                  <div className="my-3.5 flex items-center gap-2 px-3 py-1.5 rounded-xs bg-green-50 border border-green-200 text-green-800 text-xs font-semibold">
-                    <CheckCircle2 className="size-4 text-green-600 shrink-0" />
-                    <span>STATUS: APPLICATION LOGGED &amp; AWAITING DEPLOYMENT BRIEFING</span>
-                  </div>
-
-                  {/* Main Grid: Details + Photo */}
-                  <div className="grid grid-cols-1 sm:grid-cols-[1fr_140px] gap-4 sm:gap-6 mt-4">
-                    {/* Left Column: Data points */}
-                    <div className="space-y-3 text-xs">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div className="p-2.5 rounded-xs bg-white border border-hairline">
-                          <span className="text-[10px] uppercase font-bold text-muted-foreground block">
-                            Full Name
-                          </span>
-                          <span className="font-display font-bold text-sm text-ink block mt-0.5">
-                            {slipData.fullName}
-                          </span>
-                        </div>
-                        <div className="p-2.5 rounded-xs bg-white border border-hairline">
-                          <span className="text-[10px] uppercase font-bold text-muted-foreground block">
-                            Profession / Vocation
-                          </span>
-                          <span className="font-display font-bold text-sm text-green-deep block mt-0.5">
-                            {slipData.profession}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div className="p-2.5 rounded-xs bg-white border border-hairline">
-                          <span className="text-[10px] uppercase font-bold text-muted-foreground block">
-                            Phone / WhatsApp
-                          </span>
-                          <span className="font-semibold text-ink block mt-0.5">
-                            {slipData.phone}
-                          </span>
-                        </div>
-                        <div className="p-2.5 rounded-xs bg-white border border-hairline">
-                          <span className="text-[10px] uppercase font-bold text-muted-foreground block">
-                            Email Address
-                          </span>
-                          <span className="font-semibold text-ink block mt-0.5 truncate">
-                            {slipData.email}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div className="p-2.5 rounded-xs bg-white border border-hairline">
-                          <span className="text-[10px] uppercase font-bold text-muted-foreground block">
-                            State &amp; LGA
-                          </span>
-                          <span className="font-semibold text-ink block mt-0.5">
-                            {slipData.lga}, {slipData.state} State
-                          </span>
-                        </div>
-                        <div className="p-2.5 rounded-xs bg-white border border-hairline">
-                          <span className="text-[10px] uppercase font-bold text-muted-foreground block">
-                            Gender &amp; Age Group
-                          </span>
-                          <span className="font-semibold text-ink block mt-0.5">
-                            {slipData.gender} ({slipData.ageGroup})
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Selected Philanthropic Outreach Activity */}
-                      <div className="p-3 rounded-xs bg-green-wash/40 border border-green-mid/20">
-                        <span className="text-[10px] uppercase font-bold text-green-deep block">
-                          Assigned Philanthropic Outreach / Activity
-                        </span>
-                        <span className="font-display font-bold text-sm text-ink block mt-0.5">
-                          {slipData.activity}
-                        </span>
-                        <span className="text-[11px] text-muted-foreground mt-1 block">
-                          Availability: {slipData.availability}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Right Column: Passport Photo Frame */}
-                    <div className="flex flex-col items-center">
-                      <div className="size-32 sm:size-36 rounded-xs border-2 border-green-deep bg-muted/40 overflow-hidden relative shadow-xs flex items-center justify-center">
-                        {slipData.photoUrl ? (
-                          <img
-                            src={slipData.photoUrl}
-                            alt={slipData.fullName}
-                            className="size-full object-cover"
-                          />
-                        ) : (
-                          <div className="flex flex-col items-center justify-center p-2 text-center text-muted-foreground">
-                            <Users2 className="size-8 mb-1" />
-                            <span className="text-[10px] font-bold">APPLICANT</span>
-                          </div>
-                        )}
-                        <div className="absolute bottom-0 inset-x-0 bg-green-deep text-white text-[9px] font-bold text-center py-0.5 tracking-wider uppercase">
-                          Verified Applicant
-                        </div>
-                      </div>
-                      <span className="text-[9px] text-muted-foreground mt-1.5 font-mono text-center">
-                        PASSPORT PHOTO
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Signatures & Verification Seal */}
-                  <div className="mt-6 pt-4 border-t border-hairline grid grid-cols-2 sm:grid-cols-3 gap-3 items-end text-center text-xs">
-                    <div>
-                      <p className="font-display font-bold italic text-sm text-green-deep border-b border-muted pb-1">
-                        Usman Aminu Usman
-                      </p>
-                      <p className="font-bold text-[11px] mt-1 text-ink">Hon. Usman Aminu Usman</p>
-                      <p className="text-[9px] text-muted-foreground">
-                        Founder &amp; Chairman, ARF
-                      </p>
-                    </div>
-
-                    <div className="hidden sm:flex flex-col items-center justify-center">
-                      <div className="size-14 rounded-full border-2 border-yellow-600 bg-yellow-50 flex flex-col items-center justify-center text-[8px] font-bold text-yellow-800 leading-tight">
-                        <span>OFFICIAL</span>
-                        <span>ARF SEAL</span>
-                        <span>★ 2026 ★</span>
-                      </div>
-                    </div>
-
-                    <div>
-                      <p className="font-display font-bold italic text-sm text-green-deep border-b border-muted pb-1">
-                        Directorate Registry
-                      </p>
-                      <p className="font-bold text-[11px] mt-1 text-ink">Volunteer Intake Bureau</p>
-                      <p className="text-[9px] text-muted-foreground">ARF Field Operations</p>
-                    </div>
-                  </div>
-
-                  {/* Official Notice */}
-                  <div className="mt-5 p-2.5 rounded-xs bg-muted/50 border border-hairline text-[10px] text-muted-foreground leading-normal">
-                    <p className="font-bold text-ink">IMPORTANT NOTICE:</p>
-                    <p className="mt-0.5">
-                      Please retain or download this slip. An official coordinator will contact you
-                      via WhatsApp/Phone to confirm upcoming field deployments, briefing logistics,
-                      and volunteer badge issuance.
-                    </p>
-                  </div>
+              <div className="bg-green-deep px-6 py-5 text-white flex items-center gap-3.5">
+                <img
+                  src={arfLogo}
+                  alt="ARF Logo"
+                  className="size-12 rounded-full border-2 border-white/30 bg-white object-contain p-0.5 shrink-0"
+                />
+                <div>
+                  <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-amber-300">
+                    <Clock className="size-3" />
+                    Pending Admin Verification
+                  </span>
+                  <h3 className="font-display text-lg sm:text-xl font-bold leading-tight mt-0.5">
+                    Volunteer Application Received
+                  </h3>
                 </div>
               </div>
 
-              {/* Action Buttons Bar (Sticky at bottom of modal) */}
-              <div className="p-4 sm:px-8 border-t border-hairline bg-surface flex flex-wrap items-center justify-between gap-3 no-print">
+              <div className="p-6 space-y-4">
+                <div className="rounded-sm border border-amber-300 bg-amber-50 p-3.5 text-xs sm:text-sm text-amber-950 leading-relaxed">
+                  <p className="font-bold flex items-center gap-1.5 text-amber-900">
+                    <Clock className="size-4 text-amber-700 shrink-0" />
+                    Accreditation Slip Held Until Admin Review
+                  </p>
+                  <p className="mt-1 text-amber-900/90">
+                    Official ARF Volunteer Accreditation Slips are issued strictly after a State or
+                    National Administrator verifies your profile. No slip is generated or
+                    downloadable immediately upon submission.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  <div className="p-3 rounded-xs bg-surface border border-hairline">
+                    <span className="text-[10px] uppercase font-bold text-muted-foreground block">
+                      Reference ID
+                    </span>
+                    <span className="font-mono font-bold text-ink text-sm block mt-0.5">
+                      {slipData.refNumber}
+                    </span>
+                  </div>
+                  <div className="p-3 rounded-xs bg-surface border border-hairline">
+                    <span className="text-[10px] uppercase font-bold text-muted-foreground block">
+                      Registered Phone (Lookup Key)
+                    </span>
+                    <span className="font-mono font-bold text-green-deep text-sm block mt-0.5">
+                      {slipData.phone}
+                    </span>
+                  </div>
+                  <div className="p-3 rounded-xs bg-surface border border-hairline">
+                    <span className="text-[10px] uppercase font-bold text-muted-foreground block">
+                      Applicant
+                    </span>
+                    <span className="font-semibold text-ink block mt-0.5">{slipData.fullName}</span>
+                  </div>
+                  <div className="p-3 rounded-xs bg-surface border border-hairline">
+                    <span className="text-[10px] uppercase font-bold text-muted-foreground block">
+                      Chapter &amp; Track
+                    </span>
+                    <span className="font-semibold text-ink block mt-0.5 truncate">
+                      {slipData.state} · {slipData.activity}
+                    </span>
+                  </div>
+                </div>
+
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  After Admin verification, visit{" "}
+                  <strong className="text-ink">Check &amp; Download ID</strong> and enter{" "}
+                  <span className="font-mono font-semibold text-ink">{slipData.phone}</span> to
+                  download your official Volunteer Accreditation Slip.
+                </p>
+              </div>
+
+              <div className="p-4 sm:px-6 border-t border-hairline bg-surface flex flex-wrap items-center justify-between gap-2.5">
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
                   onClick={copyRefNumber}
-                  className="text-xs h-9"
+                  className="text-xs h-10"
                 >
                   <Copy className="size-3.5 mr-1.5" />
-                  Copy Reference ID
+                  Copy Ref ID
                 </Button>
 
                 <div className="flex items-center gap-2 ml-auto">
                   <Button
-                    type="button"
-                    variant="outline"
+                    asChild
                     size="sm"
-                    onClick={handlePrint}
-                    className="text-xs h-9 hidden sm:inline-flex"
+                    className="bg-green-deep hover:bg-green-mid text-white text-xs font-bold h-10"
                   >
-                    <Printer className="size-3.5 mr-1.5" />
-                    Print / Save PDF
+                    <Link to="/verify-id" onClick={() => setIsSlipOpen(false)}>
+                      <ShieldCheck className="size-3.5 mr-1.5" />
+                      Check Status by Phone
+                    </Link>
                   </Button>
-
-                  <Button
-                    type="button"
-                    size="sm"
-                    disabled={downloading}
-                    onClick={handleDownloadSlip}
-                    className="bg-green-deep hover:bg-green-mid text-white text-xs font-bold h-9 shadow-sm"
-                  >
-                    {downloading ? (
-                      <>
-                        <Loader2 className="size-3.5 mr-1.5 animate-spin" />
-                        Generating...
-                      </>
-                    ) : (
-                      <>
-                        <Download className="size-3.5 mr-1.5" />
-                        Download Slip (Image)
-                      </>
-                    )}
-                  </Button>
-
                   <Button
                     type="button"
                     variant="ghost"
                     size="sm"
                     onClick={() => setIsSlipOpen(false)}
-                    className="text-xs h-9"
+                    className="text-xs h-10"
                   >
                     Done
                   </Button>

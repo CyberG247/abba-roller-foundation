@@ -1,0 +1,481 @@
+// ============================================================================
+// Abba Roller Foundation (ARF) — Enterprise Operations & Headless CMS Schema
+// Target Database: PostgreSQL (Prisma ORM)
+// Compliance: NDPR-ready PII separation + immutable AuditLog + 5-Role RBAC
+// ============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ----------------------------------------------------------------------------
+// ENUMS
+// ----------------------------------------------------------------------------
+
+enum AdminRole {
+  SUPER_ADMIN
+  PROGRAM_OFFICER
+  LEGAL_COORDINATOR
+  STATE_CHAPTER_LEAD
+  CONTENT_EDITOR
+}
+
+enum PublishStatus {
+  DRAFT
+  PUBLISHED
+  SCHEDULED
+  ARCHIVED
+}
+
+enum BlockType {
+  HERO
+  RICH_SPLIT
+  MEDIA_VIDEO
+  IMPACT_REPORTS
+  CTA_BANNER
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  PDF
+}
+
+enum NavDomainGroup {
+  INITIATIVES
+  NETWORK
+  ACCOUNTABILITY
+  FOUNDATION
+}
+
+enum ReliefProgramType {
+  FOOD_PALLIATIVE
+  DIRECT_FINANCIAL_GRANT
+  STUDENT_SCHOLARSHIP_BURSARY
+  DISABILITY_SUPPORT_AID
+  CORRECTIONAL_INMATE_WELFARE
+}
+
+enum VulnerabilityClass {
+  PERSONS_WITH_DISABILITIES
+  STUDENTS
+  INMATES
+  WIDOWS_ORPHANS
+  INDIGENT_HOUSEHOLD
+}
+
+enum NinVerificationStatus {
+  UNVERIFIED
+  PENDING_CHECK
+  VERIFIED
+}
+
+enum AidStatus {
+  APPLIED
+  UNDER_VERIFICATION
+  APPROVED
+  DISBURSED
+  REJECTED
+}
+
+enum BatchStatus {
+  SCHEDULED
+  IN_TRANSIT
+  VERIFIED_DISBURSED
+  AUDITED
+}
+
+enum AttorneyStatus {
+  UNDER_REVIEW
+  VERIFIED_ADVOCATE
+  ACTIVE_PRO_BONO
+  SUSPENDED
+}
+
+enum LegalCaseMilestone {
+  INTAKE
+  ASSIGNED
+  COURT_FILING
+  HEARING
+  RESOLVED_ACQUITTED
+}
+
+enum CasePriority {
+  URGENT
+  HIGH
+  STANDARD
+}
+
+enum MemberStatus {
+  ACTIVE
+  VERIFIED
+  HONORARY
+  SUSPENDED
+}
+
+enum MembershipTier {
+  STANDARD_MEMBER
+  YOUTH_AMBASSADOR
+  VOLUNTEER_CORPS
+  EXECUTIVE_SUPPORTER
+  PATRON
+}
+
+// ----------------------------------------------------------------------------
+// GOVERNANCE, AUTHENTICATION & IMMUTABLE AUDIT LOGGING
+// ----------------------------------------------------------------------------
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  fullName     String
+  role         AdminRole @default(CONTENT_EDITOR)
+  assignedState String?
+  passwordHash String?
+  isActive     Boolean   @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  auditLogs      AuditLog[]
+  cmsPagesEdited CmsPage[]       @relation("PageEditor")
+  pageVersions   CmsPageVersion[]
+  mediaAssets    MediaAsset[]
+  batchesLogged  DisbursementBatch[]
+  caseEvents     LegalCaseEvent[]
+
+  @@index([role, assignedState])
+}
+
+model RolePermission {
+  id         String    @id @default(cuid())
+  role       AdminRole
+  permission String    // e.g. "cms:edit", "cms:publish", "disbursements:approve"
+  createdAt  DateTime  @default(now())
+
+  @@unique([role, permission])
+}
+
+model AuditLog {
+  id          String    @id @default(cuid())
+  actorId     String
+  actorEmail  String
+  actorRole   AdminRole
+  action      String    // e.g. "CMS_PAGE_PUBLISHED", "BATCH_APPROVED", "CASE_ASSIGNED"
+  entityType  String    // "CmsPage" | "Beneficiary" | "DisbursementBatch" | "LegalCase" | "Attorney" | "Member"
+  entityId    String
+  summary     String
+  metadata    Json?
+  ipAddress   String?
+  createdAt   DateTime  @default(now())
+
+  actor User @relation(fields: [actorId], references: [id], onDelete: Restrict)
+
+  @@index([entityType, entityId])
+  @@index([createdAt(sort: Desc)])
+}
+
+// ----------------------------------------------------------------------------
+// HEADLESS CMS, NAVIGATION SCHEMA & S3/R2 MEDIA LIBRARY
+// ----------------------------------------------------------------------------
+
+model NavItem {
+  id           String         @id @default(cuid())
+  label        String
+  href         String
+  description  String
+  group        NavDomainGroup
+  badge        String?
+  sortOrder    Int            @default(0)
+  isVisible    Boolean        @default(true)
+  isCustomPage Boolean        @default(false)
+  cmsPageId    String?        @unique
+  updatedAt    DateTime       @updatedAt
+
+  cmsPage CmsPage? @relation(fields: [cmsPageId], references: [id], onDelete: SetNull)
+
+  @@index([group, sortOrder])
+}
+
+model CmsPage {
+  id             String         @id @default(cuid())
+  slug           String         @unique
+  title          String
+  navLabel       String
+  seoDescription String
+  isBuiltIn      Boolean        @default(false)
+  navGroup       NavDomainGroup @default(INITIATIVES)
+  status         PublishStatus  @default(DRAFT)
+  scheduledFor   DateTime?
+  publishedAt    DateTime?
+  updatedById    String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  updatedBy User?            @relation("PageEditor", fields: [updatedById], references: [id], onDelete: SetNull)
+  blocks    CmsBlock[]
+  versions  CmsPageVersion[]
+  navItem   NavItem?
+
+  @@index([status, slug])
+}
+
+model CmsBlock {
+  id        String    @id @default(cuid())
+  pageId    String
+  type      BlockType
+  sortOrder Int       @default(0)
+  payload   Json      // Typed per BlockType (Hero, RichSplit, MediaVideo, ImpactReports, CtaBanner)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  page CmsPage @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@index([pageId, sortOrder])
+}
+
+model CmsPageVersion {
+  id            String        @id @default(cuid())
+  pageId        String
+  versionNumber Int
+  status        PublishStatus
+  snapshotJson  Json          // Immutable snapshot of CmsBlock[] + title + seoDescription
+  note          String
+  createdById   String?
+  createdAt     DateTime      @default(now())
+
+  page      CmsPage @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  createdBy User?   @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@unique([pageId, versionNumber])
+  @@index([pageId, createdAt(sort: Desc)])
+}
+
+model MediaAsset {
+  id           String    @id @default(cuid())
+  title        String
+  type         MediaType
+  storageKey   String    // S3/R2 object key or external video reference
+  cdnUrl       String
+  mimeType     String?
+  sizeBytes    Int?
+  folder       String    @default("general")
+  tags         String[]
+  uploadedById String?
+  createdAt    DateTime  @default(now())
+
+  uploadedBy User? @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
+
+  @@index([type, folder])
+}
+
+// ----------------------------------------------------------------------------
+// BENEFICIARIES & MULTI-CHANNEL RELIEF DISBURSEMENTS
+// ----------------------------------------------------------------------------
+
+model ReliefProgram {
+  id          String            @id @default(cuid())
+  code        String            @unique
+  name        String
+  type        ReliefProgramType
+  description String
+  isActive    Boolean           @default(true)
+  budgetNgn   BigInt            @default(0)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  batches       DisbursementBatch[]
+  beneficiaries Beneficiary[]
+}
+
+model Beneficiary {
+  id                   String                @id @default(cuid())
+  refCode              String                @unique
+  fullName             String
+  phone                String
+  state                String
+  lga                  String
+  wardOrInstitution    String?
+  vulnerabilityClass   VulnerabilityClass
+  ninCiphertext        String?               // AES-256-GCM encrypted at rest (NDPR)
+  ninLast4             String?               // Masked UI preview only
+  ninVerification      NinVerificationStatus @default(PENDING_CHECK)
+  programId            String?
+  status               AidStatus             @default(APPLIED)
+  requestedAmountNgn   Int                   @default(0)
+  notes                String?
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+
+  program       ReliefProgram?       @relation(fields: [programId], references: [id], onDelete: SetNull)
+  disbursements DisbursementRecord[]
+
+  @@index([state, vulnerabilityClass, status])
+}
+
+model DisbursementBatch {
+  id            String            @id @default(cuid())
+  batchCode     String            @unique
+  title         String
+  programId     String?
+  programType   ReliefProgramType
+  state         String
+  lga           String
+  unitCount     Int
+  unitLabel     String
+  totalValueNgn Int
+  proofPhotoUrl String?
+  receiptUrl    String?
+  status        BatchStatus       @default(SCHEDULED)
+  disbursedAt   DateTime?
+  loggedById    String?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  program  ReliefProgram?       @relation(fields: [programId], references: [id], onDelete: SetNull)
+  loggedBy User?                @relation(fields: [loggedById], references: [id], onDelete: SetNull)
+  records  DisbursementRecord[]
+
+  @@index([state, status, createdAt(sort: Desc)])
+}
+
+model DisbursementRecord {
+  id            String   @id @default(cuid())
+  batchId       String
+  beneficiaryId String
+  amountNgn     Int      @default(0)
+  quantityUnits Int      @default(1)
+  deliveredAt   DateTime @default(now())
+
+  batch       DisbursementBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  beneficiary Beneficiary       @relation(fields: [beneficiaryId], references: [id], onDelete: Cascade)
+
+  @@unique([batchId, beneficiaryId])
+}
+
+// ----------------------------------------------------------------------------
+// PRO BONO LEGAL AID & CASE MATCHING ENGINE
+// ----------------------------------------------------------------------------
+
+model Attorney {
+  id                String         @id @default(cuid())
+  barCode           String         @unique // e.g. ARF-BAR-2026-0012
+  nbaEnrollmentNo   String         @unique // e.g. SCN/084122
+  fullName          String
+  lawFirm           String?
+  email             String         @unique
+  phone             String
+  university        String
+  callToBarYear     String
+  jurisdictionState String
+  practiceAreas     String[]
+  casesWon          Int            @default(0)
+  status            AttorneyStatus @default(UNDER_REVIEW)
+  bio               String?
+  languages         String[]
+  availability      String?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  assignedCases LegalCase[]
+
+  @@index([jurisdictionState, status])
+}
+
+model LegalCase {
+  id                String             @id @default(cuid())
+  caseNumber        String             @unique
+  clientInitials    String             // NDPR-safe public display reference
+  clientFullNameEnc String             // Encrypted PII in production DB
+  isInmate          Boolean            @default(false)
+  facilityOrCourt   String
+  state             String
+  category          String
+  priority          CasePriority       @default(HIGH)
+  milestone         LegalCaseMilestone @default(INTAKE)
+  assignedAttorneyId String?
+  nextHearingDate   DateTime?
+  summary           String
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  assignedAttorney Attorney?        @relation(fields: [assignedAttorneyId], references: [id], onDelete: SetNull)
+  events           LegalCaseEvent[]
+
+  @@index([state, milestone, priority])
+}
+
+model LegalCaseEvent {
+  id          String             @id @default(cuid())
+  legalCaseId String
+  milestone   LegalCaseMilestone
+  note        String
+  recordedById String?
+  createdAt   DateTime           @default(now())
+
+  legalCase  LegalCase @relation(fields: [legalCaseId], references: [id], onDelete: Cascade)
+  recordedBy User?     @relation(fields: [recordedById], references: [id], onDelete: SetNull)
+
+  @@index([legalCaseId, createdAt(sort: Desc)])
+}
+
+// ----------------------------------------------------------------------------
+// NATIONWIDE MEMBERSHIP & REGIONAL CHAPTER COORDINATION
+// ----------------------------------------------------------------------------
+
+model StateChapter {
+  id                  String   @id @default(cuid())
+  stateKey            String   @unique
+  displayName         String
+  geopoliticalZone    String
+  tier                String
+  headquartersCity    String
+  coordinatorName     String?
+  coordinatorEmail    String?
+  coordinatorPhone    String?
+  activeLgas          String[]
+  updatedAt           DateTime @updatedAt
+
+  members       Member[]
+  announcements ChapterAnnouncement[]
+}
+
+model ChapterAnnouncement {
+  id          String   @id @default(cuid())
+  chapterId   String
+  title       String
+  body        String
+  publishedBy String
+  createdAt   DateTime @default(now())
+
+  chapter StateChapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  @@index([chapterId, createdAt(sort: Desc)])
+}
+
+model Member {
+  id             String         @id @default(cuid())
+  membershipCode String         @unique // e.g. ARF-JG-2026-0001
+  fullName       String
+  email          String         @unique
+  phone          String?
+  state          String
+  lga            String
+  chapterId      String?
+  gender         String?
+  occupation     String?
+  tier           MembershipTier @default(STANDARD_MEMBER)
+  status         MemberStatus   @default(ACTIVE)
+  photoUrl       String?
+  joinedDate     DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  chapter StateChapter? @relation(fields: [chapterId], references: [id], onDelete: SetNull)
+
+  @@index([state, tier, status])
+}

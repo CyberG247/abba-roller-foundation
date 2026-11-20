@@ -1,22 +1,23 @@
-import { useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  Users,
-  CheckCircle2,
-  ShieldCheck,
-  Award,
-  Download,
-  Printer,
-  MapPin,
-  Mail,
-  Phone,
-  User,
-  Briefcase,
-  IdCard,
-  Building,
+  ArrowLeft,
   ArrowRight,
+  Award,
+  Briefcase,
+  Building,
   Camera,
+  Check,
+  CheckCircle2,
+  Clock,
+  Mail,
+  MapPin,
+  Phone,
+  Search,
+  ShieldCheck,
   UploadCloud,
+  User,
+  Users,
   X,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -31,17 +32,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ALL_STATES, getLgasForState } from "@/data/nigeriaStatesLgas";
 import { saveMemberToStorage, type Member, type MembershipTier } from "@/data/membershipStore";
-import { downloadMembershipCard } from "@/lib/generateMembershipSlip";
-import { compressPassportPhoto } from "@/lib/utils";
-import arfLogo from "@/assets/arf-logo-official.png";
+import { ALL_STATES, getLgasForState } from "@/data/nigeriaStatesLgas";
+import { CredentialLookupWidget } from "@/components/site/CredentialLookupWidget";
+import { cn, compressPassportPhoto } from "@/lib/utils";
 
 const title = "Become a Member — Abba Roller Foundation";
 const description =
   "Register as an official citizen member of Abba Roller Foundation across all 36 states and FCT Abuja, and download your digital membership ID card.";
 
 export const Route = createFileRoute("/membership")({
+  validateSearch: (search: Record<string, unknown>): { state?: string | undefined } => ({
+    state: typeof search["state"] === "string" ? search["state"] : undefined,
+  }),
   head: () => ({
     meta: [
       { title },
@@ -53,75 +56,66 @@ export const Route = createFileRoute("/membership")({
   component: MembershipPage,
 });
 
+const DRAFT_STORAGE_KEY = "arf_membership_draft_v1";
+
 const TIERS: {
   name: MembershipTier;
   badge: string;
   badgeColor: string;
   desc: string;
-  benefits: string[];
 }[] = [
   {
     name: "Standard Member",
     badge: "Free · Grassroots",
     badgeColor: "bg-slate-100 text-slate-800 border-slate-300",
-    desc: "Citizens dedicated to promoting social welfare, community unity, and good governance across Nigeria.",
-    benefits: [
-      "Official ARF Membership ID Card & Number",
-      "Inclusion in LGA grassroots communications",
-      "Voting rights at general foundation town halls",
-    ],
+    desc: "Citizens championing social welfare, community unity & local mobilization.",
   },
   {
     name: "Youth Ambassador",
     badge: "Youth Leadership",
     badgeColor: "bg-amber-100 text-amber-800 border-amber-300",
-    desc: "Dynamic young leaders championing youth development, athletic sports leagues, and peace initiatives.",
-    benefits: [
-      "Ambassadorial identification & badge",
-      "Youth tournament & mentorship leadership",
-      "ARF branded cap & promotional materials",
-    ],
+    desc: "Young leaders driving sports leagues, mentorship & peace outreach.",
   },
   {
     name: "Volunteer Corps",
     badge: "Field Operations",
-    badgeColor: "bg-green-100 text-green-800 border-green-300",
-    desc: "Hands-on volunteers executing weekly meals distribution, special education relief, and field outreaches.",
-    benefits: [
-      "Direct deployment in humanitarian missions",
-      "Field duty acknowledgement certificate",
-      "Community welfare leadership experience",
-    ],
+    badgeColor: "bg-emerald-100 text-emerald-800 border-emerald-300",
+    desc: "Hands-on volunteers executing food aid & special-education relief.",
   },
   {
     name: "Executive Supporter",
-    badge: "Professional Mentorship",
-    badgeColor: "bg-blue-100 text-blue-800 border-blue-300",
-    desc: "Professionals, civil servants, and diaspora members contributing advisory and technical capacity.",
-    benefits: [
-      "Strategic advisory committee access",
-      "Direct briefings from Foundation Executive Board",
-      "High-level networking with civic partners",
-    ],
+    badge: "Advisory & Mentorship",
+    badgeColor: "bg-sky-100 text-sky-800 border-sky-300",
+    desc: "Professionals and diaspora citizens providing technical & policy backing.",
   },
   {
     name: "Patron",
     badge: "Philanthropic Pillar",
     badgeColor: "bg-brand-red-wash text-brand-red border-brand-red/30",
-    desc: "Distinguished patrons providing sustainable financial sponsorship to scale humanitarian impacts.",
-    benefits: [
-      "Permanent recognition in Annual Impact Report",
-      "VIP invitation to Annual Foundation Gala & Tourneys",
-      "Personal consultation with Founder Hon. Usman Aminu Usman",
-    ],
+    desc: "Distinguished sponsors sustaining multi-state humanitarian programs.",
   },
 ];
 
+const STEPS = [
+  { id: 1 as const, label: "Personal Details" },
+  { id: 2 as const, label: "Chapter & Photo" },
+  { id: 3 as const, label: "Category & Submit" },
+];
+
+type WizardStep = 1 | 2 | 3;
+
 function MembershipPage() {
+  const { state: preselectedState } = Route.useSearch();
+  const validPreselectedState =
+    preselectedState && ALL_STATES.includes(preselectedState) ? preselectedState : "";
+
+  const [step, setStep] = useState<WizardStep>(1);
+  const [draftSavedAt, setDraftSavedAt] = useState<string | null>(null);
+
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [selectedState, setSelectedState] = useState("");
+  const [selectedState, setSelectedState] = useState(validPreselectedState);
   const [selectedLga, setSelectedLga] = useState("");
   const [gender, setGender] = useState("");
   const [occupation, setOccupation] = useState("");
@@ -130,11 +124,75 @@ function MembershipPage() {
 
   const [registeredMember, setRegisteredMember] = useState<Member | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isDownloading, setIsDownloading] = useState(false);
+  const [activeView, setActiveView] = useState<"register" | "lookup">("register");
+  const [lookupPhoneSeed, setLookupPhoneSeed] = useState("");
 
-  // Passport Photograph State
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Restore saved section draft on mount if present
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = sessionStorage.getItem(DRAFT_STORAGE_KEY);
+      if (!raw) return;
+      const draft = JSON.parse(raw) as Partial<{
+        fullName: string;
+        email: string;
+        phone: string;
+        selectedState: string;
+        selectedLga: string;
+        gender: string;
+        occupation: string;
+        tier: MembershipTier;
+      }>;
+      if (draft.fullName) setFullName(draft.fullName);
+      if (draft.email) setEmail(draft.email);
+      if (draft.phone) setPhone(draft.phone);
+      if (
+        !validPreselectedState &&
+        draft.selectedState &&
+        ALL_STATES.includes(draft.selectedState)
+      ) {
+        setSelectedState(draft.selectedState);
+      }
+      if (draft.selectedLga) setSelectedLga(draft.selectedLga);
+      if (draft.gender) setGender(draft.gender);
+      if (draft.occupation) setOccupation(draft.occupation);
+      if (draft.tier) setTier(draft.tier);
+    } catch {
+      // ignore corrupted draft
+    }
+  }, [validPreselectedState]);
+
+  useEffect(() => {
+    if (preselectedState && ALL_STATES.includes(preselectedState)) {
+      setSelectedState(preselectedState);
+      setSelectedLga("");
+    }
+  }, [preselectedState]);
+
+  const persistSectionDraft = () => {
+    if (typeof window === "undefined") return;
+    try {
+      sessionStorage.setItem(
+        DRAFT_STORAGE_KEY,
+        JSON.stringify({
+          fullName,
+          email,
+          phone,
+          selectedState,
+          selectedLga,
+          gender,
+          occupation,
+          tier,
+        }),
+      );
+      setDraftSavedAt(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
+    } catch {
+      // ignore storage failure
+    }
+  };
 
   const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -164,26 +222,56 @@ function MembershipPage() {
 
   const handleStateChange = (state: string) => {
     setSelectedState(state);
-    setSelectedLga(""); // Reset LGA when state changes
+    setSelectedLga("");
+  };
+
+  const handleSaveAndContinue = () => {
+    if (step === 1) {
+      if (!fullName.trim()) {
+        toast.error("Please enter your full name (first name and surname).");
+        return;
+      }
+      if (!email.trim() || !email.includes("@")) {
+        toast.error("Please enter a valid email address.");
+        return;
+      }
+      persistSectionDraft();
+      if (!phone.trim() || phone.replace(/\D/g, "").length < 10) {
+        toast.error(
+          "Please enter an active Nigerian phone number (at least 10 digits) so you can check and download your ID Card after verification.",
+        );
+        return;
+      }
+      setStep(2);
+      toast.success("Personal details saved. Next: select your chapter state & LGA.");
+      return;
+    }
+
+    if (step === 2) {
+      if (!selectedState) {
+        toast.error("Please select your State of Residence.");
+        return;
+      }
+      if (!selectedLga) {
+        toast.error("Please select your Local Government Area (LGA).");
+        return;
+      }
+      persistSectionDraft();
+      setStep(3);
+      toast.success("Chapter location saved. Select your membership category to finish.");
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!fullName.trim()) {
-      toast.error("Please enter your full name (first name and surname).");
+    if (step < 3) {
+      handleSaveAndContinue();
       return;
     }
-    if (!email.trim() || !email.includes("@")) {
-      toast.error("Please enter a valid email address.");
-      return;
-    }
-    if (!selectedState) {
-      toast.error("Please select your State of Residence.");
-      return;
-    }
-    if (!selectedLga) {
-      toast.error("Please select your Local Government Area (LGA).");
+
+    if (!fullName.trim() || !email.trim() || !selectedState || !selectedLga) {
+      toast.error("Please complete required identity and location details.");
       return;
     }
     if (!acceptTerms) {
@@ -197,7 +285,7 @@ function MembershipPage() {
       const newMember = saveMemberToStorage({
         fullName: fullName.trim(),
         email: email.trim().toLowerCase(),
-        phone: phone.trim() || undefined,
+        phone: phone.trim(),
         state: selectedState,
         lga: selectedLga,
         gender: (gender as Member["gender"]) || undefined,
@@ -206,316 +294,498 @@ function MembershipPage() {
         photoUrl: photoPreview || undefined,
       });
 
+      if (typeof window !== "undefined") {
+        sessionStorage.removeItem(DRAFT_STORAGE_KEY);
+      }
+
       setRegisteredMember(newMember);
-      toast.success("Membership Registration Successful!", {
-        description: `Welcome to ARF Foundation! Your ID is ${newMember.id}`,
+      setLookupPhoneSeed(phone.trim());
+      toast.success("Application Received — Pending Admin Verification", {
+        description: `Ref ${newMember.id}. Once verified, enter ${phone.trim()} on Verify ID to download your ID Card.`,
       });
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch {
-      toast.error("Failed to complete registration. Please try again.");
+      toast.error("Failed to submit application. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleDownloadCard = async () => {
-    if (!registeredMember) return;
-    setIsDownloading(true);
-    try {
-      await downloadMembershipCard(registeredMember);
-      toast.success("Official Membership Card downloaded successfully!");
-    } catch {
-      toast.error("Unable to generate ID Card. Please try again.");
-    } finally {
-      setIsDownloading(false);
-    }
+  const resetForNextMember = () => {
+    setRegisteredMember(null);
+    setStep(1);
+    setFullName("");
+    setEmail("");
+    setPhone("");
+    setSelectedLga("");
+    setGender("");
+    setOccupation("");
+    setPhotoPreview(null);
+    setDraftSavedAt(null);
   };
 
   return (
-    <div className="bg-background text-ink min-h-screen">
-      {/* Hero Banner */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-green-deep via-green-deep to-slate-950 text-white pt-28 pb-16 md:pt-36 md:pb-24">
+    <div className="min-h-screen bg-background text-ink">
+      {/* Compact Institutional Header */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-green-deep via-green-deep to-slate-950 pt-26 pb-10 text-white md:pt-32 md:pb-14">
         <div
           aria-hidden
-          className="pointer-events-none absolute -top-40 right-0 h-96 w-96 rounded-full bg-brand-red/15 blur-3xl"
+          className="pointer-events-none absolute -top-32 right-0 h-80 w-80 rounded-full bg-brand-red/15 blur-3xl"
         />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -bottom-40 left-0 h-96 w-96 rounded-full bg-amber-500/10 blur-3xl"
-        />
-
-        <div className="shell relative">
-          <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3.5 py-1.5 text-xs font-bold text-amber-300 backdrop-blur-md border border-white/15">
-              <Users className="size-3.5" />
-              <span>National Citizen Registry · All 36 States + FCT</span>
+        <div className="shell relative max-w-4xl">
+          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-bold text-amber-300 backdrop-blur-md">
+                <Users className="size-3.5" />
+                <span>National Citizen Registry · 36 States + FCT</span>
+              </div>
+              <h1 className="display-2 mt-3 text-white">
+                Become a Registered <span className="text-amber-400">ARF Member</span>
+              </h1>
+              <p className="mt-2 max-w-2xl text-sm text-slate-200">
+                Complete our 3-step citizen onboarding to submit your application for Admin
+                verification. Once approved, use your registered phone number to download your
+                official Digital ID Card.
+              </p>
             </div>
-            <h1 className="display-1 mt-4 text-white">
-              Become a Registered <span className="text-amber-400">ARF Member</span>
-            </h1>
-            <p className="lede mt-4 text-slate-200">
-              Join thousands of dedicated citizens driving education for vulnerable children,
-              grassroots sports development, food sustenance, and youth empowerment. Register today
-              to receive your official Membership ID and digital membership card.
-            </p>
 
-            <div className="mt-6 flex flex-wrap gap-4 text-xs text-slate-300">
-              <div className="flex items-center gap-1.5">
-                <CheckCircle2 className="size-4 text-amber-400" />
-                <span>Zero Registration Fee</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <CheckCircle2 className="size-4 text-amber-400" />
-                <span>Instant Digital ID Card</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <CheckCircle2 className="size-4 text-amber-400" />
-                <span>State &amp; LGA Community Mapping</span>
-              </div>
-            </div>
+            <Link
+              to="/chapters"
+              className="inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-sm border border-white/20 bg-white/10 px-3.5 py-2 text-xs font-bold text-white transition-colors hover:bg-white/20"
+            >
+              <MapPin className="size-3.5 text-amber-300" />
+              <span>Regional Chapters</span>
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* Main Content Area */}
-      <div className="shell py-12 md:py-20">
-        {registeredMember ? (
-          /* ========================================================================= */
-          /* REGISTRATION SUCCESS VIEW WITH DIGITAL MEMBERSHIP CARD                    */
-          /* ========================================================================= */
-          <div className="max-w-3xl mx-auto">
-            <div className="rounded-md border-2 border-green-deep/30 bg-surface p-6 sm:p-10 shadow-lift text-center">
-              <div className="size-16 rounded-full bg-green-wash text-green-deep flex items-center justify-center mx-auto mb-4 border border-green-deep/20">
-                <ShieldCheck className="size-8" />
+      {/* Focused Single-Page Application Container */}
+      <div className="shell max-w-3xl py-10 md:py-14">
+        {/* Mode Switcher: New Application vs Phone Lookup */}
+        <div
+          className="mb-6 grid grid-cols-1 sm:grid-cols-2 gap-2.5 rounded-md border border-hairline bg-surface p-1.5 shadow-xs"
+          role="tablist"
+          aria-label="Membership actions"
+        >
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeView === "register"}
+            onClick={() => setActiveView("register")}
+            className={cn(
+              "min-h-11 rounded-sm px-4 py-2 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer",
+              activeView === "register"
+                ? "bg-green-deep text-white shadow-xs"
+                : "text-muted-foreground hover:text-ink hover:bg-background",
+            )}
+          >
+            <Users className="size-4" />
+            <span>New Member Registration</span>
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeView === "lookup"}
+            onClick={() => setActiveView("lookup")}
+            className={cn(
+              "min-h-11 rounded-sm px-4 py-2 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer",
+              activeView === "lookup"
+                ? "bg-green-deep text-white shadow-xs"
+                : "text-muted-foreground hover:text-ink hover:bg-background",
+            )}
+          >
+            <Search className="size-4" />
+            <span>Check Status &amp; Download ID by Phone</span>
+          </button>
+        </div>
+
+        {activeView === "lookup" ? (
+          <CredentialLookupWidget defaultFilter="member" initialPhone={lookupPhoneSeed} />
+        ) : registeredMember ? (
+          /* ===================================================================== */
+          /* APPLICATION CONFIRMATION — PENDING ADMIN VERIFICATION                 */
+          /* ===================================================================== */
+          <div className="rounded-md border border-hairline bg-surface p-6 text-center shadow-lift sm:p-10">
+            <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-full border border-amber-300 bg-amber-50 text-amber-700">
+              <Clock className="size-7" />
+            </div>
+
+            <span className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-amber-300 bg-amber-50 px-3 py-1 text-xs font-bold text-amber-900">
+              <Clock className="size-3.5" />
+              Pending Admin Verification
+            </span>
+            <h2 className="font-display text-2xl font-extrabold text-ink sm:text-3xl">
+              Membership Application Received
+            </h2>
+            <p className="mx-auto mt-2 max-w-lg text-sm text-ink-soft leading-relaxed">
+              Thank you, <strong>{registeredMember.fullName}</strong>. Your application has been
+              submitted to the {registeredMember.state} Chapter registry for Admin review. Your
+              Digital Membership ID Card is not issued immediately upon submission.
+            </p>
+
+            {/* Reference Summary (NO ID Card / Download) */}
+            <div className="mt-7 grid gap-3 text-left text-xs sm:grid-cols-2">
+              <div className="rounded-sm border border-hairline bg-background p-4">
+                <span className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Application Reference ID
+                </span>
+                <span className="mt-1 block font-mono text-sm font-bold text-ink">
+                  {registeredMember.id}
+                </span>
               </div>
-
-              <span className="inline-block rounded-full bg-green-wash px-3 py-1 text-xs font-bold text-green-deep mb-2">
-                Registration Confirmed &amp; Verified
-              </span>
-              <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-ink">
-                Welcome to the Abba Roller Foundation!
-              </h2>
-              <p className="text-sm text-ink-soft mt-2 max-w-lg mx-auto">
-                Congratulations, <strong>{registeredMember.fullName}</strong>. You are officially
-                enrolled in the ARF National Citizen Database. Your official membership identity has
-                been recorded and assigned.
-              </p>
-
-              {/* Digital Membership ID Card Preview */}
-              <div className="mt-8 rounded-sm bg-gradient-to-br from-slate-950 via-slate-900 to-green-deep p-6 text-white text-left shadow-xl border-2 border-amber-400/40 relative overflow-hidden">
-                {/* Background watermarked logo */}
-                <div
-                  aria-hidden
-                  className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 opacity-10 size-64 select-none"
-                >
-                  <img src={arfLogo} alt="" className="size-full object-contain" />
-                </div>
-
-                {/* Card Top Banner */}
-                <div className="flex items-center justify-between border-b border-white/15 pb-4 mb-4 gap-2">
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={arfLogo}
-                      alt="ARF Logo"
-                      className="size-12 rounded-full bg-white p-0.5 object-contain"
-                    />
-                    <div>
-                      <h3 className="font-display text-base font-extrabold tracking-tight text-white leading-tight">
-                        ABBA ROLLER FOUNDATION
-                      </h3>
-                      <p className="text-[10px] text-amber-300 font-medium">
-                        OFFICIAL NATIONAL MEMBERSHIP IDENTITY
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="text-right">
-                    <span className="block text-[9px] uppercase tracking-wider text-slate-400">
-                      Membership ID
-                    </span>
-                    <span className="font-mono text-sm sm:text-base font-extrabold text-amber-400">
-                      {registeredMember.id}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Card Body Details with Photo Frame */}
-                <div className="flex flex-col sm:flex-row gap-5 items-start">
-                  {/* Photo Frame */}
-                  <div className="w-28 h-34 sm:w-32 sm:h-38 rounded-sm border-2 border-amber-400 bg-slate-950 overflow-hidden shrink-0 flex items-center justify-center shadow-md relative">
-                    {registeredMember.photoUrl ? (
-                      <img
-                        src={registeredMember.photoUrl}
-                        alt={registeredMember.fullName}
-                        className="size-full object-cover object-center"
-                      />
-                    ) : (
-                      <div className="text-center p-2">
-                        <div className="size-12 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center mx-auto mb-1">
-                          <User className="size-6 text-amber-400" />
-                        </div>
-                        <span className="text-[9px] font-bold text-amber-400 uppercase tracking-wider block">
-                          MEMBER PHOTO
-                        </span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Details Grid */}
-                  <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                    <div>
-                      <span className="text-slate-400 block text-[10px] uppercase">
-                        Member Name
-                      </span>
-                      <p className="font-bold text-white text-base mt-0.5">
-                        {registeredMember.fullName}
-                      </p>
-                    </div>
-
-                    <div>
-                      <span className="text-slate-400 block text-[10px] uppercase">
-                        State &amp; LGA
-                      </span>
-                      <p className="font-bold text-white text-sm mt-0.5">
-                        {registeredMember.lga} LGA, {registeredMember.state} State
-                      </p>
-                    </div>
-
-                    <div>
-                      <span className="text-slate-400 block text-[10px] uppercase">
-                        Membership Tier
-                      </span>
-                      <p className="font-bold text-amber-300 mt-0.5">{registeredMember.tier}</p>
-                    </div>
-
-                    <div>
-                      <span className="text-slate-400 block text-[10px] uppercase">
-                        Date of Issue
-                      </span>
-                      <p className="font-mono text-slate-200 mt-0.5">
-                        {registeredMember.joinedDate}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Card Footer Strip */}
-                <div className="mt-6 pt-3 border-t border-white/10 flex items-center justify-between text-[10px] text-slate-400">
-                  <span>Authorized by Founder &amp; Board of Trustees</span>
-                  <span className="text-green-400 font-bold">● Active Status</span>
-                </div>
+              <div className="rounded-sm border border-hairline bg-background p-4">
+                <span className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Registered Phone (Lookup Key)
+                </span>
+                <span className="mt-1 block font-mono text-sm font-bold text-green-deep">
+                  {registeredMember.phone}
+                </span>
               </div>
-
-              {/* Action Buttons */}
-              <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
-                <Button
-                  type="button"
-                  size="lg"
-                  onClick={handleDownloadCard}
-                  disabled={isDownloading}
-                  className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold gap-2 w-full sm:w-auto shadow-md"
-                >
-                  <Download className="size-4" />
-                  <span>
-                    {isDownloading ? "Generating Card..." : "Download Official ID Card (PNG)"}
-                  </span>
-                </Button>
-
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="lg"
-                  onClick={() => window.print()}
-                  className="w-full sm:w-auto gap-2"
-                >
-                  <Printer className="size-4" />
-                  <span>Print Slip</span>
-                </Button>
-
-                <Button
-                  asChild
-                  variant="ghost"
-                  size="lg"
-                  className="w-full sm:w-auto gap-2 text-green-deep font-bold"
-                >
-                  <Link to="/admin">
-                    <span>View Member Directory</span>
-                    <ArrowRight className="size-4" />
-                  </Link>
-                </Button>
+              <div className="rounded-sm border border-hairline bg-background p-4">
+                <span className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  State &amp; LGA Chapter
+                </span>
+                <span className="mt-1 block font-semibold text-ink">
+                  {registeredMember.lga} LGA, {registeredMember.state}
+                </span>
               </div>
-
-              <div className="mt-6 pt-6 border-t border-hairline text-center">
-                <button
-                  type="button"
-                  onClick={() => setRegisteredMember(null)}
-                  className="text-xs text-muted-foreground hover:text-ink underline cursor-pointer"
-                >
-                  Register another member
-                </button>
+              <div className="rounded-sm border border-hairline bg-background p-4">
+                <span className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Applied Tier &amp; Status
+                </span>
+                <span className="mt-1 block font-semibold text-amber-800">
+                  {registeredMember.tier} · Pending Approval
+                </span>
               </div>
+            </div>
+
+            <div className="mt-6 rounded-sm border border-amber-300/80 bg-amber-50/70 p-4 text-left text-xs sm:text-sm text-amber-950 leading-relaxed">
+              <strong>How to retrieve your ID Card:</strong> Once an ARF Administrator verifies your
+              membership, return here or open{" "}
+              <Link to="/verify-id" className="font-bold text-green-deep underline">
+                Check &amp; Download ID
+              </Link>{" "}
+              and enter your registered phone number (
+              <span className="font-mono font-semibold">{registeredMember.phone}</span>) to unlock
+              and download your official ID Card.
+            </div>
+
+            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Button
+                type="button"
+                size="lg"
+                onClick={() => {
+                  setLookupPhoneSeed(registeredMember.phone ?? "");
+                  setActiveView("lookup");
+                }}
+                className="min-h-12 w-full gap-2 bg-green-deep font-bold text-white shadow-md hover:bg-green-mid sm:w-auto"
+              >
+                <Search className="size-4" />
+                <span>Check ID Status with {registeredMember.phone}</span>
+              </Button>
+
+              <Button
+                asChild
+                variant="outline"
+                size="lg"
+                className="min-h-12 w-full gap-2 sm:w-auto"
+              >
+                <Link to="/verify-id">
+                  <ShieldCheck className="size-4" />
+                  <span>Open Verify ID Portal</span>
+                </Link>
+              </Button>
+            </div>
+
+            <div className="mt-6 border-t border-hairline pt-5 text-center">
+              <button
+                type="button"
+                onClick={resetForNextMember}
+                className="cursor-pointer text-xs font-semibold text-muted-foreground underline hover:text-ink"
+              >
+                Register another member
+              </button>
             </div>
           </div>
         ) : (
-          /* ========================================================================= */
-          /* REGISTRATION FORM & TIERS EXPLANATION                                      */
-          /* ========================================================================= */
-          <div className="grid gap-12 lg:grid-cols-12 lg:items-start">
-            {/* Left 7 Columns: The Official Registration Form */}
-            <div className="lg:col-span-7">
-              <div className="rounded-md border border-hairline bg-surface p-6 sm:p-8 md:p-10 shadow-xs">
-                <div className="border-b border-hairline pb-4 mb-6">
-                  <h2 className="font-display text-2xl font-bold text-ink">
-                    Membership Registration Form
-                  </h2>
-                  <p className="text-xs sm:text-sm text-ink-soft mt-1">
-                    Please provide your authentic details. Your State and LGA will be used for
-                    community mapping and local mobilisation.
-                  </p>
+          /* ===================================================================== */
+          /* STREAMLINED 3-STEP WIZARD APPLICATION CARD                            */
+          /* ===================================================================== */
+          <div className="space-y-6">
+            <div className="overflow-hidden rounded-lg border border-hairline bg-surface shadow-lift">
+              {/* Interactive 3-Step Header */}
+              <div className="border-b border-hairline bg-background px-5 py-4 sm:px-8">
+                <div className="flex flex-wrap items-center justify-between gap-2 pb-4">
+                  <span className="text-xs font-bold tracking-wider text-green-deep uppercase">
+                    Step {step} of 3
+                  </span>
+                  {draftSavedAt && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-800">
+                      <CheckCircle2 className="size-3" />
+                      <span>Saved at {draftSavedAt}</span>
+                    </span>
+                  )}
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* Passport Photograph Upload (For Official ID Card) */}
-                  <div className="space-y-2 p-4 rounded-lg bg-surface/80 border-2 border-dashed border-amber-400/40 hover:border-amber-400/70 transition-colors">
-                    <Label className="text-xs font-bold text-ink flex items-center gap-1.5">
-                      <Camera className="size-3.5 text-green-deep" />
-                      <span>Upload Passport Photograph (For Official ID Card)</span>
-                      <span className="text-[10px] text-muted-foreground font-normal">
-                        (Recommended)
-                      </span>
-                    </Label>
+                <ol className="grid grid-cols-3 gap-2">
+                  {STEPS.map((item) => {
+                    const isCurrent = step === item.id;
+                    const isCompleted = step > item.id;
+                    const canJump = item.id < step;
 
-                    <div className="flex flex-col sm:flex-row items-center gap-4 pt-1">
-                      {/* Photo Preview / Placeholder Box */}
-                      <div className="size-24 rounded-md border-2 border-amber-500/50 bg-background flex items-center justify-center overflow-hidden shrink-0 relative group shadow-sm">
+                    return (
+                      <li key={item.id}>
+                        <button
+                          type="button"
+                          disabled={!canJump}
+                          onClick={() => {
+                            if (canJump) setStep(item.id);
+                          }}
+                          className={cn(
+                            "flex w-full items-center gap-2 rounded-sm border px-2.5 py-2 text-left transition-all sm:px-3",
+                            isCurrent
+                              ? "border-green-deep bg-green-wash/60 text-green-deep"
+                              : isCompleted
+                                ? "cursor-pointer border-emerald-200 bg-emerald-50/40 text-emerald-800 hover:bg-emerald-50"
+                                : "cursor-default border-hairline bg-surface text-muted-foreground",
+                          )}
+                        >
+                          <span
+                            className={cn(
+                              "flex size-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold",
+                              isCurrent
+                                ? "bg-green-deep text-white"
+                                : isCompleted
+                                  ? "bg-emerald-700 text-white"
+                                  : "bg-background text-muted-foreground border border-hairline",
+                            )}
+                          >
+                            {isCompleted ? <Check className="size-3.5" /> : item.id}
+                          </span>
+                          <span className="truncate text-[11px] font-bold sm:text-xs">
+                            {item.label}
+                          </span>
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ol>
+              </div>
+
+              {/* Active Section Form Body */}
+              <form onSubmit={handleSubmit} className="p-5 sm:p-8">
+                {/* SECTION 1: PERSONAL DETAILS */}
+                {step === 1 && (
+                  <div className="space-y-5">
+                    <div>
+                      <h2 className="font-display text-xl font-bold text-ink">
+                        Section 1 · Personal &amp; Contact Information
+                      </h2>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Enter your legal name and reachable contact details for official member
+                        verification.
+                      </p>
+                    </div>
+
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div className="space-y-1.5 sm:col-span-2">
+                        <Label
+                          htmlFor="fullName"
+                          className="flex items-center gap-1.5 text-xs font-bold"
+                        >
+                          <User className="size-3.5 text-green-deep" />
+                          <span>Full Name (First Name &amp; Surname)</span>
+                          <span className="text-brand-red">*</span>
+                        </Label>
+                        <Input
+                          id="fullName"
+                          placeholder="e.g. Usman Aminu Gumel"
+                          value={fullName}
+                          onChange={(e) => setFullName(e.target.value)}
+                          required
+                          className="min-h-11 bg-background"
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label
+                          htmlFor="email"
+                          className="flex items-center gap-1.5 text-xs font-bold"
+                        >
+                          <Mail className="size-3.5 text-green-deep" />
+                          <span>Email Address</span>
+                          <span className="text-brand-red">*</span>
+                        </Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          placeholder="you@domain.com"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          required
+                          className="min-h-11 bg-background"
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label
+                          htmlFor="phone"
+                          className="flex items-center gap-1.5 text-xs font-bold"
+                        >
+                          <Phone className="size-3.5 text-green-deep" />
+                          <span>Phone Number (WhatsApp)</span>
+                          <span className="text-brand-red">*</span>
+                        </Label>
+                        <Input
+                          id="phone"
+                          type="tel"
+                          placeholder="e.g. 0803 123 4567"
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value)}
+                          required
+                          className="min-h-11 bg-background"
+                        />
+                        <p className="text-[11px] text-muted-foreground">
+                          Used later to check verification status and download your ID Card.
+                        </p>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label
+                          htmlFor="occupation"
+                          className="flex items-center gap-1.5 text-xs font-bold"
+                        >
+                          <Briefcase className="size-3.5 text-ink-soft" />
+                          <span>Occupation / Vocation (Optional)</span>
+                        </Label>
+                        <Input
+                          id="occupation"
+                          placeholder="e.g. Teacher, Entrepreneur, Student"
+                          value={occupation}
+                          onChange={(e) => setOccupation(e.target.value)}
+                          className="min-h-11 bg-background"
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label htmlFor="gender" className="text-xs font-bold">
+                          Gender (Optional)
+                        </Label>
+                        <Select value={gender} onValueChange={setGender}>
+                          <SelectTrigger id="gender" className="min-h-11 w-full bg-background">
+                            <SelectValue placeholder="Select Gender" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Male">Male</SelectItem>
+                            <SelectItem value="Female">Female</SelectItem>
+                            <SelectItem value="Prefer not to say">Prefer not to say</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* SECTION 2: CHAPTER LOCATION & PHOTOGRAPH */}
+                {step === 2 && (
+                  <div className="space-y-5">
+                    <div>
+                      <h2 className="font-display text-xl font-bold text-ink">
+                        Section 2 · State Chapter &amp; ID Photograph
+                      </h2>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Map your registration to your State &amp; Local Government Area and attach
+                        an optional headshot for your official card.
+                      </p>
+                    </div>
+
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div className="space-y-1.5">
+                        <Label
+                          htmlFor="state"
+                          className="flex items-center gap-1.5 text-xs font-bold"
+                        >
+                          <MapPin className="size-3.5 text-brand-red" />
+                          <span>State of Residence</span>
+                          <span className="text-brand-red">*</span>
+                        </Label>
+                        <Select value={selectedState} onValueChange={handleStateChange}>
+                          <SelectTrigger id="state" className="min-h-11 w-full bg-background">
+                            <SelectValue placeholder="Select Nigerian State" />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-60">
+                            {ALL_STATES.map((state) => (
+                              <SelectItem key={state} value={state}>
+                                {state}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label
+                          htmlFor="lga"
+                          className="flex items-center gap-1.5 text-xs font-bold"
+                        >
+                          <Building className="size-3.5 text-brand-red" />
+                          <span>Local Government Area (LGA)</span>
+                          <span className="text-brand-red">*</span>
+                        </Label>
+                        <Select
+                          value={selectedLga}
+                          onValueChange={setSelectedLga}
+                          disabled={!selectedState || availableLgas.length === 0}
+                        >
+                          <SelectTrigger id="lga" className="min-h-11 w-full bg-background">
+                            <SelectValue
+                              placeholder={selectedState ? "Select LGA" : "Choose state first"}
+                            />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-60">
+                            {availableLgas.map((lga) => (
+                              <SelectItem key={lga} value={lga}>
+                                {lga}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    {/* Compact Photo Upload Strip */}
+                    <div className="flex flex-col items-center gap-4 rounded-md border border-dashed border-amber-400/50 bg-background p-4 sm:flex-row">
+                      <div className="relative flex size-18 shrink-0 items-center justify-center overflow-hidden rounded-sm border border-amber-500/40 bg-surface">
                         {photoPreview ? (
                           <>
                             <img
                               src={photoPreview}
-                              alt="Passport Preview"
-                              className="size-full object-cover object-center"
+                              alt="Passport preview"
+                              className="size-full object-cover"
                             />
                             <button
                               type="button"
                               onClick={removePhoto}
-                              className="absolute top-1 right-1 size-5 rounded-full bg-slate-900/80 text-white flex items-center justify-center hover:bg-destructive transition-colors"
+                              className="absolute top-0.5 right-0.5 flex size-5 items-center justify-center rounded-full bg-slate-900/80 text-white hover:bg-destructive"
                               title="Remove photo"
                             >
                               <X className="size-3" />
                             </button>
                           </>
                         ) : (
-                          <div className="text-center p-2">
-                            <Camera className="size-7 mx-auto text-muted-foreground/60" />
-                            <span className="text-[9px] text-muted-foreground font-semibold mt-1 block">
-                              Passport Photo
-                            </span>
-                          </div>
+                          <Camera className="size-6 text-muted-foreground/60" />
                         )}
                       </div>
 
-                      {/* Upload Controls & Instructions */}
-                      <div className="flex-1 space-y-2 text-center sm:text-left">
+                      <div className="flex-1 text-center sm:text-left">
+                        <p className="text-xs font-bold text-ink">
+                          Passport Photograph (Optional — Embedded on Digital ID)
+                        </p>
+                        <p className="mt-0.5 text-[11px] text-muted-foreground">
+                          Clean portrait (PNG or JPG under 5MB). Auto-optimized for instant
+                          download.
+                        </p>
                         <input
                           ref={fileInputRef}
                           type="file"
@@ -524,16 +794,16 @@ function MembershipPage() {
                           className="hidden"
                           id="member-photo-input"
                         />
-                        <div className="flex flex-wrap items-center gap-2 justify-center sm:justify-start">
+                        <div className="mt-2.5 flex flex-wrap justify-center gap-2 sm:justify-start">
                           <Button
                             type="button"
                             variant="outline"
                             size="sm"
                             onClick={() => fileInputRef.current?.click()}
-                            className="text-xs gap-1.5 border-green-deep/30 text-green-deep hover:bg-green-wash"
+                            className="min-h-9 gap-1.5 text-xs"
                           >
                             <UploadCloud className="size-3.5" />
-                            <span>{photoPreview ? "Change Photograph" : "Select Photograph"}</span>
+                            <span>{photoPreview ? "Change Photo" : "Select Photograph"}</span>
                           </Button>
                           {photoPreview && (
                             <Button
@@ -541,345 +811,168 @@ function MembershipPage() {
                               variant="ghost"
                               size="sm"
                               onClick={removePhoto}
-                              className="text-xs text-destructive hover:bg-destructive/10"
+                              className="min-h-9 text-xs text-destructive"
                             >
                               Remove
                             </Button>
                           )}
                         </div>
-                        <p className="text-[11px] text-muted-foreground leading-relaxed">
-                          Upload a portrait or passport headshot (JPEG, PNG, max 5MB). This
-                          photograph will be embedded directly onto your downloadable National
-                          Membership ID Card.
-                        </p>
                       </div>
                     </div>
                   </div>
+                )}
 
-                  {/* Full Name */}
-                  <div className="space-y-1.5">
-                    <Label
-                      htmlFor="fullName"
-                      className="text-xs font-bold text-ink flex items-center gap-1.5"
-                    >
-                      <User className="size-3.5 text-green-deep" />
-                      <span>Full Name (First Name &amp; Surname)</span>
-                      <span className="text-brand-red">*</span>
-                    </Label>
-                    <Input
-                      id="fullName"
-                      placeholder="e.g. Usman Aminu Gumel"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      required
-                      className="bg-background"
-                    />
-                  </div>
-
-                  {/* Contact Fields: Email & Phone */}
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="space-y-1.5">
-                      <Label
-                        htmlFor="email"
-                        className="text-xs font-bold text-ink flex items-center gap-1.5"
-                      >
-                        <Mail className="size-3.5 text-green-deep" />
-                        <span>Email Address</span>
-                        <span className="text-brand-red">*</span>
-                      </Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        placeholder="you@domain.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        className="bg-background"
-                      />
-                      <span className="text-[10px] text-muted-foreground">
-                        For correspondence &amp; notifications
-                      </span>
+                {/* SECTION 3: MEMBERSHIP CATEGORY & CONFIRMATION */}
+                {step === 3 && (
+                  <div className="space-y-5">
+                    <div>
+                      <h2 className="font-display text-xl font-bold text-ink">
+                        Section 3 · Membership Category &amp; Submission
+                      </h2>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Select your participation tier and confirm your citizen code-of-conduct
+                        pledge.
+                      </p>
                     </div>
 
-                    <div className="space-y-1.5">
-                      <Label
-                        htmlFor="phone"
-                        className="text-xs font-bold text-ink flex items-center gap-1.5"
-                      >
-                        <Phone className="size-3.5 text-green-deep" />
-                        <span>Phone Number (WhatsApp)</span>
-                      </Label>
-                      <Input
-                        id="phone"
-                        type="tel"
-                        placeholder="e.g. 0803 123 4567"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        className="bg-background"
-                      />
-                      <span className="text-[10px] text-muted-foreground">
-                        Optional but recommended
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* State and Dynamic LGA Dropdowns */}
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="space-y-1.5">
-                      <Label
-                        htmlFor="state"
-                        className="text-xs font-bold text-ink flex items-center gap-1.5"
-                      >
-                        <MapPin className="size-3.5 text-brand-red" />
-                        <span>State of Residence</span>
-                        <span className="text-brand-red">*</span>
-                      </Label>
-                      <Select value={selectedState} onValueChange={handleStateChange}>
-                        <SelectTrigger id="state" className="bg-background w-full">
-                          <SelectValue placeholder="Select Nigerian State" />
-                        </SelectTrigger>
-                        <SelectContent className="max-h-60">
-                          {ALL_STATES.map((state) => (
-                            <SelectItem key={state} value={state}>
-                              {state}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <Label
-                        htmlFor="lga"
-                        className="text-xs font-bold text-ink flex items-center gap-1.5"
-                      >
-                        <Building className="size-3.5 text-brand-red" />
-                        <span>Local Government Area (LGA)</span>
-                        <span className="text-brand-red">*</span>
-                      </Label>
-                      <Select
-                        value={selectedLga}
-                        onValueChange={setSelectedLga}
-                        disabled={!selectedState || availableLgas.length === 0}
-                      >
-                        <SelectTrigger id="lga" className="bg-background w-full">
-                          <SelectValue
-                            placeholder={selectedState ? "Select LGA" : "Choose state first"}
-                          />
-                        </SelectTrigger>
-                        <SelectContent className="max-h-60">
-                          {availableLgas.map((lga) => (
-                            <SelectItem key={lga} value={lga}>
-                              {lga}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <span className="text-[10px] text-muted-foreground">
-                        Dynamic LGA based on selected state
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Gender & Occupation */}
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="space-y-1.5">
-                      <Label htmlFor="gender" className="text-xs font-bold text-ink">
-                        Gender (Optional)
-                      </Label>
-                      <Select value={gender} onValueChange={setGender}>
-                        <SelectTrigger id="gender" className="bg-background w-full">
-                          <SelectValue placeholder="Select Gender" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Male">Male</SelectItem>
-                          <SelectItem value="Female">Female</SelectItem>
-                          <SelectItem value="Prefer not to say">Prefer not to say</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <Label
-                        htmlFor="occupation"
-                        className="text-xs font-bold text-ink flex items-center gap-1.5"
-                      >
-                        <Briefcase className="size-3.5 text-ink-soft" />
-                        <span>Occupation / Profession (Optional)</span>
-                      </Label>
-                      <Input
-                        id="occupation"
-                        placeholder="e.g. Teacher, Nurse, Trader, Student"
-                        value={occupation}
-                        onChange={(e) => setOccupation(e.target.value)}
-                        className="bg-background"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Membership Tier Radio / Cards */}
-                  <div className="space-y-2 pt-2">
-                    <Label className="text-xs font-bold text-ink flex items-center gap-1.5">
-                      <Award className="size-3.5 text-amber-500" />
-                      <span>Select Membership Tier</span>
-                      <span className="text-brand-red">*</span>
-                    </Label>
-
-                    <div className="grid gap-2 sm:grid-cols-1">
-                      {TIERS.map((t) => (
-                        <label
-                          key={t.name}
-                          className={`flex items-start gap-3 p-3.5 rounded-sm border cursor-pointer transition-all ${
-                            tier === t.name
-                              ? "border-green-deep bg-green-wash/40 ring-1 ring-green-deep"
-                              : "border-hairline bg-background hover:border-ink-soft/40"
-                          }`}
-                        >
-                          <input
-                            type="radio"
-                            name="tier"
-                            value={t.name}
-                            checked={tier === t.name}
-                            onChange={() => setTier(t.name)}
-                            className="mt-1 accent-green-deep"
-                          />
-                          <div className="flex-1">
-                            <div className="flex items-center justify-between gap-2">
-                              <span className="font-bold text-sm text-ink">{t.name}</span>
-                              <span
-                                className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${t.badgeColor}`}
-                              >
-                                {t.badge}
-                              </span>
+                    <div className="grid gap-2.5 sm:grid-cols-2">
+                      {TIERS.map((t) => {
+                        const selected = tier === t.name;
+                        return (
+                          <label
+                            key={t.name}
+                            className={cn(
+                              "flex cursor-pointer items-start gap-2.5 rounded-sm border p-3.5 transition-all",
+                              selected
+                                ? "border-green-deep bg-green-wash/50 ring-1 ring-green-deep"
+                                : "border-hairline bg-background hover:border-ink-soft/40",
+                            )}
+                          >
+                            <input
+                              type="radio"
+                              name="tier"
+                              value={t.name}
+                              checked={selected}
+                              onChange={() => setTier(t.name)}
+                              className="mt-1 accent-green-deep"
+                            />
+                            <div className="min-w-0 flex-1">
+                              <div className="flex flex-wrap items-center justify-between gap-1.5">
+                                <span className="text-xs font-bold text-ink sm:text-sm">
+                                  {t.name}
+                                </span>
+                                <span
+                                  className={`rounded-full border px-2 py-0.5 text-[10px] font-bold ${t.badgeColor}`}
+                                >
+                                  {t.badge}
+                                </span>
+                              </div>
+                              <p className="mt-1 text-[11px] leading-snug text-muted-foreground">
+                                {t.desc}
+                              </p>
                             </div>
-                            <p className="text-xs text-ink-soft mt-0.5">{t.desc}</p>
-                          </div>
-                        </label>
-                      ))}
+                          </label>
+                        );
+                      })}
                     </div>
-                  </div>
 
-                  {/* Code of Conduct Checkbox */}
-                  <div className="flex items-start gap-2.5 pt-2">
-                    <input
-                      type="checkbox"
-                      id="acceptTerms"
-                      checked={acceptTerms}
-                      onChange={(e) => setAcceptTerms(e.target.checked)}
-                      className="mt-0.5 accent-green-deep"
-                    />
-                    <label
-                      htmlFor="acceptTerms"
-                      className="text-xs text-ink-soft leading-snug cursor-pointer"
-                    >
-                      I declare that the information provided is accurate, and I agree to uphold the
-                      Abba Roller Foundation&apos;s values of unity, integrity, peace, and
-                      humanitarian service across Nigeria.
+                    {/* Compact Pre-Submit Summary */}
+                    <div className="flex flex-wrap items-center justify-between gap-2 rounded-sm border border-hairline bg-background px-4 py-3 text-xs">
+                      <div>
+                        <span className="font-bold text-ink">{fullName}</span>
+                        <span className="text-muted-foreground">
+                          {" "}
+                          · {selectedLga}, {selectedState}
+                        </span>
+                      </div>
+                      <span className="font-semibold text-green-deep">{tier}</span>
+                    </div>
+
+                    <label className="flex cursor-pointer items-start gap-2.5 rounded-sm border border-hairline bg-background p-3.5">
+                      <input
+                        type="checkbox"
+                        checked={acceptTerms}
+                        onChange={(e) => setAcceptTerms(e.target.checked)}
+                        className="mt-0.5 accent-green-deep"
+                      />
+                      <span className="text-xs leading-relaxed text-ink-soft">
+                        I declare that the information provided is accurate and agree to uphold Abba
+                        Roller Foundation&apos;s values of unity, integrity, and humanitarian
+                        service across Nigeria.
+                      </span>
                     </label>
                   </div>
+                )}
 
-                  {/* Submit Button */}
-                  <Button
-                    type="submit"
-                    variant="give"
-                    size="lg"
-                    disabled={isSubmitting}
-                    className="w-full text-base font-bold shadow-lift cursor-pointer py-6"
-                  >
-                    <IdCard className="size-5" />
-                    <span>
-                      {isSubmitting
-                        ? "Processing Registration..."
-                        : "Complete Registration & Generate ID Card"}
+                {/* Bottom Action Footer Bar */}
+                <div className="mt-7 flex flex-col-reverse gap-3 border-t border-hairline pt-5 sm:flex-row sm:items-center sm:justify-between">
+                  {step > 1 ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="lg"
+                      onClick={() => setStep((s) => (s === 3 ? 2 : 1))}
+                      className="min-h-12 gap-2 font-semibold"
+                    >
+                      <ArrowLeft className="size-4" />
+                      <span>Previous Section</span>
+                    </Button>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">
+                      Zero registration fee · ID Card unlocked after Admin verification
                     </span>
-                  </Button>
-                </form>
-              </div>
+                  )}
+
+                  {step < 3 ? (
+                    <Button
+                      type="button"
+                      size="lg"
+                      onClick={handleSaveAndContinue}
+                      className="min-h-12 gap-2 bg-green-deep px-6 font-bold text-white shadow-sm hover:bg-green-mid"
+                    >
+                      <span>Save &amp; Continue</span>
+                      <ArrowRight className="size-4" />
+                    </Button>
+                  ) : (
+                    <Button
+                      type="submit"
+                      variant="give"
+                      size="lg"
+                      disabled={isSubmitting}
+                      className="min-h-12 gap-2 px-6 font-bold shadow-lift"
+                    >
+                      <ShieldCheck className="size-4.5" />
+                      <span>
+                        {isSubmitting
+                          ? "Submitting Application..."
+                          : "Submit Registration for Verification"}
+                      </span>
+                    </Button>
+                  )}
+                </div>
+              </form>
             </div>
 
-            {/* Right 5 Columns: Membership Benefits & Value Props */}
-            <div className="lg:col-span-5 flex flex-col gap-6">
-              {/* Card 1: Why Register as a Member */}
-              <div className="rounded-md border border-hairline bg-surface p-6 shadow-xs">
-                <span className="text-xs font-bold uppercase tracking-wider text-green-deep">
-                  Foundation Membership
-                </span>
-                <h3 className="font-display text-xl font-bold text-ink mt-1">
-                  Why Your Membership Matters
-                </h3>
-                <p className="text-xs text-ink-soft mt-2 leading-relaxed">
-                  The Abba Roller Foundation is building a nationwide civic network to ensure that
-                  every community from the grassroots in Jigawa, Kano, and northern Nigeria to all
-                  36 states has active champions for education, youth, and welfare.
-                </p>
-
-                <ul className="mt-4 space-y-2.5 text-xs text-ink">
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="size-4 text-green-mid shrink-0 mt-0.5" />
-                    <span>
-                      <strong>Authentic Representation:</strong> Your LGA registration directly
-                      informs our resource deployment for food distribution and student aid.
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="size-4 text-green-mid shrink-0 mt-0.5" />
-                    <span>
-                      <strong>Verified Identification:</strong> Receive an official digital
-                      Membership ID Card recognized across foundation hubs.
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="size-4 text-green-mid shrink-0 mt-0.5" />
-                    <span>
-                      <strong>Youth &amp; Leadership Programs:</strong> Priority access to
-                      tournaments, grants, leadership mentorship, and volunteer roles.
-                    </span>
-                  </li>
-                </ul>
+            {/* Compact 3-Column Trust Strip Below Card */}
+            <div className="grid gap-3 text-xs text-muted-foreground sm:grid-cols-3">
+              <Link
+                to="/verify-id"
+                className="flex items-center gap-2.5 rounded-sm border border-hairline bg-surface px-4 py-3 font-medium text-ink hover:border-green-deep/40"
+              >
+                <ShieldCheck className="size-4 shrink-0 text-green-deep" />
+                <span>Check &amp; Download Verified ID</span>
+              </Link>
+              <div className="flex items-center gap-2.5 rounded-sm border border-hairline bg-surface px-4 py-3">
+                <CheckCircle2 className="size-4 shrink-0 text-green-deep" />
+                <span>Mapped to all 774 LGAs Nationwide</span>
               </div>
-
-              {/* Card 2: Admin Dashboard Link for Coordinators */}
-              <div className="rounded-md border border-slate-800 bg-slate-950 p-6 text-white shadow-xs">
-                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-400">
-                  <ShieldCheck className="size-4" />
-                  <span>State &amp; LGA Coordinator Portal</span>
-                </div>
-                <h4 className="font-display text-lg font-bold text-white mt-1">
-                  Foundation Admin Dashboard
-                </h4>
-                <p className="text-xs text-slate-300 mt-2">
-                  Foundation executives and state coordinators can view, filter by State/LGA, and
-                  export the membership database to CSV for targeted community engagement.
-                </p>
-                <div className="mt-4">
-                  <Button
-                    asChild
-                    variant="outline"
-                    size="sm"
-                    className="border-slate-700 bg-slate-900 text-white hover:bg-slate-800 gap-1.5 text-xs"
-                  >
-                    <Link to="/admin">
-                      <span>Access Admin Dashboard</span>
-                      <ArrowRight className="size-3.5" />
-                    </Link>
-                  </Button>
-                </div>
-              </div>
-
-              {/* Card 3: Founder's Quote */}
-              <div className="rounded-md border-l-4 border-amber-500 bg-surface p-5 shadow-2xs">
-                <p className="text-xs italic text-ink-soft leading-relaxed">
-                  &ldquo;A foundation is only as strong as the people who believe in its mission.
-                  When you register as an ARF member, you become the voice and hands of compassion
-                  in your local government area.&rdquo;
-                </p>
-                <p className="text-xs font-bold text-ink mt-2">
-                  Hon. Usman Aminu Usman (Abba Roller)
-                </p>
-                <p className="text-[11px] text-muted-foreground">
-                  Founder &amp; Chairman, Abba Roller Foundation
-                </p>
-              </div>
+              <Link
+                to="/admin"
+                className="flex items-center justify-between rounded-sm border border-hairline bg-surface px-4 py-3 font-semibold text-green-deep hover:border-green-deep/40"
+              >
+                <span>Coordinator Registry Console</span>
+                <ArrowRight className="size-3.5" />
+              </Link>
             </div>
           </div>
         )}

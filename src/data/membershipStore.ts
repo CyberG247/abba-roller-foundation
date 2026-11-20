@@ -1,3 +1,4 @@
+import { recordDeletedCredential } from "@/data/deletedCredentialsStore";
 import { exportRecordsToCsv, getTodayIsoDate } from "@/lib/utils";
 
 export type MembershipTier =
@@ -14,7 +15,7 @@ export interface Member {
   occupation?: string | undefined;
   tier: MembershipTier;
   joinedDate: string;
-  status: "Active" | "Verified" | "Honorary";
+  status: "Pending" | "Active" | "Verified" | "Honorary" | "Removed";
   avatarSeed?: string | undefined;
   photoUrl?: string | undefined;
 }
@@ -210,7 +211,7 @@ export function saveMemberToStorage(
     ...newMember,
     id,
     joinedDate: getTodayIsoDate(),
-    status: "Active",
+    status: "Pending",
   };
 
   const updated = [member, ...existing];
@@ -240,7 +241,21 @@ export function updateMemberStatus(id: string, status: Member["status"]): Member
 }
 
 export function deleteMemberFromStorage(id: string): Member[] {
-  const updated = loadMembersFromStorage().filter((m) => m.id !== id);
+  const current = loadMembersFromStorage();
+  const target = current.find((m) => m.id === id);
+  if (target) {
+    recordDeletedCredential({
+      kind: "member",
+      id: target.id,
+      fullName: target.fullName,
+      phone: target.phone ?? "",
+      state: target.state,
+      subtitle: `${target.tier} • ${target.lga}, ${target.state}`,
+      submittedDate: target.joinedDate,
+      photoUrl: target.photoUrl,
+    });
+  }
+  const updated = current.filter((m) => m.id !== id);
   if (typeof window !== "undefined") {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
@@ -282,4 +297,9 @@ export function exportMembersToCsv(members: Member[]): void {
   ]);
 
   exportRecordsToCsv(`ARF_Members_Export_${getTodayIsoDate()}.csv`, headers, rows);
+}
+
+/** ID Cards are only unlocked once an administrator approves the member's application. */
+export function isMemberCredentialIssued(member: Member): boolean {
+  return member.status === "Verified" || member.status === "Honorary";
 }

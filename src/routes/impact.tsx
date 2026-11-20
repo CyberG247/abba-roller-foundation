@@ -1,5 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ArrowRight, MapPin, ShieldCheck } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/site/PageHeader";
 import { Reveal } from "@/components/site/Reveal";
 import { SectionHeading } from "@/components/site/SectionHeading";
@@ -79,6 +81,36 @@ function Impact() {
             </Reveal>
           ))}
         </div>
+
+        <Reveal className="mt-12 flex flex-col justify-between gap-6 rounded-sm border border-hairline bg-surface p-6 sm:flex-row sm:items-center sm:p-8">
+          <div className="max-w-2xl">
+            <div className="inline-flex items-center gap-1.5 text-xs font-bold tracking-wider text-green-deep uppercase">
+              <ShieldCheck className="size-4" />
+              <span>Accountability &amp; Operational Cross-Links</span>
+            </div>
+            <h3 className="mt-2 font-display text-xl font-bold text-ink">
+              Inspect How Relief Rules &amp; Chapters Operate
+            </h3>
+            <p className="mt-1.5 text-sm text-muted-foreground">
+              Review our beneficiary eligibility matrix, zero-middleman disbursement steps, and
+              active LGA chapter hubs across Northern Nigeria.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <Button asChild size="lg" className="min-h-12 gap-2 font-bold">
+              <Link to="/relief">
+                <span>View Relief Eligibility</span>
+                <ArrowRight className="size-4" />
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="lg" className="min-h-12 gap-2 font-bold">
+              <Link to="/chapters">
+                <MapPin className="size-4" />
+                <span>Regional Chapter Hubs</span>
+              </Link>
+            </Button>
+          </div>
+        </Reveal>
       </Section>
 
       <DonateBand />

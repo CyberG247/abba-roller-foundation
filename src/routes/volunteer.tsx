@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
-import { createFileRoute, useRouterState } from "@tanstack/react-router";
-import { CheckCircle2, Scale, Users2 } from "lucide-react";
+import { createFileRoute, Link, useRouterState } from "@tanstack/react-router";
+import { ArrowRight, CheckCircle2, Scale, Users2 } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
 
 import { PageHeader } from "@/components/site/PageHeader";
 import { Reveal } from "@/components/site/Reveal";
@@ -31,7 +33,7 @@ const volunteerPerks = [
   },
   {
     title: "Official Volunteer Slip & Credentials",
-    desc: "Instant verified registration slip, certificate of volunteer service, and accreditation letter upon request.",
+    desc: "Receive an Admin-verified accreditation slip and service credentials once reviewed—downloadable anytime using your registered phone number.",
   },
   {
     title: "Pro Bono Legal Representation",
@@ -85,6 +87,37 @@ function Volunteer() {
               </Reveal>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Dedicated Pro Bono Legal Aid Portal Cross-Link */}
+      <section className="border-b border-hairline bg-emerald-50/70 py-5">
+        <div className="shell flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+          <div className="flex items-start gap-3">
+            <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-sm bg-green-deep text-white">
+              <Scale className="size-4" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-green-deep sm:text-sm">
+                Looking for verified Pro Bono Counsel or Indigent Case Referrals?
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Browse our searchable Nigerian Bar directory and indigent defense intake rules in
+                our dedicated Pro Bono Legal Aid portal.
+              </p>
+            </div>
+          </div>
+          <Button
+            asChild
+            variant="outline"
+            size="sm"
+            className="min-h-11 shrink-0 gap-1.5 font-bold"
+          >
+            <Link to="/legal-aid">
+              <span>Open Legal Aid &amp; Lawyer Directory</span>
+              <ArrowRight className="size-3.5" />
+            </Link>
+          </Button>
         </div>
       </section>
 
